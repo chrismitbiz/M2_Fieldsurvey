@@ -2051,7 +2051,7 @@ save.image("workspace.RData")
 \s
 
 # Acknowledgements
-Josh Vido, Helen Hayden, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Mat Kitching
+Josh Vido, Helen Hayden, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Matt Kitching
 
 # References
 
