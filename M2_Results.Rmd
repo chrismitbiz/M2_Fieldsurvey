@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -642,7 +642,7 @@ TSS.divide = function(x){
 # function is applied to each row (i.e. each sample)
 data.TSS = t(apply(x, 1, TSS.divide)) %>% as.data.frame()
 #extract Dieldrin
-TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
+TC <- sample_data(physeq.pw) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
 #add to TSS
 data.TSS <- data.TSS %>% rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
 #then devide by Dieldrin and remove Dieldrin
@@ -1391,7 +1391,7 @@ phyla.list <- split(rownames(phyla), phyla$Phylum, drop = TRUE)
 tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
-colours <- c("grey52", "chocolate","chartreuse4","tomato1", "wheat4",
+colours <- c("grey52", "chocolate","red","tomato1", "wheat4",
              "blue4","pink","blueviolet", "aquamarine4", "cadetblue4", "darkgoldenrod4", "darkred","dodgerblue2","tomato1","orange","deeppink","dodgerblue", "turquoise3", "gold", "darkgrey", "darksalmon","seagreen3","darkorchid","yellowgreen","seagreen3" ) # "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1""cadetblue4"
 ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum, alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) 
 p1 <- ggtree_phyla2 + ggtitle("Kurosol") + guides(alpha = F)
@@ -1445,7 +1445,7 @@ phyla.list <- split(rownames(phyla), phyla$Phylum, drop = TRUE)
 tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
-colours <- c("grey52", "chocolate", "chartreuse4","tomato1", "wheat4",
+colours <- c("grey52", "chocolate", "red","tomato1", "wheat4",
              "blue4","blueviolet", "aquamarine4", "cadetblue4","darkgoldenrod4", "darkred",
              "dodgerblue2","orange","deeppink","dodgerblue", "turquoise3", "gold", "darkgrey","darksalmon","seagreen3","darkorchid","yellowgreen") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
 ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum,alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) 
@@ -2051,7 +2051,7 @@ save.image("workspace.RData")
 \s
 
 # Acknowledgements
-Josh Vido, Helen Haydon, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood
+Josh Vido, Helen Hayden, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood
 
 # References
 
