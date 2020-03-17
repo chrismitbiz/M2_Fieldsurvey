@@ -627,8 +627,8 @@ Some general info on highly associated metacyc pathways:
   - pyrimidine deoxyribonucleosides salvage
     - related to potential of ribosome production
     - "The de novo synthesis of ribonucleotides is very expensive, and organisms have adapted to salvage pyrimidine deoxyribonucleosides salvagepotential precursors from their environment"
- - glycogen degradation I
-  - The glycogen is broken down and utilized when carbon sources become limiting
+  - glycogen degradation I
+    - The glycogen is broken down and utilized when carbon sources become limiting
  
 
 Figure \@ref(fig:plsheatmapsall) shows 
