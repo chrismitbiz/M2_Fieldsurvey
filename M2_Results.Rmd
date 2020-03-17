@@ -22,10 +22,9 @@ nocite: |
   @Karp2002a
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
-  rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-
+  rmarkdown::render(input_file,
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -102,7 +101,7 @@ Spectra were pre-processed as described in @Madhavan2017 and concentrations of t
 ## Diversity measurements
 DNA of 0.25 g fresh soil was extracted using Powersoil DNA isolation kit (MoBio, Calsbad, USA) and stored at -20 ˚C. Marker genes were sequenced with 15% phiX control on a Illumina MiSeq platform (2 × 300) to determine bacterial and fungal diversity. For bacteria the V4 hypervariable region of the 16S-rRNA gene was targeted with primers 515F (GTGYCAGCMGCCGCGGTAA) / 806R (GGACTACNVGGGTWTCTAAT) [@Apprill2015; @Caporaso2012; @Walters2016] and for fungi the Internal Transcrined Spacer (ITS) region 2 [@Blaalid2013] with primers FITS7 (GTGARTCATCGAATCTTTG)/ITS4 (TCCTCCGCTTATTGATATGC) [@Egidi2019; @Katarina2012]. 
   
-The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 28,181 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using silva reference sequences (v132 at 99% similarity) for bacteria [@Quast2013a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].
+The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 19,918 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using silva reference sequences (v132 at 99% similarity) for bacteria [@Quast2013a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].
   
 For bacterial ASVs a phylogenetic tree was created using the SATé-enabled phylogenetic placement (SEPP) technique [@Janssen2018] with the silva128 SEPP reference. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree.
 
@@ -155,16 +154,16 @@ kable(metadata2[c(1:5,33:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC"
 
 ## Bacteria
 ```{r physeqb object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
-SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/feature_table_insertiontreefiltered.qza")
+SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table.qza")
 #SVs2 <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_Bacteria/Re_runwithCutadapt2019_28Nov/feature_table_single_bac.qza")
-taxonomy <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/taxonomy_silva.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
+taxonomy <- read_tsv("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/taxonomy_silva.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
 #taxonomy <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_Bacteria/Re_runwithCutadapt2019_28Nov/taxonomy_gg_M2.qza")
 taxtable <- taxonomy %>% as_tibble() %>% separate(Taxon, sep=";", c("Kingdom","Phylum","Class","Order","Family","Genus","Species")) 
-tree <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/insertion-tree.qza")
+#tree <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/insertion-tree.qza")
 
 physeqB <- phyloseq(
   otu_table(SVs$data, taxa_are_rows = T), 
-  phy_tree(tree$data), 
+ # phy_tree(tree$data), 
   tax_table(as.data.frame(taxtable) %>% dplyr::select(-Confidence) %>% column_to_rownames("Feature.ID") %>% as.matrix()), 
   sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
 #take out sample C20 as it failed in this run. 
@@ -489,7 +488,7 @@ ppp
 
 <br/>
 
-Only the fungal alpha diversity was associated with the long-term dieldrin loss (Fig. \@ref(fig:alphadloss)b) not the bacterial diversity (Fig. \@ref(fig:alphadloss)a). For example, fungal pielou evenness was greater in samples that were associated with high long-term dieldrin loss. Hence in a high-loss environment, the fungal OTUs were distributed more evenely. Furthermore, the mean number of observed fungal ASVs was higher in samples that had high long-term dieldrin loss. 
+ASV numbers of bacteria and fungi were greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss)). 
 
 <br/>
   
