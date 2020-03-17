@@ -25,11 +25,14 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
-save.image("workspace.RData")
+#knit: (function(input_file, encoding) {
+#  out_dir <- 'docs';
+#  rmarkdown::render(input_file,
+#  encoding=encoding,
+#  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 library(ggrepel)
 library(qiime2R)
 library(tidyverse)
@@ -57,6 +60,64 @@ library(picante)
 ```
 
 
+
+Note: Graphs are intended to be informational only and are not 'publication quality'. Typos and errors definitely included.  
+  
+  
+  
+
+# Summary
+- We investigated two soils with differing abilities to degrade dieldrin after 30 years.
+- The soil better able to degrade dieldrin (Kurosol) was phylogenetically and metabolically more heterogeneous (Fig. \@ref(fig:pcoa)) and contained less carbon and a lower proportion of resistant organic carbon (Fig. \@ref(fig:carbonquality)).
+  - The genetic potential of metabolic pathways in this soil was more associated to relative amounts of resistant organic carbon (ROC) and humus (HUM) than to particulate organic carbon (POC) (Fig. \@ref(fig:plsheatmapsku)) . In other words, the genetic potential of more metablic pathways coincided with having relatively more ROC and HUM indicating that the Kurosol metabolism was adapted to processing ROC and HUM.
+  - The results suggest, that a soil that has a higher turnover of ROC and HUM will also degrade persistent pollutants faster.
+- Alpha diversity was not different between the two soils (Fig. \@ref(fig:alphadloss)).
+  - However, given the markedly lower total carbon and energy resources in the Kurosol (which contained less total carbon), this soil in fact had a higher diversity per unit of total carbon (and energy sources).
+  - Furthermore figure \@ref(fig:alphaperD17) shows that alpha diversity relative to dieldrin concentrations in the soil was significantly higher in the Kurosol compared to the Chromosol.
+  - Some potentials of metabolic pathways, known to be involved with xenobiotic degradation such as phenolic-compound-degradation or toluene degradation are actually similar or greater in the Chromosol, the soil that evidently did not degrade dieldrin as fast as the Kurosol. But when this potential is normalised to total carbon, then the Kurosol had a greater potential. 
+  - This study therefore suggests that the ability of a soil to degrade persistant pollutants is not associated with a measure of total diversity or metabolic potential but instead with greater diversity and metatbolic potential relative to the available carbon sources (here measured as total carbon). In effect, there was a greater 'efficiency' of the soil diversity.
+- Phylogenetic composition of bacteria was similar on phylum level between the Kurosol and Chromosol but there were differences in the distribution of unique ASVs that were present only in samples with either high or low dieldrin loss (Fig. \@ref(fig:trees)).
+  - In the Kurosol a clade of Firmicutes, Bacteriodetes, Actinobacteria, Chloroflexi and the genus Geobacter were all more likely to be found in high-loss samples than in low loss samples.
+  - There were no clades found in the Chromosol that could be associated with samples that had higher dieldrin losses in this soil.
+- The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) revealed a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and where an integral part in mediating associations.
+- There was no such clear grouping in the Chromosol.
+
+# Hypothesis
+Quality of soil organic matter is associated with the phylogenetic and metabolic capacity of soils to degrade persistent organic pollutants - here dieldrin.
+  
+# Materials and Methods
+## Site and soil description, dieldrin and total carbon measurements
+Site location and details, sampling procedure and soil physicochemical characteristics were described previously [@Krohn2019]. Briefly, we sampled two agricultural surface soils (0 - 10 cm, n = 36), a Kurosol and a Chromosol [@Isbell1996], which comprised of twelve grazed pastures that were subject to the Australian National Organochlorine Residue Management Plan [@DepartmentofNaturalResourcesandEnvironment1996] of which we obtained detailed records of dieldrin concentrations since 1987. 
+  
+It was found that both surface soils consisted of a similar texture which were classified as loam [@InternationalSocietyofSoilScienceISSS1929]. Furthermore, they had the same average pH (4.55 ± 0.04 SE) and were both in high-rainfall zones with similar annual maximum temperatures (20.9 - 21.9 ˚C). However, they differed in total carbon (TC) concentrations, in that the Kurosol measured just over half the carbon concentrations compared to the Chromosol (33.3 and 61.8 mg g^-1^, ± 1.05 and 1.72 SE).
+  
+The long-term dieldrin loss (%) per paddock was calculated using the average dieldrin concentrations from 2015/2017 and the earliest available concentrations (1987- 1995). The two soils differed in their apparent ability to degrade dieldrin as the Kurosol lost 1.7 times more dieldrin compared to the Chromosol (73 and 42 %, ± 0.07 and 0.04 SE) and it was found that the TC, the carbon-to-nitrogen ratio (C:N), the microbial-carbon-to-total-carbon ratio (MBC:TC) and soil diversity were associated with final dieldrin concentrations and dieldrin loss (%) [@Krohn2019].
+  
+## Estimation of soil fractions
+Soil processing and acquisitions of infrared spectra followed the method set out in @Madhavan2017. Briefly, sieved (≤ 2 mm) and air dried soils were finely ground in a ball mill (Retsch MM400, Germany) at 25 rounds per second for 30 seconds. Diffuse reflectance spectra in the mid-and near-infrared (MNIRS) spectra (7800  - 450 cm-1 at 8 cm-1 resolution) were acquired for all samples using a PerkinElmer Frontier FT-NIR-MIR Spectrometer (PerkinElmer Inc., Waltham, MA, USA) equipped with a KBr beam-splitter, a DTGS detector and AutoDiff automated diffuse reflectance accessory (Pike Technologies, Madison, WI, USA). 
+  
+Spectra were pre-processed as described in @Madhavan2017 and concentrations of total organic carbon (TOC), particulate organic carbon (POC), resistant organic carbon (ROC) and humus (HOC) were predicted from MNIRS spectra of the Australian Soil Carbon Research Project (ScaRP, Baldock et al. 2013) using partial least squares (PLS) regression. To assess prediction accuracy the TOC concentrations from the PLS predictions were correlated with TC measurements of the same samples using a dry combustion analyzer (Perkin Elmer 2400 Series Ⅱ, R^2^ = 0.98). For all downstream analyses, POC, ROC and HOC were transformed into percentages or centered log ratios [@Bruckner2017a]. 
+
+## Diversity measurements
+DNA of 0.25 g fresh soil was extracted using Powersoil DNA isolation kit (MoBio, Calsbad, USA) and stored at -20 ˚C. Marker genes were sequenced with 15% phiX control on a Illumina MiSeq platform (2 × 300) to determine bacterial and fungal diversity. For bacteria the V4 hypervariable region of the 16S-rRNA gene was targeted with primers 515F (GTGYCAGCMGCCGCGGTAA) / 806R (GGACTACNVGGGTWTCTAAT) [@Apprill2015; @Caporaso2012; @Walters2016] and for fungi the Internal Transcrined Spacer (ITS) region 2 [@Blaalid2013] with primers FITS7 (GTGARTCATCGAATCTTTG)/ITS4 (TCCTCCGCTTATTGATATGC) [@Egidi2019; @Katarina2012]. 
+  
+The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 28,181 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using silva reference sequences (v132 at 99% similarity) for bacteria [@Quast2013a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].
+  
+For bacterial ASVs a phylogenetic tree was created using the SATé-enabled phylogenetic placement (SEPP) technique [@Janssen2018] with the silva128 SEPP reference. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree.
+
+
+## Metacyc pathway associations to carbon fractions and dielrin concentrations
+The Picrust2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States 2) software  [@Douglas2019] was used to predict metabolic pathways (Metacyc, Karp 2002) based on the sequenced bacterial ASVs. Briefly, the picrust pipeline placed ASVs into a open-source reference tree based on prokaryotic genomes from the Integrated Microbial Genomes database [@Barbera2018; @Czech2020a; @Markowitz2012], inferred gene abundances per ASV [@Louca2018] and then predicted sample pathway abundances using MinPath [@Ye2009]. The full pipeline (https://github.com/picrust/picrust2/wiki/Full-pipeline-script) was run with default settings, except that the maximum Nearest Sequence Taxon Index (NSTI) was set to 0.65 in favour of greater accuracy of predictions. Prior to analysis, the ASV table was filtered to those ASVs that were present in at least two samples and with a minimum frequency of 10 reads. The final table output of pathway abundances represented the predicted metabolic potential.  
+  
+  
+Sparse partial least squares (sPLS) analysis of the mixOmics package [@Rohart2017] was chosen to explore associations between metabolic pathway potentials and soil variables (ROC, HUM, POC, C:N ratio, H:C ratio and average dieldrin concentrations of 2015/2017). sPLS is a dimension reduction technique that integrates two high-dimensional data sets acquired from the same samples (here predicted pathway potentials and soil variables) to highlight general patterns of associations [@Meng2016b; @LeCao2008]. This method performs well when the number of samples (*n*) is smaller than the measured variables (*p*) and when variables exhibit multicollinearity.  
+  
+The analysis was done in regression mode, whereby components of pathway potentials were regressors for components of soil variables under the assumption that metabolic pathways can be predictive of soil variables. The first two components were selected as they had sufficient predictive power based on the Q^2^ cutoff of 0.0975 [@LeCao2008; @Tenehaus1998]. Finally, a heatmap with Ward clustering was created from the first two components of sPLS to display pair-wise associations between pathways and soil variables. Only associations scores >= 0.50 were shown.
+
+<br/> 
+
+# Data set
+## Metadata
 ```{r metadata, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, cache = TRUE}
 metadata<-read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/metadata.tsv") #requires tidyverse
 metadata2 <- metadata[c(2:37),]
@@ -88,8 +149,9 @@ metadata2$Dloss_fct <-  factor(metadata2$Dloss_fct,
                                levels=c("<=30%", "<=50%", "<=70%", ">70%"))
 metadata2$Dloss_fct2 <-  factor(metadata2$Dloss_fct2, 
                                levels=c("<=43%", ">43%", "<72%", ">=72%"))
+kable(metadata2[c(1:5,33:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC")], booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
 ```
-# Data set
+
 ## Bacteria
 ```{r physeqb object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/feature_table_insertiontreefiltered.qza")
@@ -303,7 +365,7 @@ physeq.pw <- phyloseq(otu_table(
              sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
 ```
 
-
+ 
 ```{r headmetadata, warning=FALSE,message=FALSE,echo=FALSE, include=FALSE}
 # Metadata, otu and taxtables
 sample_data(physeqB)[c(1:6,30),c("Soil","Paddock","D1517","TC","POC","ROC", "HUM","Shannon")]
@@ -345,62 +407,7 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
   kable_styling(latex_options="scale_down")
 ```
 
-
-Note: Graphs are intended to be informational only and are not 'publication quality'. Typos and errors definitely included.  
   
-  
-  
-
-# Summary
-- We investigated two soils with differing abilities to degrade dieldrin after 30 years.
-- The soil better able to degrade dieldrin (Kurosol) was phylogenetically and metabolically more heterogeneous (Fig. \@ref(fig:pcoa)) and contained less carbon and a lower proportion of resistant organic carbon (Fig. \@ref(fig:carbonquality)).
-  - The genetic potential of metabolic pathways in this soil was more associated to relative amounts of resistant organic carbon (ROC) and humus (HUM) than to particulate organic carbon (POC) (Fig. \@ref(fig:plsheatmapsku) and Fig. \@ref(fig:rda) ) . In other words, the genetic potential of more metablic pathways coincided with having relatively more ROC and HUM indicating that the Kurosol metabolism was adapted to processing ROC and HUM.
-  - The results suggest, that a soil that has a higher turnover of ROC and HUM will also degrade persistent pollutants faster.
-- Alpha diversity was not different between the two soils (Fig. \@ref(fig:alphadloss)).
-  - However, given the markedly lower total carbon and energy resources in the Kurosol (which contained less total carbon), this soil in fact had a higher diversity per unit of total carbon (and energy sources).
-  - Furthermore figure \@ref(fig:alphaperD17) shows that alpha diversity relative to dieldrin concentrations in the soil was significantly higher in the Kurosol compared to the Chromosol.
-  - Some potentials of metabolic pathways, known to be involved with xenobiotic degradation such as phenolic-compound-degradation or toluene degradation are actually similar or greater in the Chromosol, the soil that evidently did not degrade dieldrin as fast as the Kurosol. But when this potential is normalised to total carbon, then the Kurosol had a greater potential. 
-  - This study therefore suggests that the ability of a soil to degrade persistant pollutants is not associated with a measure of total diversity or metabolic potential but instead with greater diversity and metatbolic potential relative to the available carbon sources (here measured as total carbon). In effect, there was a greater 'efficiency' of the soil diversity.
-- Phylogenetic composition of bacteria was similar on phylum level between the Kurosol and Chromosol but there were differences in the distribution of unique ASVs that were present only in samples with either high or low dieldrin loss (Fig. \@ref(fig:trees)).
-  - In the Kurosol a clade of Firmicutes, Bacteriodetes, Actinobacteria, Chloroflexi and the genus Geobacter were all more likely to be found in high-loss samples than in low loss samples.
-  - There were no clades found in the Chromosol that could be associated with samples that had higher dieldrin losses in this soil.
-- The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) revealed a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and where an integral part in mediating associations.
-- There was no such clear grouping in the Chromosol.
-
-# Hypothesis
-Quality of soil organic matter is associated with the phylogenetic and metabolic capacity of soils to degrade persistent organic pollutants - here dieldrin.
-  
-# Materials and Methods
-## Site and soil description, dieldrin and total carbon measurements
-Site location and details, sampling procedure and soil physicochemical characteristics were described previously [@Krohn2019]. Briefly, we sampled two agricultural surface soils (0 - 10 cm, n = 36), a Kurosol and a Chromosol [@Isbell1996], which comprised of twelve grazed pastures that were subject to the Australian National Organochlorine Residue Management Plan [@DepartmentofNaturalResourcesandEnvironment1996] of which we obtained detailed records of dieldrin concentrations since 1987. 
-  
-It was found that both surface soils consisted of a similar texture which were classified as loam [@InternationalSocietyofSoilScienceISSS1929]. Furthermore, they had the same average pH (4.55 ± 0.04 SE) and were both in high-rainfall zones with similar annual maximum temperatures (20.9 - 21.9 ˚C). However, they differed in total carbon (TC) concentrations, in that the Kurosol measured just over half the carbon concentrations compared to the Chromosol (33.3 and 61.8 mg g^-1^, ± 1.05 and 1.72 SE).
-  
-The long-term dieldrin loss (%) per paddock was calculated using the average dieldrin concentrations from 2015/2017 and the earliest available concentrations (1987- 1995). The two soils differed in their apparent ability to degrade dieldrin as the Kurosol lost 1.7 times more dieldrin compared to the Chromosol (73 and 42 %, ± 0.07 and 0.04 SE) and it was found that the TC, the carbon-to-nitrogen ratio (C:N), the microbial-carbon-to-total-carbon ratio (MBC:TC) and soil diversity were associated with final dieldrin concentrations and dieldrin loss (%) [@Krohn2019].
-  
-## Estimation of soil fractions
-Soil processing and acquisitions of infrared spectra followed the method set out in @Madhavan2017. Briefly, sieved (≤ 2 mm) and air dried soils were finely ground in a ball mill (Retsch MM400, Germany) at 25 rounds per second for 30 seconds. Diffuse reflectance spectra in the mid-and near-infrared (MNIRS) spectra (7800  - 450 cm-1 at 8 cm-1 resolution) were acquired for all samples using a PerkinElmer Frontier FT-NIR-MIR Spectrometer (PerkinElmer Inc., Waltham, MA, USA) equipped with a KBr beam-splitter, a DTGS detector and AutoDiff automated diffuse reflectance accessory (Pike Technologies, Madison, WI, USA). 
-  
-Spectra were pre-processed as described in @Madhavan2017 and concentrations of total organic carbon (TOC), particulate organic carbon (POC), resistant organic carbon (ROC) and humus (HOC) were predicted from MNIRS spectra of the Australian Soil Carbon Research Project (ScaRP, Baldock et al. 2013) using partial least squares (PLS) regression. To assess prediction accuracy the TOC concentrations from the PLS predictions were correlated with TC measurements of the same samples using a dry combustion analyzer (Perkin Elmer 2400 Series Ⅱ, R^2^ = 0.98). For all downstream analyses, POC, ROC and HOC were transformed into percentages or centered log ratios [@Bruckner2017a]. 
-
-## Diversity measurements
-DNA of 0.25 g fresh soil was extracted using Powersoil DNA isolation kit (MoBio, Calsbad, USA) and stored at -20 ˚C. Marker genes were sequenced with 15% phiX control on a Illumina MiSeq platform (2 × 300) to determine bacterial and fungal diversity. For bacteria the V4 hypervariable region of the 16S-rRNA gene was targeted with primers 515F (GTGYCAGCMGCCGCGGTAA) / 806R (GGACTACNVGGGTWTCTAAT) [@Apprill2015; @Caporaso2012; @Walters2016] and for fungi the Internal Transcrined Spacer (ITS) region 2 [@Blaalid2013] with primers FITS7 (GTGARTCATCGAATCTTTG)/ITS4 (TCCTCCGCTTATTGATATGC) [@Egidi2019; @Katarina2012]. 
-  
-The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 28,181 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using silva reference sequences (v132 at 99% similarity) for bacteria [@Quast2013a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].
-  
-For bacterial ASVs a phylogenetic tree was created using the SATé-enabled phylogenetic placement (SEPP) technique [@Janssen2018] with the silva128 SEPP reference. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree.
-
-
-## Metacyc pathway associations to carbon fractions and dielrin concentrations
-The Picrust2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States 2) software  [@Douglas2019] was used to predict metabolic pathways (Metacyc, Karp 2002) based on the sequenced bacterial ASVs. Briefly, the picrust pipeline placed ASVs into a open-source reference tree based on prokaryotic genomes from the Integrated Microbial Genomes database [@Barbera2018; @Czech2020a; @Markowitz2012], inferred gene abundances per ASV [@Louca2018] and then predicted sample pathway abundances using MinPath [@Ye2009]. The full pipeline (https://github.com/picrust/picrust2/wiki/Full-pipeline-script) was run with default settings, except that the maximum Nearest Sequence Taxon Index (NSTI) was set to 0.65 in favour of greater accuracy of predictions. Prior to analysis, the ASV table was filtered to those ASVs that were present in at least two samples and with a minimum frequency of 10 reads. The final table output of pathway abundances represented the predicted metabolic potential.  
-  
-  
-Sparse partial least squares (sPLS) analysis of the mixOmics package [@Rohart2017] was chosen to explore associations between metabolic pathway potentials and soil variables (ROC, HUM, POC, C:N ratio, H:C ratio and average dieldrin concentrations of 2015/2017). sPLS is a dimension reduction technique that integrates two high-dimensional data sets acquired from the same samples (here predicted pathway potentials and soil variables) to highlight general patterns of associations [@Meng2016b; @LeCao2008]. This method performs well when the number of samples (*n*) is smaller than the measured variables (*p*) and when variables exhibit multicollinearity.  
-  
-The analysis was done in regression mode, whereby components of pathway potentials were regressors for components of soil variables under the assumption that metabolic pathways can be predictive of soil variables. The first two components were selected as they had sufficient predictive power based on the Q^2^ cutoff of 0.0975 [@LeCao2008; @Tenehaus1998]. Finally, a heatmap with Ward clustering was created from the first two components of sPLS to display pair-wise associations between pathways and soil variables. Only associations scores >= 0.50 were shown.
-
-<br/> 
-
 # Results
 ## Carbon quality
 ```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
@@ -2154,7 +2161,6 @@ knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_UNIQUEASVs_CHR
 ```{r networkCHROMOSOLmodule, fig.cap = "Network of cross-domain  (fungi (F) and bacteria (B) together) co-occurances of the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 15.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
 knitr::include_graphics("./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL.png")
 
-save.image("workspace.RData")
 ```
 
 \s
