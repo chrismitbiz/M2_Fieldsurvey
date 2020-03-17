@@ -330,7 +330,7 @@ The analysis was done in regression mode, whereby components of pathway potentia
 
 # Results
 ## Carbon quality
-```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.8}
+```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 #data.frame(sample_data(physeqB)) %>% reshape2::melt(., measure.var = c("D1517", "TC","TC_D17","CN","HC", "ROC.pct", "HUM.pct", "POC.pct"))  %>%
@@ -373,21 +373,37 @@ A separate correlation analysis showed:
 
 ## Alpha diversity
 ### Bacteria and fungi
-```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.77}
+```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.8}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
-p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
- ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scale = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("ASV number", "Shannon index", "Pielou Evenness"))) + ggtitle("Bacteria") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
-  stat_compare_means( method = "kruskal",label = "p.signif")
+#p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
+# ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scale = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("ASV number", "Shannon index", "Pielou Evenness"))) + ggtitle("Bacteria") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
+#  stat_compare_means( method = "kruskal",label = "p.signif")
 
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-p2 <- data.frame(sample_data(physeqF)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
-  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scale = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("ASV number", "Shannon index", "Pielou Evenness"))) +   ggtitle("Fungi") + stat_compare_means(comparisons = my_comparisons,label = "p.format") +
-  stat_compare_means( method = "kruskal",label = "p.signif")
+#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+#p2 <- data.frame(sample_data(physeqF)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
+#  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scale = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("ASV number", "Shannon index", "Pielou Evenness"))) +   ggtitle("Fungi") + stat_compare_means(comparisons = my_comparisons,label = "p.format") +
+#  stat_compare_means( method = "kruskal",label = "p.signif")
+
+
+p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "Observed", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1200)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1400)) + theme_bw() 
+p2 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "Shannon", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(8)) + theme_bw() 
+p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("mean_se"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.2)) + theme_bw() 
+
+p4 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "Observed", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(500)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + theme_bw()
+p5 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "Shannon", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(5.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6)) + theme_bw() 
+p6 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("mean_se"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.85)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1)) + theme_bw() 
+
 pdf(NULL)
-p <- ggarrange(p1, p2, nrow = 2, labels = "auto", common.legend = TRUE)
+p <- ggarrange(p1, p2, p3, nrow = 1, common.legend = TRUE) 
+p <- annotate_figure(p, fig.lab  = "    Bacteria",fig.lab.pos	= "top.left",fig.lab.size = 14)
+
+pp <- ggarrange(p4, p5, p6, nrow = 1, common.legend = TRUE) 
+pp <- annotate_figure(pp, fig.lab  = "    Fungi",fig.lab.pos	= "top.left",fig.lab.size = 14)
+
+ppp<- ggarrange(p,pp, nrow = 2, common.legend = TRUE, labels = "auto")
 x = dev.off()
-p 
+ppp
 ```
 
 <br/>
