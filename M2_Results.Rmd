@@ -551,7 +551,6 @@ Go [here](https://mixomicsteam.github.io/Bookdown/index.html) to see mixOmics bo
 #https://mixomicsteam.github.io/Bookdown/index.html
 ```
 
-
 ```{r plsheatmapsall, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) accross both soils (n = 33). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown." , message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 1.2, cache = TRUE}
 
 #Across both soils
@@ -610,10 +609,32 @@ kable(simMat.flt, booktabs=TRUE, caption = "Similarities of pathway potentials a
 ```
 
 <br/>
-Across the soils, metacyc pathways such as L-isoleucine biosynthesis with lower dieldrin concentration Figure \@ref(fig:plsheatmapsall) shows 
+Across both soils the strongest associations of metabolic potentials to dieldrin concentrations were negative.  
+  
+Some general info on highly associated metacyc pathways:  
+  
+- Anaerobic traits
+  - Starch degradation V
+    - degradation of starch with help of extracellular enzymes under anaerobic conditions
+  - Reductive TCA cycle
+    - by anoxic photosynthetic bacteria and sulfur reducing bacteria
+  - L-isoleucine 
+    - is a non-polar and uncharged molecule 
+    - biosynthesis by anaerobic bacteria and archaea including chlostridium and methanobacteria
+  - pyruvate fermentation
+  
+- Ruderal traits, see @Wood2018
+  - pyrimidine deoxyribonucleosides salvage
+    - related to potential of ribosome production
+    - "The de novo synthesis of ribonucleotides is very expensive, and organisms have adapted to salvage pyrimidine deoxyribonucleosides salvagepotential precursors from their environment"
+ - glycogen degradation I
+  - The glycogen is broken down and utilized when carbon sources become limiting
+ 
+
+Figure \@ref(fig:plsheatmapsall) shows 
 
 <br/>
-```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 1.2, cache = TRUE }
+```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variables included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 1.2, cache = TRUE }
 
 
 #Kurosol
