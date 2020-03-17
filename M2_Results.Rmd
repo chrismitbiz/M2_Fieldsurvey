@@ -25,7 +25,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-
+  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -52,6 +52,7 @@ library(metagMisc)
 options(kableExtra.auto_format = FALSE)
 library(kableExtra)
 library(magick)
+library(picante)
 #library(flextable)
 ```
 
@@ -88,7 +89,8 @@ metadata2$Dloss_fct <-  factor(metadata2$Dloss_fct,
 metadata2$Dloss_fct2 <-  factor(metadata2$Dloss_fct2, 
                                levels=c("<=43%", ">43%", "<72%", ">=72%"))
 ```
-
+# Data set
+## Bacteria
 ```{r physeqb object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/feature_table_insertiontreefiltered.qza")
 #SVs2 <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_Bacteria/Re_runwithCutadapt2019_28Nov/feature_table_single_bac.qza")
@@ -107,7 +109,7 @@ physeqB <- prune_samples(samples = (sample_names(physeqB)!= c("C20")), physeqB )
 physeqB <- prune_taxa(taxa_sums(physeqB) != 0, physeqB)
 #adding diversity measures (with ps object) to metadata and re-create ps object 
 #here a decision has to be made on sample size. Look at feature-table.qzv to see how many samples are lost with x sample size or how many features are lost with minimum sample size. This is used ONLY for diversity metrics (not differentially abundance anaylyis which I filter separately. So I generally use the minimum samples size if different between min/max is within 10fold. 
-print(paste("The minimum number of bacterial sequences before filtering in this data set is",min(colSums(otu_table(physeqB))),"and the maximum number of sequences in this data set is",max(colSums(otu_table(physeqB))) ))
+
 
 rare_Bac <- rarefy_even_depth(physeqB, sample.size = min(colSums(otu_table(physeqB))),  rngseed = TRUE, replace = TRUE, trimOTUs = TRUE)
 ps.div <- estimate_richness(rare_Bac)
@@ -133,9 +135,46 @@ meta.df <- meta.df %>% rownames_to_column("OTUID") %>%
   mutate(POC_D17 = POC / D17) %>% 
   mutate(TC_D17 = TC / D17)  %>% column_to_rownames("OTUID")
 physeqB@sam_data <- sample_data(meta.df)
-physeqB
-```
 
+#filter 
+#minimum of reads per feature
+physeqB.flt = prune_taxa(taxa_sums(physeqB) >= 10, physeqB) #minimum reads per feature
+physeqB.flt = filter_taxa(physeqB.flt , function(x) sum(x > 0) > (0.06*length(x)), TRUE) #minimum presense in x% of samples
+#filter any phyla that have not been classified i.e. are "NA"
+physeqB.flt = subset_taxa(physeqB.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
+
+#rarefaction curve
+rarecurve(t(otu_table(physeqB.flt)), step=200, sample = min(colSums(otu_table(physeqB.flt))), label = FALSE, xlab = "Sample Size after filtering") 
+
+#taxatables for reference
+taxtableB.fltr <- data.frame(phyloseq::tax_table(physeqB.flt)@.Data)
+taxtableB.fltr <- taxtableB.fltr %>% rownames_to_column(var = "Id")
+# Make a data frame with a column for the read counts of each sample
+sample_sum_df <- data.frame(sum = sample_sums(physeqB.flt))
+summary(sample_sum_df$sum)
+
+#histograms
+# Histogram of sample read counts
+ggplot(sample_sum_df, aes(x = sum)) + 
+  geom_histogram(color = "black", fill = "indianred") +
+  ggtitle("Distribution of sample sequencing depth (filtered)") + 
+  xlab("Read counts") +
+  theme(axis.title.y = element_blank())
+
+# barplot with red line through median value
+dat2 <- t(otu_table(physeqB.flt)) %>% melt(.) %>% arrange(desc(value))
+ggbarplot(data = dat2, x = "Var2", y = "value",xlab = "Filtered", order = unique(dat2$Var2)) + geom_hline(yintercept=median(rowSums(otu_table(physeqB.flt))), color="red")
+
+physeqB.flt
+
+summary(taxa_sums(physeqB.flt))
+
+print(paste("The minimum and maximum number of quality bacterial sequences before filtering (per sample) in this data set is",min(colSums(otu_table(physeqB))),"and", max(colSums(otu_table(physeqB))),". After filering this changed to", min(colSums(otu_table(physeqB.flt))),"and",max(colSums(otu_table(physeqB.flt))) ))
+
+print(paste("The number of reads and ASVs left after filtering is",round(sum(taxa_sums(physeqB.flt)) / sum(taxa_sums(physeqB))*100,2),"% and",round(ntaxa(physeqB.flt) / ntaxa(physeqB) *100,2),"%, a change from",round(sum(taxa_sums(physeqB))),"to",round(sum(taxa_sums(physeqB.flt))), "reads and", ntaxa(physeqB),"to",ntaxa(physeqB.flt),"ASVs. The median changed from", median(rowSums(otu_table(physeqB))),"to",median(rowSums(otu_table(physeqB.flt))),"reads per ASV."))
+
+```
+## Fungi
 ```{r physeqf object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 #FUNGI
 SVs <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Fungi/M2_Qiime_Fungi/feature_table_M2Fungi.qza")
@@ -150,7 +189,6 @@ physeqF<-phyloseq(
 
 #adding diversity measures (with ps object) to metadata and re-create ps object 
 #here a decision has to be made on sample size. Look at feature-table.qzv to see how many samples are lost with x sample size or how many features are lost with minimum sample size. This is used ONLY for diversity metrics (not differentially abundance anaylyis which I filter separately. So I generally use the minimum samples size if different between min/max is within 10fold. 
-print(paste("The minimum number of fungal sequences before filtering in this data set is",min(colSums(otu_table(physeqF))),"and the maximum number of sequences in this data set is",max(colSums(otu_table(physeqF))) ))
 
 rare_Fun <- rarefy_even_depth(physeqF, sample.size = min(colSums(otu_table(physeqF))),  rngseed = TRUE, replace = TRUE, trimOTUs = TRUE)
 ps.div <- estimate_richness(rare_Fun)
@@ -176,9 +214,47 @@ meta.df <- meta.df %>% rownames_to_column("OTUID") %>%
   mutate(POC_D17 = POC / D17) %>% 
   mutate(TC_D17 = TC / D17)  %>% column_to_rownames("OTUID")
 physeqF@sam_data <- sample_data(meta.df)
-physeqF
-```
 
+#filter 
+#minimum of reads per feature
+physeqF.flt = prune_taxa(taxa_sums(physeqF) >= 10, physeqF) #minimum reads per feature
+physeqF.flt = filter_taxa(physeqF.flt , function(x) sum(x > 0) > (0.06*length(x)), TRUE) #minimum presense in x% of samples
+#filter any phyla that have not been classified i.e. are "NA"
+physeqF.flt = subset_taxa(physeqF.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
+
+#rarefaction curve
+rarecurve(t(otu_table(physeqF.flt)), step=200, sample = min(colSums(otu_table(physeqF.flt))), label = FALSE, xlab = "Sample Size after filtering") 
+
+#taxatables for reference
+taxtableF.fltr <- data.frame(phyloseq::tax_table(physeqF.flt)@.Data)
+taxtableF.fltr <- taxtableF.fltr %>% rownames_to_column(var = "Id")
+# Make a data frame with a column for the read counts of each sample
+sample_sum_df <- data.frame(sum = sample_sums(physeqF.flt))
+summary(sample_sum_df$sum)
+
+#histograms
+# Histogram of sample read counts
+ggplot(sample_sum_df, aes(x = sum)) + 
+  geom_histogram(color = "black", fill = "indianred") +
+  ggtitle("Distribution of sample sequencing depth (filtered)") + 
+  xlab("Read counts") +
+  theme(axis.title.y = element_blank())
+
+# barplot with red line through median value
+dat2 <- t(otu_table(physeqF.flt)) %>% melt(.) %>% arrange(desc(value))
+ggbarplot(data = dat2, x = "Var2", y = "value",xlab = "Filtered", order = unique(dat2$Var2)) + geom_hline(yintercept=median(rowSums(otu_table(physeqF.flt))), color="red")
+
+physeqF.flt
+
+summary(taxa_sums(physeqF.flt))
+
+print(paste("The minimum and maximum number of quality fungal sequences before filtering (per sample) in this data set is",min(colSums(otu_table(physeqF))),"and", max(colSums(otu_table(physeqF))),". After filering this changed to", min(colSums(otu_table(physeqF.flt))),"and",max(colSums(otu_table(physeqF.flt))) ))
+
+print(paste("The number of reads and ASVs left after filtering is",round(sum(taxa_sums(physeqF.flt)) / sum(taxa_sums(physeqF))*100,2),"% and",round(ntaxa(physeqF.flt) / ntaxa(physeqF) *100,2),"%, a change from",round(sum(taxa_sums(physeqF))),"to",round(sum(taxa_sums(physeqF.flt))), "reads and", ntaxa(physeqF),"to",ntaxa(physeqF.flt),"ASVs. The median changed from", median(rowSums(otu_table(physeqF))),"to",median(rowSums(otu_table(physeqF.flt))),"reads per ASV."))
+
+
+```
+## Predicted enzyme metagenome
 ```{r physeqE object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 #Enzyme metagenome (picrust predictions)
 EC_metagenome <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/2020_0113_picrust_ASVminfreq10minspl2_2551ASV_0.65minNSTI/picrust2_out_pipeline/EC_metagenome_out/pred_metagenome_unstratEC_desc.tsv") %>% dplyr::select(-description) %>% dplyr::select(-Class) %>% dplyr::select(-Class2) %>%  column_to_rownames("function")
@@ -191,7 +267,6 @@ physeqE <-phyloseq(
         tax_table(as.data.frame(EC_names) %>% as.matrix()),
         sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
 
-print(paste("The minimum number of Enzymes before filtering in this data set is",min(colSums(otu_table(physeqE))),"and the maximum number of sequences in this data set is",max(colSums(otu_table(physeqE))) ))
 
 #adding diversity measures (with ps object) to metadata and re-create ps object 
 rare_EC <- rarefy_even_depth(physeqE, sample.size = min(colSums(otu_table(physeqE))),  rngseed = TRUE, replace = TRUE, trimOTUs = TRUE)
@@ -226,8 +301,6 @@ physeq.pw <- phyloseq(otu_table(
              pathway.pred, taxa_are_rows = T), 
               tax_table(as.data.frame(pw.names) %>% as.matrix()),
              sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
-print(paste("The minimum number of pathways before filtering in this data set is",min(colSums(otu_table(physeq.pw))),"and the maximum number of sequences in this data set is",max(colSums(otu_table(physeq.pw))) ))
-
 ```
 
 
@@ -373,7 +446,7 @@ A separate correlation analysis showed:
 
 ## Alpha diversity
 ### Bacteria and fungi
-```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.8}
+```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.75}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 #p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
