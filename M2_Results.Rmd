@@ -411,7 +411,9 @@ ppp
 Only the fungal alpha diversity was associated with the long-term dieldrin loss (Fig. \@ref(fig:alphadloss)b) not the bacterial diversity (Fig. \@ref(fig:alphadloss)a). For example, fungal pielou evenness was greater in samples that were associated with high long-term dieldrin loss. Hence in a high-loss environment, the fungal OTUs were distributed more evenely. Furthermore, the mean number of observed fungal ASVs was higher in samples that had high long-term dieldrin loss. 
 
 <br/>
+  
 ### Predicted enzyme abundances
+  
 ```{r alphadlossenzymes, fig.cap = "Alpha diversity of enzyme abundances as prediced by picrust2. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.45}
 
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
