@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -22,9 +22,10 @@ nocite: |
   @Karp2002a
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
+  rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  rmarkdown::render(input_file,
+
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -154,16 +155,16 @@ kable(metadata2[c(1:5,33:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC"
 
 ## Bacteria
 ```{r physeqb object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
-SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table.qza")
-#SVs2 <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_Bacteria/Re_runwithCutadapt2019_28Nov/feature_table_single_bac.qza")
+#SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table.qza")
+SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered.qza")
 taxonomy <- read_tsv("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/taxonomy_silva.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
 #taxonomy <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_Bacteria/Re_runwithCutadapt2019_28Nov/taxonomy_gg_M2.qza")
 taxtable <- taxonomy %>% as_tibble() %>% separate(Taxon, sep=";", c("Kingdom","Phylum","Class","Order","Family","Genus","Species")) 
-#tree <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/insertion-tree.qza")
+tree <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/insertion-tree.qza")
 
 physeqB <- phyloseq(
   otu_table(SVs$data, taxa_are_rows = T), 
- # phy_tree(tree$data), 
+  phy_tree(tree$data), 
   tax_table(as.data.frame(taxtable) %>% dplyr::select(-Confidence) %>% column_to_rownames("Feature.ID") %>% as.matrix()), 
   sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
 #take out sample C20 as it failed in this run. 
@@ -171,7 +172,6 @@ physeqB <- prune_samples(samples = (sample_names(physeqB)!= c("C20")), physeqB )
 physeqB <- prune_taxa(taxa_sums(physeqB) != 0, physeqB)
 #adding diversity measures (with ps object) to metadata and re-create ps object 
 #here a decision has to be made on sample size. Look at feature-table.qzv to see how many samples are lost with x sample size or how many features are lost with minimum sample size. This is used ONLY for diversity metrics (not differentially abundance anaylyis which I filter separately. So I generally use the minimum samples size if different between min/max is within 10fold. 
-
 
 rare_Bac <- rarefy_even_depth(physeqB, sample.size = min(colSums(otu_table(physeqB))),  rngseed = TRUE, replace = TRUE, trimOTUs = TRUE)
 ps.div <- estimate_richness(rare_Bac)
@@ -466,19 +466,23 @@ my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 #  stat_compare_means( method = "kruskal",label = "p.signif")
 
 
-p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "Observed", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1200)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1400)) + theme_bw() 
+p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "Observed", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1800)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1850)) + theme_bw() 
 p2 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "Shannon", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(8)) + theme_bw() 
-p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("mean_se"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.2)) + theme_bw() 
 
-p4 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "Observed", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(500)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + theme_bw()
-p5 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "Shannon", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(5.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6)) + theme_bw() 
-p6 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("mean_se"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.85)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1)) + theme_bw() 
+p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(450)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(470)) + theme_bw() 
+
+p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("mean_se"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.2)) + theme_bw() 
+
+p5 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "Observed", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(500)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + theme_bw()
+p6 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "Shannon", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(5.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6)) + theme_bw() 
+p7 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(50)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(55)) + theme_bw() 
+p8 <- sample_data(physeqF) %>% ggbarplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("mean_se"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.85)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1)) + theme_bw() 
 
 pdf(NULL)
-p <- ggarrange(p1, p2, p3, nrow = 1, common.legend = TRUE) 
+p <- ggarrange(p1, p2, p3,p4, nrow = 1, common.legend = TRUE) 
 p <- annotate_figure(p, fig.lab  = "    Bacteria",fig.lab.pos	= "top.left",fig.lab.size = 14)
 
-pp <- ggarrange(p4, p5, p6, nrow = 1, common.legend = TRUE) 
+pp <- ggarrange(p5, p6, p7,p8, nrow = 1, common.legend = TRUE) 
 pp <- annotate_figure(pp, fig.lab  = "    Fungi",fig.lab.pos	= "top.left",fig.lab.size = 14)
 
 ppp<- ggarrange(p,pp, nrow = 2, common.legend = TRUE, labels = "auto")
@@ -488,7 +492,7 @@ ppp
 
 <br/>
 
-ASV numbers of bacteria and fungi were greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss)). 
+ASV richness of bacteria and fungi were greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss)). Bacterial richness was significanly higher in the Kurosol as well as in samples of the Kurosol in which higher long-term dieldrin losses were observed. A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson index. In other words, in a high-loss soil there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.
 
 <br/>
   
@@ -532,7 +536,7 @@ p
 
 <br/>
   
-Soil diversity per unit dieldrin (µg/g) was compared (Fig \@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg/g of dieldrin compared to the Kurosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment. 
+Soil diversity per unit dieldrin (µg/g) was compared (Fig \@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg/g of dieldrin compared to the Chromosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment. 
 
 <br/>
 
@@ -571,11 +575,11 @@ y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "
 y$D1517 <- log1p(y$D1517)
 y$CN <- log1p(y$CN)
 y$HC <- log1p(y$HC)
-pw.spls <- mixOmics::spls(x, y, ncomp =3,  mode = "regression", scale = FALSE ,keepX = c(80,80,80),logratio="CLR", )
+pw.spls <- mixOmics::spls(data.TSS, y, ncomp =3,  mode = "regression", scale = FALSE ,keepX = c(80,80,80),logratio="CLR")
 
-#mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", threshold = 0.5, margins = c(5, 20), )
-#cim does not output into markdown, export graph and link to mardown
-knitr::include_graphics("./mixomics_heatmaps_regression_bothsoils_spls.png")
+mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", threshold = 0.10, margins = c(5, 20), )
+#cim does not output into markdown, export graph and link to mardown, or does it? sometimes it works
+#knitr::include_graphics("./mixomics_heatmaps_regression_bothsoils_spls.png")
 
 #tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
 #tune.spls$Q2.total #test 
@@ -602,25 +606,34 @@ simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway")
 #  kable_styling(latex_options="scale_down") %>%
 #  as_image()
 
-kable(simMat.flt, booktabs=TRUE, caption = "Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.6 to dieldrin concentrations are shown.") %>% 
-  kable_styling(latex_options="scale_down")
+#kable(simMat.flt, booktabs=TRUE, caption = "Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.6 to dieldrin concentrations are shown.") %>% 
+#  kable_styling(latex_options="scale_down")
 #flextable(simMat.flt)
+
+#How can I calculate the coefficients of the linear combinations when using PLS?
+#pred <- predict(pw.spls, as.matrix(data.TSS))
+#test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
 ```
 
 <br/>
-Across both soils the strongest associations of metabolic potentials to dieldrin concentrations were negative.  
+When both soils were included in sPLS analysis the strongest associations of metabolic potentials to dieldrin concentrations were negative, meaning that pathway potentials were predictive of lower dieldrin concentrations rather than higher. In general, when pathway potentials predicted lower dieldrin concentrations, they also predicted a lower C:N ratio and ROC proportions and higher POC proportions (Fig. \@ref(fig:plsheatmapsall). 
   
+
 Some general info on highly associated metacyc pathways:  
   
-- Anaerobic traits
-  - Starch degradation V
-    - degradation of starch with help of extracellular enzymes under anaerobic conditions
+- Anaerobic metabolism
+  - Coenzyme B and M biosynthesis
+    - required for methanogenesis in anaerobic respiration. 
   - Reductive TCA cycle
     - by anoxic photosynthetic bacteria and sulfur reducing bacteria
-  - L-isoleucine 
-    - is a non-polar and uncharged molecule 
+  - L-isoleucine biosynthesis IV
+    - is a non-polar and uncharged molecule (amino acid)
     - biosynthesis by anaerobic bacteria and archaea including chlostridium and methanobacteria
-  - pyruvate fermentation
+  - pyruvate fermentation 
+    - central to anaerobic energy production
+  - 4-coumarate degradation (anaerobic)
+    - phenylpropanoid (aromatic plant compound)
+  - purine nucleobases degradation I (anaerobic)
   
 - Ruderal traits, see @Wood2018
   - pyrimidine deoxyribonucleosides salvage
@@ -628,9 +641,14 @@ Some general info on highly associated metacyc pathways:
     - "The de novo synthesis of ribonucleotides is very expensive, and organisms have adapted to salvage pyrimidine deoxyribonucleosides salvagepotential precursors from their environment"
   - glycogen degradation I
     - The glycogen is broken down and utilized when carbon sources become limiting
- 
+  - superpathway of L-aspartate and L-asparagine biosynthesis
+    - "This pathway is common in both prokaryotes and eukaryotes, and provides a link between amino acid and carbohydrate metabolism"
+  - Enterobactin biosynthesis
+    - siderophore to utilise the otherwise insoluble Fe^3+^
+    - almost exclusively produced by enterobacteria but also some Streptomyses sp. 
+    - produced extracellular and utilised by many other bacteria  
 
-Figure \@ref(fig:plsheatmapsall) shows 
+ 
 
 <br/>
 ```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variables included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 1.2, cache = TRUE }
@@ -2189,7 +2207,7 @@ knitr::include_graphics("./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL
 \s
 
 # Acknowledgements
-Josh Vido, Helen Hayden, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Matt Kitching
+Josh Vido, Helen Hayden, Matt Kitching, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Sarah Knowler
 
 # References
 
