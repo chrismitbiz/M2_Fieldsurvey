@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -22,10 +22,9 @@ nocite: |
   @Karp2002a
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
-  rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-
+  rmarkdown::render(input_file,
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -1653,10 +1652,11 @@ Z2 <- as.data.frame(otu_table(physeqB.highlossK )) %>% rownames_to_column("OTUID
 Z3 <- rbind(Z1,Z2)%>% as.data.frame()
 Z <- Z  %>% left_join(Z3) %>%  mutate_each(funs(replace(., which(is.na(.)), "both"))) %>% column_to_rownames("OTUID")
 
+nrow(data.frame(sample_data(physeq.B.flt)$Paddock))
 #%>% column_to_rownames("OTUID")
-print(paste("On average", round(sum(Z$presence == "low") / max(as.numeric(sample_data(physeq.B.flt)$Paddock)),2),
-            "ASVs were unique per paddock in the 'low' dieldrin loss samples of the Kurosol and", 
-            round(sum(Z$presence == "high") / max(as.numeric(sample_data(physeq.B.flt)$Paddock)),2),
+print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
+            "ASVs were unique per sample in the 'low' dieldrin loss samples of the Kurosol and", 
+            round(sum(Z$presence == "high") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
             "ASVs were unique in the 'high' dieldrin loss samples of the Kurosol"))
 
 
@@ -1706,9 +1706,9 @@ Z1 <- as.data.frame(otu_table(physeqB.lowlossC)) %>% rownames_to_column("OTUID")
 Z2 <- as.data.frame(otu_table(physeqB.highlossC)) %>% rownames_to_column("OTUID")%>% mutate(presence= "high")%>% dplyr::select(OTUID, presence)
 Z3 <- rbind(Z1,Z2)%>% as.data.frame()
 Z <- Z  %>% left_join(Z3) %>%  mutate_each(funs(replace(., which(is.na(.)), "both"))) %>% column_to_rownames("OTUID")
-print(paste("On average", round(sum(Z$presence == "low") / max(as.numeric(sample_data(physeq.B.flt)$Paddock)),2),
+print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
             "ASVs were unique per paddock in the 'low' dieldrin loss samples of the Chromosol and", 
-            round(sum(Z$presence == "high") / max(as.numeric(sample_data(physeq.B.flt)$Paddock)),2),
+            round(sum(Z$presence == "high") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
             "ASVs were unique in the 'high' dieldrin loss samples of the Chromsol"))
 
 p2.2 <-gheatmap(p2,Z, offset=.4, width=.1, colnames = FALSE,
