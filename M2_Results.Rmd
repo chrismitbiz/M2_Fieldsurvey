@@ -22,9 +22,10 @@ nocite: |
   @Karp2002a
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
+  rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  rmarkdown::render(input_file,
+
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -1707,8 +1708,8 @@ Z2 <- as.data.frame(otu_table(physeqB.highlossC)) %>% rownames_to_column("OTUID"
 Z3 <- rbind(Z1,Z2)%>% as.data.frame()
 Z <- Z  %>% left_join(Z3) %>%  mutate_each(funs(replace(., which(is.na(.)), "both"))) %>% column_to_rownames("OTUID")
 print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
-            "ASVs were unique per paddock in the 'low' dieldrin loss samples of the Chromosol and", 
-            round(sum(Z$presence == "high") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
+            "ASVs were unique per sample in the 'low' dieldrin loss samples of the Chromosol and", 
+            round(sum(Z$presence == "high") / nrow(data.frame( sample_data( physeq.B.flt)$Paddock)), 2),
             "ASVs were unique in the 'high' dieldrin loss samples of the Chromsol"))
 
 p2.2 <-gheatmap(p2,Z, offset=.4, width=.1, colnames = FALSE,
@@ -1966,11 +1967,11 @@ Z <- Z  %>% left_join(Z5) %>%  mutate_each(funs(replace(., which(is.na(.)), "pre
 ```
 
 
-```{r networkallpicture, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity); pink = module 0, jade green = module 1, blue = module 2, darkgrey = module 3, purple = module 4, orange = module 5 , moss green = module 6", include = TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r networkallpicture, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity); pink = module 0, jade green = module 1, blue = module 2, darkgrey = module 3, purple = module 4, orange = module 5 , moss green = module 6", include = FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas.png")
 ```
 
-```{r modulecomposition, message=FALSE, warning=FALSE,echo=TRUE, cache = TRUE }
+```{r modulecomposition, message=FALSE, warning=FALSE, echo=FASLE, cache = TRUE }
 #check compostion of modules (fungi/bacteria or uniqueness) 
 modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_modules.csv") 
 modules <- modules %>% dplyr::select(Id, kingdom, modularity_class, presence) %>% rename(OTUID = Id)
@@ -1993,7 +1994,7 @@ uniqueC <- count(modules %>% filter(modularity_class == 4) %>% filter(presence =
 print(paste("Module 4 consisted of ", round((bac$n),2),"% bacteria and ",round((fun$n),2),"% fungi and and contained almost no unique Kurosol ASVs. In module 4 There were", round((uniqueC$n),2),"% unique ASVs from the Chromosol"))
 ```
 
-```{r glassoallcor, eval=FALSE, include=FALSE, fig.cap = "",include = TRUE,  message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE }
+```{r glassoallcor, eval=FALSE, include=FALSE, fig.cap = "", include = FALSE,  message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE }
 #create correlations of z-scores of the ASVs in each module to identify ecological preferences of each module
 #modules was exported from gephi after running the algorithm there
 modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_modules.csv") 
@@ -2072,7 +2073,7 @@ module_cor <-  rbind(module1_cor,module2_cor,module3_cor,module4_cor,module5_cor
 module_cor %>% filter(p_table.value <= 0.001)
 ```
 
-```{r networkallpictureunique, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Green = ASVs unique to the Chromosol, orange = ASVs unique to the Kurosol, grey = ASVs present in both soils", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r networkallpictureunique, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Green = ASVs unique to the Chromosol, orange = ASVs unique to the Kurosol, grey = ASVs present in both soils", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs.png")
 ```
 
@@ -2082,7 +2083,7 @@ knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUE
 
 
 ### Kurosol
-```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8}
+```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8}
 
 ## spiec easi "glasso" bacteria
 require(SpiecEasi)
