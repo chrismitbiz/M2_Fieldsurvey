@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -611,8 +611,8 @@ y <- data.frame(clr(y))
 
 pw.spls <- mixOmics::spls(data.TSS, y, ncomp =10,  mode = "regression", scale = FALSE, keepX = c(10,50,20), logratio = "CLR")
 tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 20, progressBar = FALSE, nrepeat = 1000)
-plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
-abline(h = 0.0975)
+#plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
+#abline(h = 0.0975)
 
 mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", margins = c(5, 30))
 
@@ -721,9 +721,9 @@ require(compositions)
 y <- data.frame(clr(y))
 
 pw.spls <- mixOmics::spls(data.TSS, y, ncomp =10,  mode = "regression", scale = FALSE, keepX = c(5,15,15), logratio = "CLR")
-tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
-plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
-abline(h = 0.0975)
+#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
+#plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
+#abline(h = 0.0975)
 
 mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 25))
 #cim does not output into markdown, export graph and link to mardown
@@ -799,9 +799,9 @@ require(compositions)
 y <- data.frame(clr(y))
 
 pw.spls <- mixOmics::spls(data.TSS, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(5,5), logratio = "CLR")
-tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
-plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
-abline(h = 0.0975)
+#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
+#plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
+#abline(h = 0.0975)
 
 mixOmics::cim(pw.spls, comp = 1, xlab = "", title = "Chromosol", margins = c(5, 25))
 
@@ -1631,9 +1631,9 @@ phyla.list <- split(rownames(phyla), phyla$Phylum, drop = TRUE)
 tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
-colours <- c("grey52", "chocolate","red","tomato1", "wheat4",
-             "blue4","pink","blueviolet", "aquamarine4", "cadetblue4", "darkgoldenrod4", "darkred","dodgerblue2","tomato1","orange","deeppink","dodgerblue", "darkgrey", "gold", "darkorchid", "darksalmon", "seagreen3", "turquoise3", "yellowgreen","seagreen3", "tomato1", "orange") # "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1""cadetblue4"
-ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum, alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) 
+colours <- c("grey52", "chocolate","red","gray", "wheat4",
+             "blue4","pink","blueviolet", "aquamarine4", "cadetblue4", "darkgoldenrod4", "darkred","dodgerblue2","tomato1","orange","deeppink","dodgerblue", "darkgrey", "gold", "darkorchid", "darksalmon", "seagreen3", "turquoise3", "yellowgreen","seagreen3", "gray", "orange") # "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1""cadetblue4"
+ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum, alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) + guides(color = guide_legend(override.aes = list(size=5)))
 p1 <- ggtree_phyla2 + ggtitle("Kurosol") + guides(alpha = F)
 
 #add the heatmap around it indicating presence of taxa unique to high / low loss
@@ -1689,9 +1689,9 @@ phyla.list <- split(rownames(phyla), phyla$Phylum, drop = TRUE)
 tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
-colours <- c("grey52", "chocolate", "red","tomato1", "wheat4",
+colours <- c("grey52", "chocolate", "red","gray", "wheat4",
              "pink","blueviolet", "aquamarine4", "cadetblue4", "darkgoldenrod4", "darkred", "dodgerblue2", "tomato1", "orange", "deeppink", "dodgerblue", "darkgrey", "seagreen3", "turquoise3", "yellowgreen", "seagreen3", "tomato1") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
-ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum,alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) 
+ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum,alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) + guides(color = guide_legend(override.aes = list(size=5)))
 p2 <- ggtree_phyla2 + ggtitle("Chromosol")+ guides(alpha = F)
 
 #add the heatmap around it indicating presence of taxa unique to high / low loss
