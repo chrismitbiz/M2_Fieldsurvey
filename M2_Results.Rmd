@@ -1669,7 +1669,8 @@ taxadfpf <- taxadf  %>% rownames_to_column("OTU")
 ##################################################3
 
 
-
+library(ggtree)
+library(ggnewscale)
 #phylavector for colouring
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) 
 physeq.B.flt <- prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt) 
@@ -1695,8 +1696,8 @@ phyla.list <- split(rownames(phyla), phyla$Phylum, drop = TRUE)
 tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
-colours <- c("grey52", "chocolate","gray","gray", "wheat4",
-             "blue4","pink","blueviolet", "aquamarine4", "cadetblue4", "darkgoldenrod4", "darkred","dodgerblue2","tomato1","orange","deeppink","dodgerblue", "darkgrey", "gold", "darkorchid", "darksalmon", "seagreen3", "turquoise3", "yellowgreen","seagreen3", "gray", "orange") # "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1""cadetblue4"
+colours <- c("grey29", "tomato1","gray","gray", "tan4",
+             "blue4","pink","turquoise3", "aquamarine4", "cadetblue4", "darkgoldenrod4", "gold","dodgerblue2","grey55","orange","deeppink","grey10", "grey69", "grey52", "darkorchid", "darksalmon", "seagreen3", "darkred", "yellowgreen","seagreen3", "gray", "orange") # "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1""cadetblue4"
 ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum, alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) + guides(color = guide_legend(override.aes = list(size=5)))
 p1 <- ggtree_phyla2 + ggtitle("Kurosol") + guides(alpha = F)
 
@@ -1754,8 +1755,8 @@ phyla.list <- split(rownames(phyla), phyla$Phylum, drop = TRUE)
 tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
-colours <- c("grey52", "chocolate", "gray","gray", "wheat4",
-             "pink","blueviolet", "aquamarine4", "cadetblue4", "darkgoldenrod4", "darkred", "dodgerblue2", "tomato1", "orange", "deeppink", "dodgerblue", "darkgrey", "seagreen3", "turquoise3", "yellowgreen", "seagreen3", "tomato1") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
+colours <- c("grey29", "tomato1", "gray","gray", "tan4",
+             "pink","turquoise3", "aquamarine4", "cadetblue4", "darkgoldenrod4", "gold", "dodgerblue2", "grey55", "orange", "deeppink", "grey10", "grey69", "seagreen3", "darkred", "yellowgreen", "seagreen3", "tomato1") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
 ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum,alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) + guides(color = guide_legend(override.aes = list(size=5)))
 p2 <- ggtree_phyla2 + ggtitle("Chromosol")+ guides(alpha = F)
 
@@ -1939,7 +1940,7 @@ ggarrange(p1, p2)
 
 
 #### Phylofactors in Chromosol samples only
-```{r pfmixCH, eval=TRUE, include=TRUE, fig.cap = "Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r pfmixCH, eval=TRUE, include=TRUE, fig.cap = "Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE }
 require(metagMisc)
 
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
