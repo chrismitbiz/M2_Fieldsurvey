@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -2253,9 +2253,6 @@ module_cor %>% filter(p_table.value <= 0.001)
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs.png")
 ```
 
-
-
-
 ### Kurosol
 ```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8}
 
@@ -2350,18 +2347,11 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL.png")
 ```
 
-\s
-The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations. 
-\s
 
 ```{r networkKUROSOLmodules, fig.cap = "Network of cross-domain  (fungi (F) and bacteria (B) together) co-occurances of the Kurosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYMODULES_KUROSOL.png")
 
 ```
-
-\s
-(Fig \@ref(fig:networkKUROSOLmodules))
-\s
 
 ### Chromosol
 ```{r glassoallCHRnotinclud , fig.cap = "", include = FALSE,  eval = FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8}
@@ -2449,19 +2439,18 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 #write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL.csv", row.names = FALSE)
 ```
 
-
 ```{r networkCHROMOSOLunique, fig.cap = "Network of cross-domain  (fungi (F) and bacteria (B) together) co-occurances of the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 15.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_UNIQUEASVs_CHROMSOL1.png")
 ```
-
-\s
-(Fig \@ref(fig:networkCHROMOSOLunique))
-\s
 
 ```{r networkCHROMOSOLmodule, fig.cap = "Network of cross-domain  (fungi (F) and bacteria (B) together) co-occurances of the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 15.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
 knitr::include_graphics("./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL.png")
 
 ```
+\s
+The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations. 
+\s
+
 
 \s
 (Fig \@ref(fig:networkCHROMOSOLmodule))
