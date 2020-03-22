@@ -1787,23 +1787,21 @@ Z3 <- rbind(Z1,Z2)%>% as.data.frame()
 Z <- Z  %>% left_join(Z3) %>%  mutate_each(funs(replace(., which(is.na(.)), "both"))) %>% column_to_rownames("OTUID")
 
 #%>% column_to_rownames("OTUID")
-print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
+t1 <- print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
             "ASVs were unique per sample in the 'low' dieldrin loss samples of the Kurosol and", 
             round(sum(Z$presence == "high") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
             "ASVs were unique in the 'high' dieldrin loss samples of the Kurosol"))
-
 
 p1.1 <-gheatmap(p1,Z, offset=.4, width=.1, colnames = FALSE,
          colnames_angle=95, colnames_offset_y = .25)+
         scale_fill_manual(values=c("white","tomato1", "white"),labels = c("", "Unique ASVs in high-loss", "")) + labs(fill = "Outer Ring")
 p1.1 <- p1.1 + new_scale_fill()
 #identify node numbers from ASVids. Separate r document used. 
-p1.1 <- p1.1 +  geom_balance(node = 4967,alpha =0.4, color = "red") +  geom_balance(node = 7584,alpha =0.2, color = "red") +  geom_balance(node = 5796, alpha =0.2, color = "red") +  geom_balance(node = 5225, alpha =0.2, color = "red")  +  geom_balance(node = 6869,alpha =0.2, color = "red")#as identified with phylofactor
-
-
+p1.1 <- p1.1 +  geom_balance(node = 4967,alpha =0.4, color = "red") +  geom_balance(node = 7584,alpha =0.2, color = "red") +  geom_balance(node = 5796, alpha =0.2, color = "red") +  geom_balance(node = 5225, alpha =0.2, color = "red")  +  geom_balance(node = 6869,alpha =0.2, color = "red") #as identified with phylofactor
 
 
 #Chromosol
+# models created in 'Phylofactor.R' 
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Chromosol", physeqB)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #present only in this soil and have at least 11 reads
@@ -1827,6 +1825,7 @@ colours <- c("grey29", "tomato1", "gray","gray", "tan4",
              "pink","turquoise3", "aquamarine4", "cadetblue4", "darkgoldenrod4", "gold", "dodgerblue2", "grey55", "orange", "deeppink", "grey10", "grey69", "seagreen3", "darkred", "yellowgreen", "seagreen3", "tomato1") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
 ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum,alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) + guides(color = guide_legend(override.aes = list(size=5)))
 p2 <- ggtree_phyla2 + ggtitle("Chromosol")+ guides(alpha = F)
+p2 <- p2  +  geom_balance(node = 3637, alpha =0.4, color = "red") + geom_balance(node = 3482,alpha =0.2, color = "red") +  geom_balance(node = 4249, alpha =0.2, color = "red") +  geom_balance(node = 3785, alpha =0.2, color = "red")  +  geom_balance(node = 4185,alpha =0.2, color = "red")
 
 #add the heatmap around it indicating presence of taxa unique to high / low loss
 physeqB.lowlossC <- prune_samples(sample_data(physeq.B.flt)$Dloss_fct2 == ">43%", physeq.B.flt)
@@ -1841,7 +1840,7 @@ Z2 <- as.data.frame(otu_table(physeqB.highlossC)) %>% rownames_to_column("OTUID"
 Z3 <- rbind(Z1,Z2)%>% as.data.frame()
 Z <- Z  %>% left_join(Z3) %>%  mutate_each(funs(replace(., which(is.na(.)), "both"))) %>% column_to_rownames("OTUID")
 
-print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
+t2 <- print(paste("On average", round(sum(Z$presence == "low") / nrow(data.frame(sample_data(physeq.B.flt)$Paddock)),2),
             "ASVs were unique per sample in the 'low' dieldrin loss samples of the Chromosol and", 
             round(sum(Z$presence == "high") / nrow(data.frame( sample_data( physeq.B.flt)$Paddock)), 2),
             "ASVs were unique in the 'high' dieldrin loss samples of the Chromosol"))
@@ -1850,32 +1849,21 @@ p2.2 <-gheatmap(p2,Z, offset=.4, width=.1, colnames = FALSE,
          colnames_angle=95, colnames_offset_y = .25)+
         scale_fill_manual(values=c("white","tomato1", "white"),labels = c("", "Unique ASVs in high-loss", "")) + labs(fill = "Outer Ring")
 
-p2.2 <- p2.2 + new_scale_fill()
-#p2.2 <- p2.2 + geom_tippoint(size = 4, shape = 19, aes(subset=grepl(c("2c5fb317b6f53363fb9599d1564fcf4d"), label)))+ 
-#  geom_tippoint(size = 4, shape = 19, aes(subset=grepl(c("54bd158743bf59519f9cea2c53bb3e59"), label)))+
-#  geom_tippoint(size = 4, shape = 19, aes(subset=grepl(c("52920af771b65f5dde536e57ec110664"), label)))+
-#  geom_tippoint(size = 4, shape = 19, aes(subset=grepl(c("ba3e6a798853b51979db3c9b168fd3ed"), label)))+
-#  geom_tippoint(size = 4, shape = 19, aes(subset=grepl(c("4a223d68fca635b88e4f1a7b95b40b42"), label)))
+p2.2 <- p2.2 + new_scale_fill() 
+
+
+
 
 p3 <- ggarrange(p1.1, p2.2, common.legend = TRUE)
 #ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Figures/phylotrees_comparison_uniquetaxainhighloss.pdf",height=8, width=15, units='in', dpi=600)
+
 p3
 
 pf_gpf_mix_Kurosol10factorsDloss <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_kurosol_Dloss_alpha0.2" )
-
-
 print("Model of factor 1")
 pf_gpf_mix_Kurosol10factorsDloss$models[[1]]
 ```
-  
-
-
-(Fig \@ref(fig:trees)) indicates that the phylogenetic ASV composition of the Kurosol and the Chromosol was similar. However, the outer rings show that the Kurosol contained more unique ASVs in high-loss samples.  
-Moreover, generalised linear models (glm) in the R package 'phylofactor', with presence/absence of ASVs as response and dieldrin loss (%) as predictor, indicated that there were phylogentic clades that had a significantly higher chance to be found in high-loss samples (shown as polygons on phylogenetic tree). In some instances, these phylogenetic clades coincided with higher clustering of unique ASVs.  
-For example the presence of a clade of Firmicutes and Bacteriodetes and the presence of the phyla Chloroflexi and Actinobacteria were associated with increased dieldrin loss. Moreover, the model identified a group of ASVs that belong to the genus Geobacter, which also were overrepresented in samples with highest dieldrin losses (Fig \@ref(fig:pfmix5)).  
-  
-In the Chromosol, no such clade-associations to dieldrin loss could be identified from the glms.  
-    
+<br/>
   
 Note: See example of model output. Need to clarify significance calculations. Deviance is huge but nonetheless seems to match the high density of presence of unique ASVs in outer ring. 
   
@@ -2065,7 +2053,15 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 ggarrange(p1, p2)
 ```
 
+<br/>
 
+(Fig \@ref(fig:trees)) indicates that the phylogenetic ASV composition of the Kurosol and the Chromosol was similar. However, the outer rings show that the Kurosol contained more unique ASVs in high-loss samples.  
+Moreover, generalised linear models (glm) in the R package 'phylofactor', with presence/absence of ASVs as response and dieldrin loss (%) as predictor, indicated that there were phylogentic clades that had a significantly higher chance to be found in high-loss samples (shown as polygons on phylogenetic tree). In some instances, these phylogenetic clades coincided with higher clustering of unique ASVs.  
+For example the presence of a clade of Firmicutes and Bacteriodetes and the presence of the phyla Chloroflexi and Actinobacteria were associated with increased dieldrin loss. Moreover, the model identified a group of ASVs that belong to the genus Geobacter, which also were overrepresented in samples with highest dieldrin losses (Fig \@ref(fig:pfmix5)).  
+  
+In the Chromosol, no such clade-associations to dieldrin loss could be identified from the glms.  
+
+<br/>
 
 ## Network analysis
 ```{r glassoallnodes , fig.cap = "", include = FALSE,  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8}
@@ -2447,14 +2443,14 @@ knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_UNIQUEASVs_CHR
 knitr::include_graphics("./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL.png")
 
 ```
-\s
-The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations. 
-\s
+
+<br/>
+  
+The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations.  
+  
+<br/>
 
 
-\s
-(Fig \@ref(fig:networkCHROMOSOLmodule))
-\s
 
 # Acknowledgements
 Josh Vido, Helen Hayden, Matt Kitching, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Sarah Knowler
