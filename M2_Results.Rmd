@@ -119,7 +119,7 @@ The analysis was done in regression mode, whereby components of pathway potentia
 
 # Data set
   
-Note: This section gives an overview of metadata and the data of bacterial and fungal amplicon sequence variants (ASVs) used as basis for all analyses. 
+Note: This section gives an overview of metadata and the data of bacterial and fungal amplicon sequence variants (ASVs) used as basis for all analyses. It not intendet for publication but may be supplementary.
   
 ## Metadata
 ```{r metadata, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, cache = TRUE}
@@ -200,6 +200,7 @@ meta.df <- meta.df %>% rownames_to_column("OTUID") %>%
   mutate(ROC_D17 =ROC / D17) %>% 
   mutate(HUM_D17 = HUM / D17) %>% 
   mutate(POC_D17 = POC / D17) %>% 
+  mutate(TC_P = TC / P) %>% 
   mutate(TC_D17 = TC / D17)  %>% column_to_rownames("OTUID")
 physeqB@sam_data <- sample_data(meta.df)
 
@@ -455,8 +456,10 @@ p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", ad
 
 p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "POC (%)", xlab = "Dieldrin loss", position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60)
 
+p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.9), width = 0.6 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw()
+
 pdf(NULL)
-p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, nrow = 3, ncol = 3, common.legend = TRUE)
+p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.legend = TRUE)
 x = dev.off()
 p 
 ```
@@ -474,7 +477,7 @@ A separate correlation analysis showed:
 
 
 ## Alpha diversity
-```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.75}
+```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 #p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
@@ -578,9 +581,6 @@ In the figure \@ref(fig:alphadlossenzymes) the average Shannon's index was great
 <br/>
 
 
-
-
-
 ## Metabolic potential
 ### Partial least squares regression
 **Metacyc pathways**  
@@ -593,14 +593,15 @@ Go [here](https://mixomicsteam.github.io/Bookdown/index.html) to see mixOmics bo
 
 ```{r plsheatmapsall, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) accross both soils (n = 33). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown." , message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 1, cache = TRUE}
 
+#process: 
+#create tc ratio of pathways after TSS transform
+#then clr transform in ps object
+#then pathway table with common names for analysis
+
 #Across both soils
 physeq.pw.flt  <- prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.99*length(x)), TRUE)
+physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE)
 #physeq.pw.flt <- microbiome::transform(physeq.pw.flt, "clr")
-
-#replace pw numbers with common name
-taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt)@.Data[,c("COMMON-NAME")]))
-taxa_names(physeq.pw.flt) <- taxtable$COMMON.NAME
 
 #normalisation
 # each variable read count is divided by the total number of read counts
@@ -609,23 +610,35 @@ TSS.divide = function(x){
 }
 x <- as.data.frame(t(otu_table(physeq.pw.flt)))
 data.TSS = t(apply(x, 1, TSS.divide))
+# ratio ####
+TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
+data.TSS.TC <- data.TSS %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+#then devide by TC or Dieldrin and remove TC or dieldrin
+data.TSS.TC.ratio <- data.TSS.TC %>% rownames_to_column("OTUID") %>% mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
 
+data.TSS_TCratio.phyl <- data.TSS.TC.ratio %>% t
+physeq.pw_TCratio <-phyloseq(otu_table( data.TSS_TCratio.phyl, taxa_are_rows = T),   tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
 
-#y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "Dieldrin", "CN", "HC")])
-#y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.pct", "ROC.pct", "POC.pct", "D1517", "CN", "HC")]) 
-y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "TN", "H")])
+#replace pw numbers with common name
+taxtable <- data.frame(`COMMON.NAME` = (tax_table(ps_clr)@.Data[,c("COMMON-NAME")]))
+taxa_names(ps_clr) <- taxtable$COMMON.NAME
+
+#tables for analysis
+x <- as.data.frame(t(otu_table(ps_clr)))
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
 y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
 
 #relative data
 require(compositions)
 y <- data.frame(clr(y))
 
-pw.spls <- mixOmics::spls(data.TSS, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(5,10,20), logratio = "CLR")
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(400, 375, 150))
 #tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 20, progressBar = FALSE, nrepeat = 500)
 #plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
 #abline(h = 0.0975)
 
-mixOmics::cim(pw.spls, comp = 1:3, xlab = "", title = "Across both soils", margins = c(5, 30))
+mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", margins = c(5, 30), threshold = 0.4)
 
 #cim does not output into markdown, export graph and link to mardown, or does it? sometimes it works
 #knitr::include_graphics("./mixomics_heatmaps_regression_bothsoils_spls.png")
@@ -637,14 +650,15 @@ mixOmics::cim(pw.spls, comp = 1:3, xlab = "", title = "Across both soils", margi
 #print(tune.spls$MSEP[,c(1:2)]) #MeanSquareError of predictions
 #How can I calculate the coefficients of the linear combinations when using PLS?
 
-pred <- predict(pw.spls, as.matrix(data.TSS))
+pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
-  filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
+test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.003 | D1517.dim1 <= -0.01)
 
-kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across both soils (n=35). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across both soils (n=33). Values indicate the predicted effect of metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 ```
+
 <br/>
+
 ```{r, tblemixomicsall, echo = FALSE, message=FALSE, warning=FALSE, include = FALSE, eval = FALSE}
 #print the correlation coordinates
 #bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
@@ -662,6 +676,177 @@ kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis a
 #  as_image()
 
 #kable(simMat.flt, booktabs=TRUE, caption = "Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.6 to dieldrin concentrations are shown.") %>% 
+#  kable_styling(latex_options="scale_down")
+#flextable(simMat.flt)
+```
+
+
+```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variables included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE}
+
+
+#Kurosol
+physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Kurosol", physeq.pw)
+physeq.pw.flt  <- prune_samples(sample_data(physeq.pw.flt)$Farm != "C", physeq.pw.flt)
+physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE)
+#physeq.pw.flt <- microbiome::transform(physeq.pw.flt, "clr")
+
+#normalisation
+# each variable read count is divided by the total number of read counts
+TSS.divide = function(x){
+ x/sum(x)
+}
+x <- as.data.frame(t(otu_table(physeq.pw.flt)))
+data.TSS = t(apply(x, 1, TSS.divide))
+# ratio ####
+TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
+data.TSS.TC <- data.TSS %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+#then devide by TC or Dieldrin and remove TC or dieldrin
+data.TSS.TC.ratio <- data.TSS.TC %>% rownames_to_column("OTUID") %>% mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
+
+data.TSS_TCratio.phyl <- data.TSS.TC.ratio %>% t
+physeq.pw_TCratio <-phyloseq(otu_table( data.TSS_TCratio.phyl, taxa_are_rows = T),   tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
+
+#replace pw numbers with common name
+taxtable <- data.frame(`COMMON.NAME` = (tax_table(ps_clr)@.Data[,c("COMMON-NAME")]))
+taxa_names(ps_clr) <- taxtable$COMMON.NAME
+
+#tables for analysis
+x <- as.data.frame(t(otu_table(ps_clr)))
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
+y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
+
+#relative data
+require(compositions)
+y <- data.frame(clr(y))
+
+
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(5,10,5,5))
+#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 500)
+#plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
+#abline(h = 0.0975)
+
+mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 25))
+#cim does not output into markdown, export graph and link to mardown
+#knitr::include_graphics("./mixomics_heatmaps_regression_KUROSOL_spls.png")
+
+#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
+#test how many components are meaningful 
+#data.frame(tune.spls$Q2.total)
+#Tenenhaus, M. (1998) suggests using a cuttoff of 0.0975 for Q2 values, where any component with values lower than the cutoff are not included in the model.
+#print(tune.spls$R2[,c(1:2)])   #Coefficient of Determination
+#print(tune.spls$MSEP[,c(1:2)]) #MeanSquareError of predictions
+
+pred <- predict(pw.spls, as.matrix(x))
+test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
+test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
+
+kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+
+```
+
+```{r, tblemixomicskuNOTINCLUDE, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, eval=FALSE }
+#print the correlation coordinates
+#bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
+#cord.X = cor(pw.spls$X, bisect, use = "pairwise")
+#cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
+#simMat = as.matrix(cord.X %*% t(cord.Y))
+#filter1
+#simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
+#  filter(D1517 >= 0.65 |
+#           D1517 <= -0.65) %>% 
+#  arrange(D1517)
+
+#kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
+#  kable_styling(latex_options="scale_down") %>%
+#  as_image()
+
+#kable(simMat.flt, booktabs=TRUE, caption = "Kurosol only: Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.65 to dieldrin concentrations are shown.") %>% 
+#  kable_styling(latex_options="scale_down")
+#flextable(simMat.flt)
+```
+
+
+```{r plsheatmapsch,fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Chromosol samples (n = 15). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE }
+
+#Chromosol
+physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Chromosol", physeq.pw)
+physeq.pw.flt  <- prune_samples(sample_data(physeq.pw.flt)$Farm != "C", physeq.pw.flt)
+physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE)
+#physeq.pw.flt <- microbiome::transform(physeq.pw.flt, "clr")
+
+#normalisation
+# each variable read count is divided by the total number of read counts
+TSS.divide = function(x){
+ x/sum(x)
+}
+x <- as.data.frame(t(otu_table(physeq.pw.flt)))
+data.TSS = t(apply(x, 1, TSS.divide))
+# ratio ####
+TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
+data.TSS.TC <- data.TSS %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+#then devide by TC or Dieldrin and remove TC or dieldrin
+data.TSS.TC.ratio <- data.TSS.TC %>% rownames_to_column("OTUID") %>% mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
+
+data.TSS_TCratio.phyl <- data.TSS.TC.ratio %>% t
+physeq.pw_TCratio <-phyloseq(otu_table( data.TSS_TCratio.phyl, taxa_are_rows = T),   tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
+
+#replace pw numbers with common name
+taxtable <- data.frame(`COMMON.NAME` = (tax_table(ps_clr)@.Data[,c("COMMON-NAME")]))
+taxa_names(ps_clr) <- taxtable$COMMON.NAME
+
+#tables for analysis
+x <- as.data.frame(t(otu_table(ps_clr)))
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
+y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
+
+#relative data
+require(compositions)
+y <- data.frame(clr(y))
+
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(100,10,10))
+#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
+#plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
+#abline(h = 0.0975)
+
+mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", margins = c(5, 25))
+
+#mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", threshold = 0.5, margins = c(5, 15))
+#cim does not output into markdown, export graph and link to mardown
+#knitr::include_graphics("./mixomics_heatmaps_regression_CHROMOSOL_spls.png")
+
+#tune.spls$Q2.total #test how many components are meaningful 
+#Tenenhaus, M. (1998) suggests using a cuttoff of 0.0975 for Q2 values, where any component with values lower than the cutoff are not included in the model.
+#print(tune.spls$R2[,c(1:2)])   #Coefficient of Determination
+#print(tune.spls$MSEP[,c(1:2)]) #MeanSquareError of predictions
+
+pred <- predict(pw.spls, as.matrix(x))
+test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
+test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
+  filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.01 | D1517.dim1 <= -0.005)
+
+kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across in the Chromosol (n=15). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+
+```
+
+```{r, tblemixomicsch, echo = FALSE, message=FALSE, warning=FALSE, include= FALSE, eval=FALSE }
+#print the correlation coordinates
+#bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
+#cord.X = cor(pw.spls$X, bisect, use = "pairwise")
+##cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
+#simMat = as.matrix(cord.X %*% t(cord.Y))
+#filter1
+#simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
+#  filter(D1517 >= 0.65 |
+#           D1517 <= -0.65) %>% 
+#  arrange(D1517)
+
+#kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
+#  kable_styling(latex_options="scale_down") %>%
+#  as_image()
+
+#kable(simMat.flt, booktabs=TRUE, caption = "Chromosol only: Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.65 to dieldrin concentrations are shown.") %>% 
 #  kable_styling(latex_options="scale_down")
 #flextable(simMat.flt)
 ```
@@ -699,173 +884,12 @@ Some general info on highly associated metacyc pathways:
     - almost exclusively produced by enterobacteria but also some Streptomyses sp. 
     - produced extracellular and utilised by many other bacteria  
 
- 
-
 <br/>
-```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variables included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE, include=FALSE, eval=FALSE }
-
-
-#Kurosol
-#physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw) #take out outlier 
-physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
-
-physeq.pw.flt <- prune_samples(sample_data(physeq.pw.flt )$Soil == "Kurosol", physeq.pw.flt )
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.99*length(x)), TRUE)
-
-#replace pw numbers with common name
-taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt)@.Data[,c("COMMON-NAME")]))
-taxa_names(physeq.pw.flt) <- taxtable$COMMON.NAME
-
-#normalisation
-# each variable read count is divided by the total number of read counts
-TSS.divide = function(x){
- x/sum(x)
-}
-x <- as.data.frame(t(otu_table(physeq.pw.flt)))
-data.TSS = t(apply(x, 1, TSS.divide))
-#y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "D1517", "CN", "HC")]) 
-#y$D1517 <- log1p(y$D1517)
-#y$CN <- log1p(y$CN)
-#y$HC <- log1p(y$HC)
-
-#y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.pct", "ROC.pct", "POC.pct", "D1517", "CN", "HC")]) #use relative data
-y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "TN", "H")])
-y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
-
-#relative data
-require(compositions)
-y <- data.frame(clr(y))
-
-
-pw.spls <- mixOmics::spls(data.TSS, y, ncomp =10,  mode = "regression", scale = FALSE, keepX = c(5,10,5,5), logratio = "CLR")
-tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 500)
-plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
-abline(h = 0.0975)
-
-mixOmics::cim(pw.spls, comp = 1, xlab = "", title = "Kurosol", margins = c(5, 25))
-#cim does not output into markdown, export graph and link to mardown
-#knitr::include_graphics("./mixomics_heatmaps_regression_KUROSOL_spls.png")
-
-#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
-#test how many components are meaningful 
-#data.frame(tune.spls$Q2.total)
-#Tenenhaus, M. (1998) suggests using a cuttoff of 0.0975 for Q2 values, where any component with values lower than the cutoff are not included in the model.
-#print(tune.spls$R2[,c(1:2)])   #Coefficient of Determination
-#print(tune.spls$MSEP[,c(1:2)]) #MeanSquareError of predictions
-
-pred <- predict(pw.spls, as.matrix(data.TSS))
-test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
-  filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
-
-kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
-
-```
-
-```{r, tblemixomicsku, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, eval=FALSE }
-#print the correlation coordinates
-#bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
-#cord.X = cor(pw.spls$X, bisect, use = "pairwise")
-#cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
-#simMat = as.matrix(cord.X %*% t(cord.Y))
-#filter1
-#simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
-#  filter(D1517 >= 0.65 |
-#           D1517 <= -0.65) %>% 
-#  arrange(D1517)
-
-#kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
-#  kable_styling(latex_options="scale_down") %>%
-#  as_image()
-
-#kable(simMat.flt, booktabs=TRUE, caption = "Kurosol only: Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.65 to dieldrin concentrations are shown.") %>% 
-#  kable_styling(latex_options="scale_down")
-#flextable(simMat.flt)
-```
 
 Figure \@ref(fig:plsheatmapsku) shows that most of the metabolic pathway potentials in the Kurosol coincided with increased ROC proportions. In samples that contained a higher proportion of ROC the potential of x (number of pathways) pathways increased. Overall, this conicided with lower HUM proportion in those samples.  
   
 <br/>
 
-```{r plsheatmapsch,fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Chromosol samples (n = 15). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE, include=FALSE, eval=FALSE  }
-
-#Chromosol
-physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Chromosol", physeq.pw)
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.99*length(x)), TRUE)
-
-#replace pw numbers with common name
-taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt)@.Data[,c("COMMON-NAME")]))
-taxa_names(physeq.pw.flt) <- taxtable$COMMON.NAME
-
-
-#normalisation
-# each variable read count is divided by the total number of read counts
-TSS.divide = function(x){
- x/sum(x)
-}
-x <- as.data.frame(t(otu_table(physeq.pw.flt)))
-data.TSS = t(apply(x+1, 1, TSS.divide))
-
-#y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "D1517","CN", "HC")]) #use relative data
-#y$D1517 <- log1p(y$D1517)
-#y$CN <- log1p(y$CN)
-#y$HC <- log1p(y$HC)
-
-#y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.pct", "ROC.pct", "POC.pct", "D1517", "CN", "HC")]) #use 
-
-
-y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "TN", "H")])
-y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
-
-#relative data
-require(compositions)
-y <- data.frame(clr(y))
-
-pw.spls <- mixOmics::spls(data.TSS, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(5,5), logratio = "CLR")
-#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
-#plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
-#abline(h = 0.0975)
-
-mixOmics::cim(pw.spls, comp = 1, xlab = "", title = "Chromosol", margins = c(5, 25))
-
-#mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", threshold = 0.5, margins = c(5, 15))
-#cim does not output into markdown, export graph and link to mardown
-#knitr::include_graphics("./mixomics_heatmaps_regression_CHROMOSOL_spls.png")
-
-#tune.spls$Q2.total #test how many components are meaningful 
-#Tenenhaus, M. (1998) suggests using a cuttoff of 0.0975 for Q2 values, where any component with values lower than the cutoff are not included in the model.
-#print(tune.spls$R2[,c(1:2)])   #Coefficient of Determination
-#print(tune.spls$MSEP[,c(1:2)]) #MeanSquareError of predictions
-
-pred <- predict(pw.spls, as.matrix(data.TSS))
-test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
-  filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
-
-kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Chromosol (n=15). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
-
-```
-
-```{r, tblemixomicsch, echo = FALSE, message=FALSE, warning=FALSE, include= FALSE, eval=FALSE }
-#print the correlation coordinates
-#bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
-#cord.X = cor(pw.spls$X, bisect, use = "pairwise")
-##cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
-#simMat = as.matrix(cord.X %*% t(cord.Y))
-#filter1
-#simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
-#  filter(D1517 >= 0.65 |
-#           D1517 <= -0.65) %>% 
-#  arrange(D1517)
-
-#kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
-#  kable_styling(latex_options="scale_down") %>%
-#  as_image()
-
-#kable(simMat.flt, booktabs=TRUE, caption = "Chromosol only: Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.65 to dieldrin concentrations are shown.") %>% 
-#  kable_styling(latex_options="scale_down")
-#flextable(simMat.flt)
-```
 
 ### Partial least squares discriminant analysis (PLS-DA)
   
@@ -904,10 +928,7 @@ data.TSS_TCratio <- data.TSS %>% rownames_to_column("OTUID") %>%
 
 data.TSS_TCratio.phyl <- data.TSS_TCratio %>% t
 
-physeq.pw_TCratio <-phyloseq(otu_table(
-            data.TSS_TCratio.phyl, taxa_are_rows = T), 
-              tax_table(as.data.frame(pw.names) %>% as.matrix()),
-             sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+physeq.pw_TCratio <-phyloseq(otu_table( data.TSS_TCratio.phyl, taxa_are_rows = T),   tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
 
 ps_clr <- microbiome::transform(physeq.pw_TCratio, "log10p")
 physeq.pw.melt.TCratio <- psmelt(ps_clr)
@@ -956,7 +977,7 @@ p2
 ```
 
 
-```{r plsdaratiocomp1to3, fig.cap = "Pathay potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into **log carbon ratios** before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1.7, cache = TRUE}
+```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into **log carbon ratios** before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1.7, cache = TRUE}
 require(mixOmics)
 #plsda  again this time with pathway converted to TC log ratios instead of centred log ratio
 
@@ -975,7 +996,7 @@ data.TSS = t(apply(x + 0.65, 1, TSS.divide))
 # ratio ####
 TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
 #add to TSS
-data.TSS.TC <- data.TSS %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+data.TSS.TC <- x %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
 #then devide by TC or Dieldrin and remove Dieldrin
 data.TSS.TC.ratio <- data.TSS.TC %>% rownames_to_column("OTUID") %>% 
   mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
@@ -992,7 +1013,7 @@ y <- data.frame(sample_data(physeq.pw.flt)[,c("Dloss_fct2")])
 y <- y$Dloss_fct2
 
 
-#dloss.plsda <- splsda(data.TSS.TC.ratio, y, ncomp = 5, logratio = "CLR")  # set ncomp to 10 for performance assessment later
+dloss.plsda <- splsda(data.TSS.TC.ratio+0.65, y, ncomp = 5)  # set ncomp to 10 for performance assessment later
 #plotIndiv(dloss.plsda , comp = 1:2,
 #          group = sample_data(physeq.pw.flt)$Dloss_fct2, ind.names = FALSE, 
 #          ellipse = TRUE, legend = TRUE, title = 'PLSDA on dieldrin loss')
@@ -1022,7 +1043,7 @@ select.keepX <- tune.splsda.dloss$choice.keepX[1:ncomp]  # optimal number of var
 
 ##Final model and sample representation
 #Our final model includes 1 components and 2 selected variables o.
-splsda.dloss2 <- splsda(data.TSS.TC.ratio, y, ncomp = ncomp, keepX = select.keepX, logratio = "CLR") 
+splsda.dloss2 <- splsda(data.TSS.TC.ratio, y, ncomp = ncomp, keepX = select.keepX) 
 #plotIndiv(splsda.dloss2, comp = c(1,2),
 #          group = sample_data(physeq.pw.flt )$Dloss_fct2, ind.names = FALSE, 
 #          ellipse = TRUE, legend = TRUE,
@@ -1046,7 +1067,7 @@ splsda_comp1vec <- as.data.frame(selectVar(splsda.dloss2, comp = 1))
 splsda_comp2vec <- as.data.frame(selectVar(splsda.dloss2, comp = 2))
 splsda_comp3vec <- as.data.frame(selectVar(splsda.dloss2, comp = 3))
 #splsda_comp4vec <- selectVar(splsda.dloss2, comp = 4)$name %>% as.vector()
-splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec,splsda_comp3vec)
+splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec)
 
 
 # here we match the selected variables to the stable features comp1
@@ -1089,7 +1110,7 @@ splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec,splsda_comp3vec)
 #             contrib = 'max', method = 'mean')
 
 physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
-
+my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 #figure                
 p2 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% splsda_compvec$name) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 p2
@@ -1097,6 +1118,8 @@ p2
 
 ```{r plsdatable, message=FALSE, warning=FALSE,echo=FALSE}
 #table with pw names instead of numbers
+require(mixOmics)
+#physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Kurosol", physeq.pw)
 physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
 physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE)
 #replace pw numbers with common name
@@ -1111,13 +1134,16 @@ data.TSS = t(apply(x + 0.65, 1, TSS.divide))
 # ratio ####
 TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
 #add to TSS
-data.TSS.TC <- data.TSS %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+data.TSS.TC <- x %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
 #then devide by TC or Dieldrin and remove Dieldrin
 data.TSS.TC.ratio <- data.TSS.TC %>% rownames_to_column("OTUID") %>% 
   mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
-data.TSS.TC.ratio <- log10(data.TSS.TC.ratio)
+data.TSS.TC.ratio <- log1p(data.TSS.TC.ratio)
+# select variables to predict 
+y <- data.frame(sample_data(physeq.pw.flt)[,c("Dloss_fct2")]) 
+y <- y$Dloss_fct2
 
-
+tune.splsda.dloss <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/tune.splsda.dlossTCratio_25pctpresence21march")
 ncomp <- tune.splsda.dloss$choice.ncomp$ncomp # optimal number of components 
 select.keepX <- tune.splsda.dloss$choice.keepX[1:ncomp]  # optimal number of 
 splsda.dloss2 <- splsda(data.TSS.TC.ratio, y, ncomp = ncomp, keepX = select.keepX) 
