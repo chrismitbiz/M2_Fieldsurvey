@@ -531,17 +531,7 @@ pppp
 
 ```
 
-<br/>
 
-ASV richness of bacteria and fungi were greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss) a and b). Bacterial richness was highest in the samples with highest dieldrin loss (>=72% dieldrin loss in the Kurosol). A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson index which was 1.27 times greater in the Kurosol. Consequently, in a high-loss environment there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.  
-  
-Fungi
-    
-Samples with greatest long-term loss of dieldrin contained the greatest potential of different enzymes (Fig. \@ref(fig:alphadloss)c). Moreover in the Kurosol, Shannon's index  was greater in the high-loss samples while Pilou's evenness remained the same. Shannon's index accounts for both, abundance and evenness, so an increase of this index without an increase in evenness, indicated that more enzymes with differential potentials (abundances) were present in the high-loss environment of this soil, while maintaining the spread of different types of enzymes.  
-  
-The diversity of enzyme potentials in the Chromosol was more similar between samples of low and high dieldrin loss compared to the Kurosol. Only Pilou's evenness was different. This soil was thus composed of the same metabolic richness but the potentials (abundances) of enzymes in high-loss samples of this soil were unevenly distributed or were more concentrated in fewer enzymes. 
-
-<br/>
   
 ```{r alphadlossenzymes, message=FALSE, warning=FALSE, echo=FALSE, include=FALSE, eval=FALSE}
 
@@ -575,23 +565,67 @@ p
 ```
 
 <br/>
-  
-In the figure \@ref(fig:alphadlossenzymes) the average Shannon's index was greater in the Chromosol Soil diversity per unit dieldrin (µg/g) was compared (Fig \@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg/g of dieldrin compared to the Chromosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment. 
 
+ASV richness of bacteria and fungi were greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss) a and b). Bacterial richness was highest in the samples with highest dieldrin loss (>=72% dieldrin loss in the Kurosol). A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson index which was 1.27 times greater in the Kurosol. Consequently, in a high-loss environment there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.  
+  
+    
+Samples with greatest long-term loss of dieldrin contained the greatest potential of different enzymes (Fig. \@ref(fig:alphadloss)c). Moreover in the Kurosol, Shannon's index  was greater in the high-loss samples while Pilou's evenness remained the same. Shannon's index accounts for both, abundance and evenness, so an increase of this index without an increase in evenness, indicated that more enzymes with differential potentials (abundances) were present in the high-loss environment of this soil, while maintaining the spread of different types of enzymes.  
+  
+The diversity of enzyme potentials in the Chromosol was more similar between samples of low and high dieldrin loss compared to the Kurosol. Only Pilou's evenness was different. This soil was thus composed of the same metabolic richness but the potentials (abundances) of enzymes in high-loss samples of this soil were unevenly distributed or were more concentrated in fewer enzymes.  
+  
+Soil diversity was further compared on a per-unit-dieldrin (µg/g) basis (Fig \@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg/g of dieldrin compared to the Chromosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment. 
+  
 <br/>
 
 
 ## Metabolic potential
+### Comparison of xenobiotic degradation potentials
+```{r xenobgraphs, fig.cap = "Comparison of all xenobiotic degradation pathways found.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.45, cache = TRUE}
+physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
+#physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE)
+#replace pw numbers with common name
+#taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt)@.Data[,c("COMMON-NAME")]))
+#taxa_names(physeq.pw.flt) <- taxtable$COMMON.NAME
+x <- as.data.frame(t(otu_table(physeq.pw.flt))) 
+TSS.divide = function(x){
+ x/sum(x)
+  }
+data.TSS = t(apply(x + 0.65, 1, TSS.divide))
+# ratio ####
+TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
+#add to TSS
+data.TSS.TC <- x %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+#then devide by TC or Dieldrin and remove Dieldrin
+data.TSS.TC.ratio <- data.TSS.TC %>% rownames_to_column("OTUID") %>% 
+  mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
+data.TSS.TC.ratio <- log1p(data.TSS.TC.ratio)
+data.TSS_TCratio.phyl <- data.TSS.TC.ratio %>% t
+physeq.pw_TCratio <-phyloseq(otu_table(
+            data.TSS_TCratio.phyl, taxa_are_rows = T), 
+              tax_table(as.data.frame(pw.names) %>% as.matrix()),
+             sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
+ps_clr <- microbiome::transform(physeq.pw_TCratio, "log10p")
+
+physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
+my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+# figure                
+physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl") | str_detect(tolower(COMMON.NAME), pattern =  "benze") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+
+# wilcoxon test
+#physeq.pw.melt.TCratio %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl") | str_detect(tolower(COMMON.NAME), pattern =  "benze") ) %>% filter(Abundance != 0) %>%  ggpubr::compare_means(Abundance ~ Soil, data = ., group.by = "COMMON.NAME", method = "wilcox.test", paired = FALSE, symnum.args = list(), p.adjust.method = "holm") %>% as.data.frame() %>% dplyr::filter(p.adj <= 1)
+
+# "2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway, phenol degradation, cyclohexanol oxidation, 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
+```
+  
+<br/>
+
 ### Partial least squares regression
 **Metacyc pathways**  
   
 Go [here](https://metacyc.org/pwy-search.shtml) to search for metacyc pathways  
 Go [here](https://mixomicsteam.github.io/Bookdown/index.html) to see mixOmics bookdown vignette
-```{r notinclude, fig.cap = "", message=FALSE, warning=FALSE, echo=TRUE, fig.width=8, fig.asp = 1, cache = TRUE, include=FALSE}
-#https://mixomicsteam.github.io/Bookdown/index.html
-```
-
-```{r plsheatmapsall, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) accross both soils (n = 33). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown." , message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 1, cache = TRUE}
+  
+```{r plsheatmapsall, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) accross both soils (n = 33). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown." , message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 1, cache = FALSE}
 
 #process: 
 #create tc ratio of pathways after TSS transform
@@ -654,7 +688,7 @@ pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
 test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.003 | D1517.dim1 <= -0.01)
 
-kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across both soils (n=33). Values indicate the predicted effect of metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test, caption = "Top regression coefficients of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(bootstrap_options = "striped", font_size = 7) 
 ```
 
 <br/>
@@ -741,7 +775,7 @@ pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
 test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
 
-kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 
 ```
 
@@ -826,7 +860,7 @@ test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
 test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
   filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.01 | D1517.dim1 <= -0.005)
 
-kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across in the Chromosol (n=15). Values indicate the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across in the Chromosol (n=15). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 
 ```
 
@@ -893,8 +927,8 @@ Figure \@ref(fig:plsheatmapsku) shows that most of the metabolic pathway potenti
 
 ### Partial least squares discriminant analysis (PLS-DA)
   
-Note: The following pathways were selected by PLS-DA
-```{r plsdakur, fig.cap = "Kurosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA).  Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo= FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE, include= FALSE, eval=FALSE}
+Note: The following pathways were selected by PLS-DA to be key predictors for dielrin loss (dieldrin loss in four factors)
+```{r plsdakurNOTINCLUDE, fig.cap = "Kurosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA).  Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo= FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE, include= FALSE, eval=FALSE}
 
 ps_clr <- microbiome::transform(physeq.pw, "compositional")
 physeq.pw.melt.comp <- psmelt(ps_clr)
@@ -908,7 +942,7 @@ p1
 ```
 
 
-```{r plsdakurTCratio, fig.cap = "Kurosol: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE,include= FALSE, eval=FALSE}
+```{r plsdakurTCratioNOINCLUDE, fig.cap = "Kurosol: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE,include= FALSE, eval=FALSE}
 
 x <- as.data.frame(t(otu_table(physeq.pw))) 
 #normalisation
@@ -940,7 +974,7 @@ p1
 ```
 
 
-```{r plsdach, fig.cap = "Chromosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE, include= FALSE, eval=FALSE}
+```{r plsdachNOTINCLUDE, fig.cap = "Chromosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE, include= FALSE, eval=FALSE}
   
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 #ps_clr <- microbiome::transform(physeq.pw, "compositional")
@@ -954,14 +988,14 @@ p1
 ```
 
 
-```{r plsdach2, fig.cap = "Chromosol: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE,include=FALSE, eval=FALSE }
+```{r plsdach2NOTINCLUDE, fig.cap = "Chromosol: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE,include=FALSE, eval=FALSE }
 p2 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% c("PWY-5430","PWY-5178","PWY-1882","HCAMHPDEG-PWY","PWY-6690","PWY-6397","PWY-6404","PWY0-1277","PWY-6948","PWY-7007","PWY-5654","PWY-7376")) %>%
 ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 p2
 ```
 
 
-```{r plsdaall, fig.cap = "Across all 36 samples: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE,  include= FALSE, eval=FALSE}
+```{r plsdaall, fig.cap = "Across all 36 samples: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE,  include= FALSE, eval=FALSE}
   
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
@@ -970,14 +1004,14 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "fre
 p1
 ```
 
-```{r plsdall2, fig.cap = "Across all 36 samples: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE, include= FALSE, eval=FALSE}
+```{r plsdall2NOTINCLUDE, fig.cap = "Across all 36 samples: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE, include= FALSE, eval=FALSE}
 p2 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% c("PWY-5392","PWY-7255", "PWY-6562","SUCSYN-PWY","PPGPPMET-PWY","CODH-PWY","PWY-7347","PWY-5198","PWY-7392","PWY-6167","PWY-6654","CATECHOL-ORTHO-CLEAVAGE-PWY","PWY-5656","NAD-BIOSYNTHESIS-II,PWY-5417","PWY-6182","PWY-6185","PWY-7295","P261-PWY","ARG+POLYAMINE-SYN")) %>%
 ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 p2
 ```
 
 
-```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into **log carbon ratios** before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1.7, cache = TRUE}
+```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into **log carbon ratios** before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1.2, cache = TRUE}
 require(mixOmics)
 #plsda  again this time with pathway converted to TC log ratios instead of centred log ratio
 
