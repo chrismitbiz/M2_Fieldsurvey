@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -472,8 +472,7 @@ p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.l
 x = dev.off()
 p 
 
-
-correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "D1517", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
+correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
 r_matrix=correlation_matrix$r
 r_matrix[row(r_matrix)>col(r_matrix)]=0
 diag(r_matrix)=0
@@ -489,7 +488,7 @@ cortable <- data.frame(Variable1 = cortable$r_table.Var1,
            pvalue_corrected = cortable$p_table.value)
 cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
 
-kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped",full_width = F)
+kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
 ```
 
 <br/>
