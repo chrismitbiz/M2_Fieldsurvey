@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -215,7 +215,6 @@ meta.df <- meta.df %>% rownames_to_column("OTUID") %>%
   mutate(POC_D17 = POC / D17) %>% 
   mutate(TC_P = TC / P) %>% 
   mutate(TC_D17 = TC / D17)  %>% column_to_rownames("OTUID")
-physeqB@sam_data <- sample_data(meta.df)
 
 #filter 
 #minimum of reads per feature
@@ -223,6 +222,15 @@ physeqB.flt = prune_taxa(taxa_sums(physeqB) >= 10, physeqB) #minimum reads per f
 physeqB.flt = filter_taxa(physeqB.flt , function(x) sum(x > 0) > (0.06*length(x)), TRUE) #minimum presense in x% of samples
 #filter any phyla that have not been classified i.e. are "NA"
 physeqB.flt = subset_taxa(physeqB.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
+
+#create faithpd diversity index and add back into the metadata
+prunedTree <- prune.sample(otu_table(t(physeqB.flt)), phy_tree(physeqB.flt) )
+faithpd <- pd(otu_table(t(physeqB.flt)), prunedTree )
+faithpd <- faithpd %>% rownames_to_column("#SampleID") 
+meta.df <- meta.df %>% rownames_to_column("#SampleID") %>% left_join(faithpd) %>% column_to_rownames("#SampleID")
+physeqB@sam_data <- sample_data(meta.df)
+
+
 
 #rarefaction curve
 rarecurve(t(otu_table(physeqB.flt)), step=200, sample = min(colSums(otu_table(physeqB.flt))), label = FALSE, xlab = "Sample Size after filtering") 
@@ -566,6 +574,8 @@ data.frame(sample_data(physeqE)) %>% melt(., measure.var =c("Observed", "Shannon
 ```
 
 
+
+
 ### Diversity per unit dieldrin
 ```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio to compare diversity of bacteria (a), fungi (b) and the predicted enzyme abundances (c) per unit dieldrin (µg/g). This is to demonstrate the effect of normalisting alpha diversity by the total carbon content or dieldrin concentration of a soil. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
@@ -622,7 +632,7 @@ physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 #p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.B.flt, "RDA")
-p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + ggtitle("Bacteria")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
+p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Bacteria") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F)
 
 #ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
 #label <- round(ord_nmdsF$stress,3)
@@ -633,8 +643,7 @@ p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", s
 #p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +geom_point(aes(size =  log1p(D1517))) +scale_colour_gradient(low = "cadetblue1", high = "navy")+ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Jaccard", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.F.flt, "RDA")
-p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
-  ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
+p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F)
 
 
 #ord_pcoabrayE <- phyloseq::ordinate(rare_EC, "NMDS", "bray")
@@ -647,8 +656,7 @@ p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", 
 #p.pcoaE2 <- phyloseq::plot_ordination(physeqE, ord_pcoaJE , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + scale_colour_gradient(low = "cadetblue1", high = "navy")+ ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Jaccard, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.E.flt, "RDA")
-p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
-  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
+p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
 
 
 pdf(NULL)
@@ -845,8 +853,19 @@ p4 <- p.ccaB +
 ```
 
 
+### Phylogenetic diversity of bacteria
+```{r phylodiv, echo=FALSE, fig.width=7.5, fig.asp=0.35, message=FALSE, warning=FALSE}
+p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(100)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(110)) + theme_bw() 
+
+p2 <- ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
+p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1)
+
+ggarrange(p1, p.pcoa2)
+
+```
+
 ### Redundancy analysis (Aitchison distances)
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.9,message=FALSE, warning=FALSE}
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=7.5, fig.asp= 0.8,message=FALSE, warning=FALSE}
 
 #KUROSOL
 
@@ -938,9 +957,7 @@ ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr +
 
 
 p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
-    geom_point(aes(size =  Dloss))+
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Fungi, Kurosol") 
+    geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Fungi, Kurosol") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
