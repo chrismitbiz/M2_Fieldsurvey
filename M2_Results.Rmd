@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
@@ -54,6 +54,7 @@ library(bookdown)
 library(tinytex)
 library(metagMisc)
 options(kableExtra.auto_format = FALSE)
+options(kableExtra.html.bsTable = T)
 library(kableExtra)
 library(magick)
 library(picante)
@@ -442,9 +443,8 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
   
 # Results
 ## Carbon quality
-```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
+```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-
 #data.frame(sample_data(physeqB)) %>% reshape2::melt(., measure.var = c("D1517", "TC","TC_D17","CN","HC", "ROC.pct", "HUM.pct", "POC.pct"))  %>%
 #  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scales = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("Dieldrin (µg/g)", "Total Carbon (TC)", "TC:Dieldrin ratio", "C:N ratio", "H:C ratio", "ROC (%)", "HUM (%)", "POC (%)"))) + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
 #  stat_compare_means( method = "kruskal",label = "p.signif")
@@ -471,10 +471,31 @@ pdf(NULL)
 p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.legend = TRUE)
 x = dev.off()
 p 
+
+
+correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "D1517", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
+r_matrix=correlation_matrix$r
+r_matrix[row(r_matrix)>col(r_matrix)]=0
+diag(r_matrix)=0
+p_matrix=correlation_matrix$p
+p_matrix[row(p_matrix)>col(p_matrix)]=1
+diag(p_matrix)=1
+r_table=melt(r_matrix)
+p_table=melt(p_matrix)
+cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
+cortable <- data.frame(Variable1 = cortable$r_table.Var1, 
+           Variable2 = cortable$r_table.Var2,
+           Rcoefficients = cortable$r_table.value,
+           pvalue_corrected = cortable$p_table.value)
+cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
+
+kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped",full_width = F)
 ```
 
-Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) shows that the Kursol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). Although it was less rich in organic matter, it was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). Furthermore, a high-loss soil environments coincided with a low carbon-to-nitrogen ration (C:N), and higher hydrogen-to-carbon ration (H:C) and a higher proportion of humus in the Kurosol. 
-There was also a trend that indicated that a higher proportion of POC was associated with more dieldrin loss. 
+<br/>
+
+Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) shows that the Kursol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). On the other hand, it was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). Moreover, a higher dieldrin loss in the Kurosol was associated with more humus in the organic matter. There was also a trend that indicated that a higher proportion of POC was associated with more dieldrin loss. Furthermore, figure \@ref(fig:carbonquality) shows that greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). 
+
 
 A separate correlation analysis showed:
  
@@ -638,24 +659,6 @@ x = dev.off()
 p
 
 ```
-
-
-(Fig. \@ref(fig:pcoa))  
-
-- Compositional comparisons were made between phylogenetic abundance and presence:absence distance metrics (weighted and unweighted unifrac) and non-phylogenetic abundance and presence:absence distance metrics (Bray Curtis and Jaccard).  
-  
-- Bacteria (a & d)
-  - Overall, a greater community dispersion was seen in the Kurosol. 
-  - This is in contrast to the Chromosol, which contained a more homogenous pool of ASVs. 
-  - As unifrac included phylogenetic information this implied that the Kurosol was phylogenetically more dispersed and contained a more broad gene pool.
-- Enzyme metagenome (functional potential of bacteria) (b & e)
-  - Bray-Curtis (abundance) was compared to Jaccard distance (presence absence)
-  - There were similar genes present in each soil but their estimated abundances differed.
-  - While a higher dispersion of gene abundances was observed in the Kurosol, the gene abundances in the Chromosol were homogenous. This meant that the metabolic potentials were more differentially abundant in the soil with high dieldrin loss.  
-- Fungi (c & f)
-  - Fungal ASVs cluster into three destinct groups, wherby the Kurosol splits into two groups and the Chromosol into one. Hence, the Chromsol contained one homogenous pool of similar ASVs.  
-
-<br/>
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
 
@@ -1060,6 +1063,21 @@ g3
 print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(psKfun),
             "bacterial and fungal taxa in the Kurosol and ", ntaxa(psCbac), "and", ntaxa(psCfun), "in the Chromosol"))
 ```
+
+(Fig. \@ref(fig:pcoa))  
+
+- Compositional comparisons were made between phylogenetic abundance and presence:absence distance metrics (weighted and unweighted unifrac) and non-phylogenetic abundance and presence:absence distance metrics (Bray Curtis and Jaccard).  
+  
+- Bacteria (a & d)
+  - Overall, a greater community dispersion was seen in the Kurosol. 
+  - This is in contrast to the Chromosol, which contained a more homogenous pool of ASVs. 
+  - As unifrac included phylogenetic information this implied that the Kurosol was phylogenetically more dispersed and contained a more broad gene pool.
+- Enzyme metagenome (functional potential of bacteria) (b & e)
+  - Bray-Curtis (abundance) was compared to Jaccard distance (presence absence)
+  - There were similar genes present in each soil but their estimated abundances differed.
+  - While a higher dispersion of gene abundances was observed in the Kurosol, the gene abundances in the Chromosol were homogenous. This meant that the metabolic potentials were more differentially abundant in the soil with high dieldrin loss.  
+- Fungi (c & f)
+  - Fungal ASVs cluster into three destinct groups, wherby the Kurosol splits into two groups and the Chromosol into one. Hence, the Chromsol contained one homogenous pool of similar ASVs.
 
 <br/>
 
