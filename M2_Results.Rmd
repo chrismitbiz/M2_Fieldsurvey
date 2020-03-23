@@ -13,7 +13,6 @@ output:
    keep_tex: true
 editor_options: 
   chunk_output_type: console
-always_allow_html: true
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -29,6 +28,7 @@ knit: (function(input_file, encoding) {
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
+#always_allow_html: true
 #knit: (function(input_file, encoding) {
 #  out_dir <- 'docs';
 #  rmarkdown::render(input_file,
@@ -493,15 +493,10 @@ kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coe
 
 <br/>
 
-Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) shows that the Kursol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). On the other hand, it was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). Moreover, a higher dieldrin loss in the Kurosol was associated with more humus in the organic matter. There was also a trend that indicated that a higher proportion of POC was associated with more dieldrin loss. Furthermore, figure \@ref(fig:carbonquality) shows that greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). 
+Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) shows that the Kursol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). On the other hand, it was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). Moreover, a higher dieldrin loss in the Kurosol was associated with more humus in the organic matter. There was also a trend that indicated that a higher proportion of POC was associated with more dieldrin loss. Furthermore, figure \@ref(fig:carbonquality) showed that greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). 
 
 
-A separate correlation analysis showed:
- 
-- CN, POC proportions and total ROC were correlated to dieldrin loss. 
-  - low C:N = high dieldrin losses
-  - more POC in organic matter = more dieldrin loss
-  - more ROC = less dieldrin loss.
+Correlation analysis further highlighted that greater dieldrin losses were correlated to low C:N, low ROC and a high POC. 
 - The soils with the highest aromatic carbon fraction (H:C) also had highest dieldrin losses
 
 
