@@ -187,7 +187,6 @@ physeqB <- prune_samples(samples = (sample_names(physeqB)!= c("C20")), physeqB )
 physeqB <- prune_taxa(taxa_sums(physeqB) != 0, physeqB)
 #adding diversity measures (with ps object) to metadata and re-create ps object 
 #here a decision has to be made on sample size. Look at feature-table.qzv to see how many samples are lost with x sample size or how many features are lost with minimum sample size. This is used ONLY for diversity metrics (not differentially abundance anaylyis which I filter separately. So I generally use the minimum samples size if different between min/max is within 10fold. 
-
 rare_Bac <- rarefy_even_depth(physeqB, sample.size = min(colSums(otu_table(physeqB))),  rngseed = TRUE, replace = TRUE, trimOTUs = TRUE)
 ps.div <- estimate_richness(rare_Bac)
 ps.div$`#SampleID` <- sample_names(physeqB)
@@ -384,9 +383,7 @@ meta.df <- meta.df %>% rownames_to_column("OTUID") %>%
 physeqE@sam_data <- sample_data(meta.df)
 physeqE
 ```
-  
-<br/>
-
+## Predicted Metacyc pathways
 
 ```{r physeqpw object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 # now for the pathway file
@@ -398,7 +395,6 @@ physeq.pw <- phyloseq(otu_table(
              sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
 ```
 
- 
 ```{r headmetadata, warning=FALSE,message=FALSE,echo=FALSE, include=FALSE}
 # Metadata, otu and taxtables
 sample_data(physeqB)[c(1:6,30),c("Soil","Paddock","D1517","TC","POC","ROC", "HUM","Shannon")]
@@ -440,7 +436,8 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
   kable_styling(latex_options="scale_down")
 ```
 
-  
+<br/>
+
 # Results
 ## Carbon quality
 ```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
@@ -493,15 +490,12 @@ kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coe
 
 <br/>
 
-Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) shows that the Kursol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). On the other hand, it was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). Moreover, a higher dieldrin loss in the Kurosol was associated with more humus in the organic matter. There was also a trend that indicated that a higher proportion of POC was associated with more dieldrin loss. Furthermore, figure \@ref(fig:carbonquality) showed that greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). 
+Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) shows that the Kursol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). On the other hand, the organic matter composition of the Kurosol was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). And a higher dieldrin loss in the Kurosol was associated with more humus. There was also a trend that indicated that a higher proportion of POC was associated with more dieldrin loss. Furthermore, greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). Correlation analysis further highlighted that greater dieldrin losses were correlated to low C:N, low ROC and a high POC.
 
-
-Correlation analysis further highlighted that greater dieldrin losses were correlated to low C:N, low ROC and a high POC. 
-- The soils with the highest aromatic carbon fraction (H:C) also had highest dieldrin losses
-
+<br/>
 
 ## Alpha diversity
-```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
+```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 #p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
@@ -514,7 +508,7 @@ my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 #  stat_compare_means( method = "kruskal",label = "p.signif")
 
 
-p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2300)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(2500)) + theme_bw() 
+p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2300)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(2500)) + theme_bw() 
 
 p2 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(7.25)) + theme_bw() 
 
@@ -522,7 +516,7 @@ p3 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "I
 
 p4 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.94)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.95)) + theme_bw() 
 
-p5 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV number", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(520)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(560)) + theme_bw()
+p5 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(520)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(560)) + theme_bw()
 
 p6 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(5.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6)) + theme_bw() 
 
@@ -530,7 +524,7 @@ p7 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "I
 
 p8 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.85)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.9)) + theme_bw() 
 
-p9 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", fill = "Soil", add = "jitter", ylab = "ASV number", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2120)) + stat_compare_means(method = "kruskal",label = "p.signif", label.y = c(2150)) + theme_bw()
+p9 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", fill = "Soil", add = "jitter", ylab = "Enzyme count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2120)) + stat_compare_means(method = "kruskal",label = "p.signif", label.y = c(2150)) + theme_bw()
 p10 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(6.76)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6.77)) + theme_bw() 
 
 p11 <-  data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(558)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(570)) + theme_bw() 
@@ -569,7 +563,7 @@ data.frame(sample_data(physeqE)) %>% melt(., measure.var =c("Observed", "Shannon
 
 
 ### Diversity per unit dieldrin
-```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio to compare diversity of bacteria (a), fungi (b) and the predicted enzyme abundances (c) per unit dieldrin (µg/g). This is to demonstrate the effect of normalisting alpha diversity by the total carbon content or dieldrin concentration of a soil. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.45}
+```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio to compare diversity of bacteria (a), fungi (b) and the predicted enzyme abundances (c) per unit dieldrin (µg/g). This is to demonstrate the effect of normalisting alpha diversity by the total carbon content or dieldrin concentration of a soil. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 p1 <- as.data.frame(sample_data(physeqB)) %>% melt(., measure.var = c("shannon_D17"))  %>%
@@ -590,8 +584,9 @@ p
 
 <br/>
 
-ASV richness of bacteria and fungi were greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss) a and b). Bacterial richness was highest in the samples with highest dieldrin loss (>=72% dieldrin loss in the Kurosol). A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson index which was 1.27 times greater in the Kurosol. Consequently, in a high-loss environment there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.  
+Microbial richness was greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss) a, b and c). For example, bacterial richness and their predicted enzyme abundances were highest in samples with highest dieldrin loss (>=72% dieldrin loss in the Kurosol). Fungal richness also trended higher in high-loss in samples within each soil. 
   
+A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson index which was 1.27 times greater in the Kurosol. Consequently, in a high-loss environment there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.  
     
 Samples with greatest long-term loss of dieldrin contained the greatest potential of different enzymes (Fig. \@ref(fig:alphadloss)c). Moreover in the Kurosol, Shannon's index  was greater in the high-loss samples while Pilou's evenness remained the same. Shannon's index accounts for both, abundance and evenness, so an increase of this index without an increase in evenness, indicated that more enzymes with differential potentials (abundances) were present in the high-loss environment of this soil, while maintaining the spread of different types of enzymes.  
   
@@ -608,26 +603,26 @@ Soil diversity was further compared on a per-unit-dieldrin (µg/g) basis (Fig \@
 ```{r pcoa, echo= FALSE,  fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi (n = 36). Symbols represent samples and their proximity to each other indicates compositional similarity. The colour of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=10, fig.asp= 0.7,message=FALSE, warning=FALSE, results=FALSE}
 
 ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA",  "unifrac",weighted=TRUE)
-p.pcoa1 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = log(D1517))) +
+p.pcoa1 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = log1p(D1517))) +
   ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)  + annotate(geom = 'text', label = "weighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 
 ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
-p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  POC.pct)) +
+p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
   ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 
 ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
 #label <- round(ord_nmdsF$stress,3)
 p.nmdsF1 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  POC.pct)) +
+    geom_point(aes(size =  log1p(D1517))) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Bray-Curtis", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "jaccard", binary=TRUE)
 #label <- round(ord_nmdsF$stress,3)
 p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  POC.pct)) +
+    geom_point(aes(size =  log1p(D1517))) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Jaccard", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
@@ -635,7 +630,7 @@ p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", sha
 ord_pcoabrayE <- phyloseq::ordinate(rare_EC, "NMDS", "bray")
 label <- round(ord_pcoabrayE$stress,3)
 p.pcoa3 <- phyloseq::plot_ordination(rare_EC, ord_pcoabrayE , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  POC.pct)) +
+    geom_point(aes(size =  log1p(D1517))) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Bray-Curtis, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
@@ -643,7 +638,7 @@ p.pcoa3 <- phyloseq::plot_ordination(rare_EC, ord_pcoabrayE , color = "Dloss", s
 ord_pcoaJE <- phyloseq::ordinate(rare_EC, "NMDS", "jaccard",binary=TRUE)
 label <- round(ord_pcoaJE$stress,3)
 p.pcoa4 <- phyloseq::plot_ordination(physeqE, ord_pcoaJE , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  POC.pct)) +
+    geom_point(aes(size =  log1p(D1517))) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Jaccard, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
