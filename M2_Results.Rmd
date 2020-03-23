@@ -1,5 +1,5 @@
 ---
-title: "A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
+title: "DRAFT: A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
 subtitle: "Associations of organic matter quality and soil diversity to long term dieldrin loss"
 output: 
  bookdown::html_document2:
@@ -599,57 +599,66 @@ Soil diversity was further compared on a per-unit-dieldrin (µg/g) basis (Fig \@
 
 ## Betadiversity
 
-### pcoa and nmds
-```{r pcoa, echo= FALSE,  fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi (n = 36). Symbols represent samples and their proximity to each other indicates compositional similarity. The colour of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=10, fig.asp= 0.7,message=FALSE, warning=FALSE, results=FALSE}
+### PCA (Aitchison distances)
+```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for  compositions of bacteria, their enzyme predictions and fungi (n = 36). All abundances were filtered to those present in at least 50% of samples. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4,message=FALSE, warning=FALSE, results=FALSE}
 
-ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA",  "unifrac",weighted=TRUE)
-p.pcoa1 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = log1p(D1517))) +
-  ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)  + annotate(geom = 'text', label = "weighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+physeq.B.flt = filter_taxa(physeqB, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
+physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
+
+physeq.F.flt = filter_taxa(physeqF, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
+
+physeq.E.flt = filter_taxa(physeqE, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
+physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
+min(taxa_sums(physeq.B.flt))
+
+#ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA",  "unifrac", weighted=TRUE)
+#p.pcoa1 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = log1p(D1517))) + ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)  + annotate(geom = 'text', label = "weighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+
+#ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
+#p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+
+ord_pcoa <- phyloseq::ordinate(physeq.B.flt, "RDA")
+p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + ggtitle("Bacteria")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
 
 
-ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
-p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
-  ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
-
-
-ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
+#ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
 #label <- round(ord_nmdsF$stress,3)
-p.nmdsF1 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  log1p(D1517))) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Bray-Curtis", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+#p.nmdsF1 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + scale_colour_gradient(low = "cadetblue1", high = "navy")+ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Bray-Curtis", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
-ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "jaccard", binary=TRUE)
+#ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "jaccard", binary=TRUE)
 #label <- round(ord_nmdsF$stress,3)
-p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  log1p(D1517))) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Jaccard", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+#p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +geom_point(aes(size =  log1p(D1517))) +scale_colour_gradient(low = "cadetblue1", high = "navy")+ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Jaccard", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+
+ord_pcoa <- phyloseq::ordinate(physeq.F.flt, "RDA")
+p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
+  ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
 
 
-ord_pcoabrayE <- phyloseq::ordinate(rare_EC, "NMDS", "bray")
-label <- round(ord_pcoabrayE$stress,3)
-p.pcoa3 <- phyloseq::plot_ordination(rare_EC, ord_pcoabrayE , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  log1p(D1517))) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Bray-Curtis, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+#ord_pcoabrayE <- phyloseq::ordinate(rare_EC, "NMDS", "bray")
+#label <- round(ord_pcoabrayE$stress,3)
+#p.pcoaE1 <- phyloseq::plot_ordination(rare_EC, ord_pcoabrayE , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + scale_colour_gradient(low = "cadetblue1", high = "navy")+ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Bray-Curtis, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 
-ord_pcoaJE <- phyloseq::ordinate(rare_EC, "NMDS", "jaccard",binary=TRUE)
-label <- round(ord_pcoaJE$stress,3)
-p.pcoa4 <- phyloseq::plot_ordination(physeqE, ord_pcoaJE , color = "Dloss", shape = "Soil") +
-    geom_point(aes(size =  log1p(D1517))) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Jaccard, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+#ord_pcoaJE <- phyloseq::ordinate(rare_EC, "NMDS", "jaccard",binary=TRUE)
+#label <- round(ord_pcoaJE$stress,3)
+#p.pcoaE2 <- phyloseq::plot_ordination(physeqE, ord_pcoaJE , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + scale_colour_gradient(low = "cadetblue1", high = "navy")+ ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Jaccard, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
+
+ord_pcoa <- phyloseq::ordinate(physeq.E.flt, "RDA")
+p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
+  ggtitle("Enzyme")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
+
 
 pdf(NULL)
-p <- ggarrange(p.pcoa1,  p.pcoa3, p.nmdsF1, p.pcoa2,p.pcoa4,p.nmdsF2, common.legend = TRUE, nrow = 2, ncol = 3, labels = "auto")
+#p <- ggarrange(p.pcoa1, p.pcoaE1, p.nmdsF1,   p.pcoa2,p.pcoaE2,p.nmdsF2, common.legend = TRUE, nrow = 3, ncol = 3, labels = "auto")
+p <- ggarrange(p.pcoa3, p.pcoaE3, p.pcoaF3, common.legend = TRUE, nrow = 1, ncol = 3, labels = "auto")
 x = dev.off()
 p
 
 ```
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
+
 
 #Bacteria
 physeq.pw.flt <- prune_samples(sample_data(rare_Bac)$Soil == "Kurosol", rare_Bac)
@@ -835,18 +844,18 @@ p4 <- p.ccaB +
   
 <br/>
 
-### Redundancy analysis on Aitchison distances
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE}
+### Redundancy analysis (Aitchison distances)
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.9,message=FALSE, warning=FALSE}
 
 
 #Bacteria
-physeq.pw.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB)
-physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw.flt)$Farm != "C", physeq.pw.flt)
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
-physeq.pw.flt <-  microbiome::transform(physeq.pw.flt, "clr") #clr transform
+physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB)
+physeq.B.flt  <-   prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt)
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
+physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
-ord_ccaB <- phyloseq::ordinate(physeq.pw.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
-p.ccaB  <- phyloseq::plot_ordination(rare_Bac, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
+ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size =  Dloss)) +
    scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Bacteria, Kurosol") 
@@ -866,8 +875,8 @@ arrow_map <- aes(xend = 1 * RDA1,
                  color = NULL, 
                  label = labels)
 
-label_map <- aes(x = 2.5 * RDA1, 
-                 y = 2.5 * RDA2, 
+label_map <- aes(x = 3 * RDA1, 
+                 y = 3 * RDA2, 
                  shape = NULL, 
                  color = NULL, 
                  label = labels)
@@ -887,17 +896,17 @@ p1 <- p.ccaB +
   data = arrowdf, 
   show.legend = FALSE)
 
-psKbac <- physeq.pw.flt
+psKbac <- physeq.B.flt
 
 
 #Fungi
-physeq.pw.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF)
-physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw.flt)$Farm != "C", physeq.pw.flt)
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.2*length(x)), TRUE) #must be present in x percent of samples
-physeq.pw.flt <-  microbiome::transform(physeq.pw.flt, "clr") #clr transform
+physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF)
+physeq.F.flt  <-   prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt)
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.2*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
-ord_ccaB <- phyloseq::ordinate(physeq.pw.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
-p.ccaB  <- phyloseq::plot_ordination(rare_Fun, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
+ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size =  Dloss)) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Fungi, Kurosol") 
@@ -938,17 +947,17 @@ p2 <- p.ccaB +
   data = arrowdf, 
   show.legend = FALSE)
 
-psKfun <- physeq.pw.flt
+psKfun <- physeq.F.flt
 
 
 #Chromosol
 #Bacteria
-physeq.pw.flt <- prune_samples(sample_data(physeqB)$Soil == "Chromosol", physeqB)
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
-physeq.pw.flt <-  microbiome::transform(physeq.pw.flt, "clr") #clr transform
+physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Chromosol", physeqB)
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
+physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
-ord_ccaB <- phyloseq::ordinate(physeq.pw.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
-p.ccaB  <- phyloseq::plot_ordination(rare_Bac, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
+ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size = Dloss)) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Bacteria, Chromosol") 
@@ -968,8 +977,8 @@ arrow_map <- aes(xend = 1 * RDA1,
                  color = NULL, 
                  label = labels)
 
-label_map <- aes(x = 1.8 * RDA1, 
-                 y = 1.8 * RDA2, 
+label_map <- aes(x = 2.5 * RDA1, 
+                 y = 2.5 * RDA2, 
                  shape = NULL, 
                  color = NULL, 
                  label = labels)
@@ -989,16 +998,16 @@ p3 <- p.ccaB +
   data = arrowdf, 
   show.legend = FALSE)
 
-psCbac <- physeq.pw.flt
+psCbac <- physeq.B.flt
 
 #Fungi
-physeq.pw.flt <- prune_samples(sample_data(physeqF)$Soil == "Chromosol", physeqF)
-physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.20*length(x)), TRUE) #must be present in x percent of samples
-physeq.pw.flt <-  microbiome::transform(physeq.pw.flt, "clr") #clr transform
+physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Chromosol", physeqF)
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.20*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
-ord_ccaB <- phyloseq::ordinate(physeq.pw.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
 
-p.ccaB  <- phyloseq::plot_ordination(rare_Fun, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size =  Dloss)) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Fungi, Chromosol") 
@@ -1039,7 +1048,7 @@ p4 <- p.ccaB +
   data = arrowdf, 
   show.legend = FALSE)
 
-psCfun <- physeq.pw.flt
+psCfun <- physeq.F.flt
 
 
 pdf(NULL)
