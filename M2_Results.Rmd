@@ -1,5 +1,5 @@
 ---
-title: "DRAFT: A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
+title: "PrepreDRAFT: A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
 subtitle: "Associations of organic matter quality and soil diversity to long term dieldrin loss"
 output: 
  bookdown::html_document2:
@@ -107,7 +107,7 @@ The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess qual
   
 For bacterial ASVs a phylogenetic tree was created using the qiime2 plugin q2-fragment-insertion that utilized SATé-enabled phylogenetic placements (SEPP) [@Janssen2018] with the greengenes 13.8 SEPP reference tree. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree. The tree was subsequently used to calculate weighted and unweighted unifrac distances in ordinations for bacteria and for phylogenetic analysis of associations to dieldrin loss as outlined below. 
   
-To assess differences in diversity between samples with high and low dieldrin losses, alpha diversity indices were produced with phyloseq (@McMurdie2012a) on rarefied abundances of bacteria, their predicted enzyme metagenome and fungi, whereby the depth of resampling was set to the minimum sample size.  
+To assess differences in diversity between samples with high and low dieldrin losses, alpha diversity indices were produced with phyloseq [@McMurdie2012a] on rarefied abundances of bacteria, their predicted enzyme metagenome and fungi, whereby the depth of resampling was set to the minimum sample size.  
   
 Compositional comparisons of bacteria, enzyme and fungal abundances were made using principle component analysis (PCA) and redundancy analyis (RDA) after converting abundance tables into Aitchison distances (@Aitchison1982a). Significance of contraints **significance was assessed** (@Legendre2011a). 
 
@@ -124,7 +124,7 @@ Additionally, we utilized sPLS discriminant analysis (PLS-DA) on the same data s
 The same analysis was done again on each soil separately, each time with pathways filtered to those present in at least 25% of samples.  
   
 
-## Analysis of phylogenetic associations to dieldrin losses 
+## Phylogenetic associations to dieldrin losses 
 After over 30 years of its last use, aged dieldrin is unlikely to have significant impact on bacterial abundances. Hence, we aimed to understand if the presence (not abundance) of phylogenetic clades can be associated with a soil environment that was conducive to greater long-term dieldrin losses. Thus, to test whether the presence of some bacterial clades was more likely in a soil with high or low dieldrin loss the package Phylofactor [@Washburne2019a] was used to perform generalized phylofactorization. Phylofactorization was chosen as it has the ability to detect similar shifts in microbial clades among different data (or soils) when mapped to the same phylogeny, even with minimal ASV overlap.  
   
 The analysis was done across both soils (n = 33) and then separately on each soil type (Kurosol n=18 and Chromosol n=15). Any unidentified phyla and phyla with low prevalence were removed. Remaining ASVs filtered to a minimum of 25 reads per ASV and converted to presence/absence, which was modelled as the response variable with dieldrin loss (%) as numeric predictors. Phylofactor partitioned the phylogeny along edges with different log-odds of presence using generalized linear models (default mixed algorithm) with binomial distributions. The identified clades were then mapped onto the phylogenetic tree and their ASV counts and abundances compared to different levels of dieldrin loss. 
@@ -872,10 +872,7 @@ ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr +
 #anova(ord_ccaB0, ord_ccaB5) #HUM contributing the most
 #anova(ord_ccaB0, ord_ccaB6)
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
-    geom_point(aes(size =  Dloss)) +
-   scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Bacteria, Kurosol") 
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") + geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Bacteria, Kurosol") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -919,7 +916,7 @@ psKbac <- physeq.B.flt
 # FUNGI
 physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF)
 physeq.F.flt  <-   prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt)
-physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.2*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
 ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
@@ -940,8 +937,8 @@ ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr +
 
 
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Dloss_fct2") +
-    geom_point(aes(size =  Dloss)) +
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
+    geom_point(aes(size =  Dloss))+
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
   ggtitle("Fungi, Kurosol") 
 
@@ -994,10 +991,8 @@ ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr +
 #require(vegan)
 #permutest(ord_ccaB)
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
-    geom_point(aes(size = Dloss)) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Bacteria, Chromosol") 
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Soil") + geom_point(aes(size = Dloss)) + scale_size(breaks = c(30,40,50)) + scale_colour_gradient(low = "cadetblue1", high = "navy") +
+  ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1039,15 +1034,13 @@ psCbac <- physeq.B.flt
 
 #Fungi
 physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Chromosol", physeqF)
-physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.20*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
 ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Dloss_fct2") +
-    geom_point(aes(size =  Dloss)) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Fungi, Chromosol") 
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Soil") + geom_point(aes(size = Dloss)) + scale_size(breaks = c(30,40,50)) + scale_colour_gradient(low = "cadetblue1", high = "navy") +
+  ggtitle("Fungi, Chromosol") + scale_shape_manual(values = c(17))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1092,7 +1085,7 @@ psCfun <- physeq.F.flt
 #ENZYMES
 physeq.E.flt <- prune_samples(sample_data(physeqE)$Soil == "Kurosol", physeqE)
 physeq.E.flt  <-   prune_samples(sample_data(physeq.E.flt)$Farm != "C", physeq.E.flt)
-physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.2*length(x)), TRUE) #must be present in x percent of samples
+physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 
 ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
