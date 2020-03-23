@@ -854,11 +854,11 @@ p4 <- p.ccaB +
 
 
 ### Phylogenetic diversity of bacteria
-```{r phylodiv, echo=FALSE, fig.height=7, fig.asp=0.4, message=FALSE, warning=FALSE}
-p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free",shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(100)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(110)) + theme_bw() + theme(legend.position="none")
+```{r phylodiv, echo=FALSE, fig.height=8, fig.asp=0.4, message=FALSE, warning=FALSE}
+p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free",shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(110)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(115)) + theme_bw() + theme(legend.position="none")
 
 p2 <- ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
-p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size =D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1)
+p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") +  scale_colour_gradient(low = "cadetblue1", high = "navy" ) + guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1)
 
 pdf(NULL)
 gg <- ggarrange(p1, p.pcoa2, ncol = 2, widths = c(0.43,0.5))
