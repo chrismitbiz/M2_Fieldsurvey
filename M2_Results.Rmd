@@ -93,19 +93,23 @@ Site location and details, sampling procedure and soil physicochemical character
   
 It was found that both surface soils consisted of a similar texture which were classified as loam [@InternationalSocietyofSoilScienceISSS1929]. Furthermore, they had the same average pH (4.55 ± 0.04 SE) and were both in high-rainfall zones with similar annual maximum temperatures (20.9 - 21.9 ˚C). However, they differed in total carbon (TC) concentrations, in that the Kurosol measured just over half the carbon concentrations compared to the Chromosol (33.3 and 61.8 mg g^-1^, ± 1.05 and 1.72 SE).
   
-The long-term dieldrin loss (%) per paddock was calculated using the difference of the average dieldrin concentrations from 2015/2017 and the earliest available concentrations (1987 - 1995). @Krohn2019 showed that the two soils differed in their apparent ability to degrade dieldrin. The Kurosol lost 1.7 times more dieldrin compared to the Chromosol (73 and 42 %, ± 0.07 and 0.04 SE) since 1988 and it was found that the TC, the carbon-to-nitrogen ratio (C:N), the microbial-carbon-to-total-carbon ratio (MBC:TC) and soil diversity were associated with dieldrin concentrations and dieldrin loss (%).
+The long-term dieldrin loss in percent per paddock was calculated using the difference of the average dieldrin concentrations from 2015/2017 (D1517) and the earliest available concentrations from 1987 to 1995. @Krohn2019 showed that the two soils differed in their apparent ability to degrade dieldrin. The Kurosol lost 1.7 times more dieldrin compared to the Chromosol (73 and 42 %, ± 0.07 and 0.04 SE) since 1988 and it was found that the TC, the carbon-to-nitrogen ratio (C:N), the microbial-carbon-to-total-carbon ratio (MBC:TC) and soil diversity were associated with dieldrin concentrations and dieldrin loss.
   
 ## Estimation of soil fractions
 Soil processing and acquisitions of infrared spectra followed the method set out in @Madhavan2017. Briefly, sieved (≤ 2 mm) and air dried soils were finely ground in a ball mill (Retsch MM400, Germany) at 25 rounds per second for 30 seconds. Diffuse reflectance spectra in the mid-and near-infrared (MNIRS) spectra (7800  - 450 cm-1 at 8 cm-1 resolution) were acquired for all samples using a PerkinElmer Frontier FT-NIR-MIR Spectrometer (PerkinElmer Inc., Waltham, MA, USA) equipped with a KBr beam-splitter, a DTGS detector and AutoDiff automated diffuse reflectance accessory (Pike Technologies, Madison, WI, USA). 
   
-Spectra were pre-processed as described in @Madhavan2017 and concentrations of total organic carbon (TOC), particulate organic carbon (POC), resistant organic carbon (ROC) and humus (HOC) were predicted from MNIRS spectra of the Australian Soil Carbon Research Project (ScaRP, Baldock et al. 2013) using partial least squares (PLS) regression. To assess prediction accuracy the TOC concentrations from the PLS predictions were correlated with TC measurements of the same samples using a dry combustion analyzer (Perkin Elmer 2400 Series Ⅱ, R^2^ = 0.98). For all downstream analyses, POC, ROC and HOC were transformed into percentages or centered log ratios [@Bruckner2017a]. 
+Spectra were pre-processed as described in @Madhavan2017 and concentrations of total organic carbon (TOC), particulate organic carbon (POC), resistant organic carbon (ROC) and humus (HOC) were predicted from MNIRS spectra of the Australian Soil Carbon Research Project (ScaRP, Baldock et al. 2013) using partial least squares (PLS) regression. To assess prediction accuracy the TOC concentrations from the PLS predictions were correlated with TC measurements of the same samples using a dry combustion analyzer (Perkin Elmer 2400 Series Ⅱ, R^2^ = 0.98). For all downstream analyses, POC, ROC and HOC were either transformed into percentages of TOC or centered log ratios [@Bruckner2017a]. 
 
 ## Diversity measurements
-DNA of 0.25 g fresh soil was extracted using Powersoil DNA isolation kit (MoBio, Calsbad, USA) and stored at -20 ˚C. Marker genes were sequenced with 15% phiX control on a Illumina MiSeq platform (2 × 300) to determine bacterial and fungal diversity. For bacteria the V4 hypervariable region of the 16S-rRNA gene was targeted with primers 515F (GTGYCAGCMGCCGCGGTAA) / 806R (GGACTACNVGGGTWTCTAAT) [@Apprill2015; @Caporaso2012; @Walters2016] and for fungi the Internal Transcrined Spacer (ITS) region 2 [@Blaalid2013] with primers FITS7 (GTGARTCATCGAATCTTTG)/ITS4 (TCCTCCGCTTATTGATATGC) [@Egidi2019; @Katarina2012].
+DNA of 0.25 g fresh soil was extracted using Powersoil DNA isolation kit (MoBio, Calsbad, USA) and stored at -20 ˚C. Marker genes were sequenced with 15% phiX control on a Illumina MiSeq platform (2 × 300) to determine bacterial and fungal diversity. For bacteria the V4 hypervariable region of the 16S-rRNA gene was targeted with primers 515F (GTGYCAGCMGCCGCGGTAA) / 806R (GGACTACNVGGGTWTCTAAT) [@Apprill2015; @Caporaso2012; @Walters2016] and for fungi the Internal Transcrined Spacer (ITS) region 2 [@Blaalid2013] with primers FITS7 (GTGARTCATCGAATCTTTG)/ITS4 (TCCTCCGCTTATTGATATGC) [@Egidi2019; @Katarina2012].  
   
-The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 19,918 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using greengenes reference sequences (gg13.8 at 99% similarity) for bacteria [@McDonald2012a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].
+The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 19,918 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using greengenes reference sequences (gg13.8 at 99% similarity) for bacteria [@McDonald2012a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].  
   
-For bacterial ASVs a phylogenetic tree was created using the qiime2 plugin q2-fragment-insertion that utilized SATé-enabled phylogenetic placements (SEPP) [@Janssen2018] with the greengenes 13.8 SEPP reference tree. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree.
+For bacterial ASVs a phylogenetic tree was created using the qiime2 plugin q2-fragment-insertion that utilized SATé-enabled phylogenetic placements (SEPP) [@Janssen2018] with the greengenes 13.8 SEPP reference tree. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree. The tree was subsequently used to calculate weighted and unweighted unifrac distances in ordinations for bacteria and for phylogenetic analysis of associations to dieldrin loss as outlined below. 
+  
+To assess differences in diversity between samples with high and low dieldrin losses, alpha diversity indices were produced with phyloseq (@McMurdie2012a) on rarefied abundances of bacteria, their predicted enzyme metagenome and fungi, whereby the depth of resampling was set to the minimum sample size.  
+  
+Compositional comparisons of bacteria, enzyme and fungal abundances were made using principle component analysis (PCA) and redundancy analyis (RDA) after converting abundance tables into Aitchison distances (@Aitchison1982a). Significance of contraints **significance was assessed** (@Legendre2011a). 
 
 
 ## Metacyc pathway associations to carbon fractions and dielrin concentrations
@@ -597,7 +601,7 @@ Soil diversity was further compared on a per-unit-dieldrin (µg/g) basis (Fig \@
 <br/>
 
 
-## Betadiversity
+## Compositional analysis
 
 ### PCA (Aitchison distances)
 ```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for  compositions of bacteria, their enzyme predictions and fungi (n = 36). All abundances were filtered to those present in at least 50% of samples. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4,message=FALSE, warning=FALSE, results=FALSE}
@@ -610,7 +614,6 @@ physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
 physeq.E.flt = filter_taxa(physeqE, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
-min(taxa_sums(physeq.B.flt))
 
 #ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA",  "unifrac", weighted=TRUE)
 #p.pcoa1 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = log1p(D1517))) + ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)  + annotate(geom = 'text', label = "weighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
@@ -620,7 +623,6 @@ min(taxa_sums(physeq.B.flt))
 
 ord_pcoa <- phyloseq::ordinate(physeq.B.flt, "RDA")
 p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + ggtitle("Bacteria")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
-
 
 #ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
 #label <- round(ord_nmdsF$stress,3)
@@ -646,7 +648,7 @@ p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", 
 
 ord_pcoa <- phyloseq::ordinate(physeq.E.flt, "RDA")
 p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +
-  ggtitle("Enzyme")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
+  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
 
 
 pdf(NULL)
@@ -841,20 +843,35 @@ p4 <- p.ccaB +
   data = arrowdf, 
   show.legend = FALSE)
 ```
-  
-<br/>
+
 
 ### Redundancy analysis (Aitchison distances)
 ```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.9,message=FALSE, warning=FALSE}
 
+#KUROSOL
 
-#Bacteria
+#BACTERIA
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB)
 physeq.B.flt  <-   prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt)
 physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
 ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+
+#Testing significance
+#ord_ccaB0 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ 0)
+#ord_ccaB1 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + ROC.clr)
+#ord_ccaB2 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ POC.clr + ROC.clr)
+#ord_ccaB3 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ POC.clr + HUM.clr)
+#ord_ccaB4 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ POC.clr)
+#ord_ccaB5 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr)
+#ord_ccaB6 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ ROC.clr)
+#require(vegan)
+#permutest(ord_ccaB)
+#anova(ord_ccaB0, ord_ccaB4) #POC contributing the least
+#anova(ord_ccaB0, ord_ccaB5) #HUM contributing the most
+#anova(ord_ccaB0, ord_ccaB6)
+
 p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size =  Dloss)) +
    scale_colour_gradient(low = "cadetblue1", high = "navy")+
@@ -899,13 +916,30 @@ p1 <- p.ccaB +
 psKbac <- physeq.B.flt
 
 
-#Fungi
+# FUNGI
 physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF)
 physeq.F.flt  <-   prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt)
 physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.2*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
 ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+
+#Testing significance
+#ord_ccaF0 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ 0)
+#ord_ccaF1 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + ROC.clr)
+#ord_ccaF2 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ POC.clr + ROC.clr)
+#ord_ccaF3 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ POC.clr + HUM.clr)
+#ord_ccaF4 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ POC.clr)
+#ord_ccaF5 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr)
+#ord_ccaF6 <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ ROC.clr)
+#require(vegan)
+#permutest(ord_ccaF)
+#anova(ord_ccaB0, ord_ccaB4) # POC the least
+#anova(ord_ccaB0, ord_ccaB5) # HUM contributing most 
+#anova(ord_ccaB0, ord_ccaB6) 
+
+
+
 p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size =  Dloss)) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
@@ -950,13 +984,16 @@ p2 <- p.ccaB +
 psKfun <- physeq.F.flt
 
 
-#Chromosol
+#CHROMOSOL
 #Bacteria
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Chromosol", physeqB)
 physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
 ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+#require(vegan)
+#permutest(ord_ccaB)
+
 p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Dloss_fct2") +
     geom_point(aes(size = Dloss)) +
     scale_colour_gradient(low = "cadetblue1", high = "navy")+
@@ -1051,12 +1088,114 @@ p4 <- p.ccaB +
 psCfun <- physeq.F.flt
 
 
+#KUROSOL
+#ENZYMES
+physeq.E.flt <- prune_samples(sample_data(physeqE)$Soil == "Kurosol", physeqE)
+physeq.E.flt  <-   prune_samples(sample_data(physeq.E.flt)$Farm != "C", physeq.E.flt)
+physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.2*length(x)), TRUE) #must be present in x percent of samples
+physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
+
+ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+#require(vegan)
+#permutest(ord_ccaF)
+
+p.ccaB  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Dloss_fct2") +
+    geom_point(aes(size =  Dloss)) +
+    scale_colour_gradient(low = "cadetblue1", high = "navy")+
+  ggtitle("Enzymes, Kurosol") 
+
+# Now add the environmental variables as arrows to either of these p1 or p2
+arrowmat <- vegan::scores(ord_ccaB, display = "bp")
+arrowmat <- data.frame(arrowmat)
+rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+# Add labels, make a data.frame
+arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
+# Define the arrow aesthetic mapping
+arrow_map <- aes(xend = 1 * RDA1, 
+                 yend = 1 * RDA2, 
+                 x = 0, 
+                 y = 0, 
+                 shape = NULL, 
+                 color = NULL, 
+                 label = labels)
+
+label_map <- aes(x = 1.8 * RDA1, 
+                 y = 1.8 * RDA2, 
+                 shape = NULL, 
+                 color = NULL, 
+                 label = labels)
+
+arrowhead = arrow(length = unit(0.02, "npc"))
+# Make a new graphic
+p5 <- p.ccaB + 
+  geom_segment(
+    mapping = arrow_map, 
+    size = .5, 
+    data = arrowdf, 
+    color = "gray", 
+    arrow = arrowhead)  +
+  geom_text(
+   mapping = label_map, 
+  size = 4,  
+  data = arrowdf, 
+  show.legend = FALSE)
+#ENZYMES
+#Chromosol
+physeq.E.flt <- prune_samples(sample_data(physeqE)$Soil == "Chromosol", physeqE)
+physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
+physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
+
+ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+p.ccaB  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Dloss_fct2") +
+    geom_point(aes(size = Dloss)) +
+    scale_colour_gradient(low = "cadetblue1", high = "navy")+
+  ggtitle("Enzymes, Chromosol") 
+
+# Now add the environmental variables as arrows to either of these p1 or p2
+arrowmat <- vegan::scores(ord_ccaB, display = "bp")
+arrowmat <- data.frame(arrowmat)
+rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+# Add labels, make a data.frame
+arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
+# Define the arrow aesthetic mapping
+arrow_map <- aes(xend = 1 * RDA1, 
+                 yend = 1 * RDA2, 
+                 x = 0, 
+                 y = 0, 
+                 shape = NULL, 
+                 color = NULL, 
+                 label = labels)
+
+label_map <- aes(x = 2.5 * RDA1, 
+                 y = 2.5 * RDA2, 
+                 shape = NULL, 
+                 color = NULL, 
+                 label = labels)
+
+arrowhead = arrow(length = unit(0.02, "npc"))
+# Make a new graphic
+p6 <- p.ccaB + 
+  geom_segment(
+    mapping = arrow_map, 
+    size = .5, 
+    data = arrowdf, 
+    color = "gray", 
+    arrow = arrowhead)  +
+  geom_text(
+   mapping = label_map, 
+  size = 4,  
+  data = arrowdf, 
+  show.legend = FALSE)
+
+
+
 pdf(NULL)
 g1 <- ggarrange( nrow = 2, ncol = 1, p1,p2,  common.legend = TRUE, legend = "right")
 g2 <- ggarrange(nrow = 2, ncol = 1, p3, p4, common.legend = TRUE, legend = "right")
-g3 <- ggarrange(nrow = 1, ncol = 2,g1,g2)
+#g3 <- ggarrange(nrow = 2, ncol = 1, p5, p6, common.legend = TRUE, legend = "right")
+g4 <- ggarrange(nrow = 1, ncol = 2, g1,g2)
 x = dev.off()
-g3
+g4
 
 print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(psKfun),
             "bacterial and fungal taxa in the Kurosol and ", ntaxa(psCbac), "and", ntaxa(psCfun), "in the Chromosol"))
