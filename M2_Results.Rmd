@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -586,7 +586,7 @@ physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 #p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.B.flt, "RDA")
-p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Bacteria") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F)
+p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Bacteria") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)") 
 
 #ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
 #label <- round(ord_nmdsF$stress,3)
@@ -597,7 +597,7 @@ p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", s
 #p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +geom_point(aes(size =  log1p(D1517))) +scale_colour_gradient(low = "cadetblue1", high = "navy")+ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Jaccard", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.F.flt, "RDA")
-p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F)
+p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)") 
 
 
 #ord_pcoabrayE <- phyloseq::ordinate(rare_EC, "NMDS", "bray")
@@ -610,7 +610,7 @@ p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", 
 #p.pcoaE2 <- phyloseq::plot_ordination(physeqE, ord_pcoaJE , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + scale_colour_gradient(low = "cadetblue1", high = "navy")+ ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Jaccard, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.E.flt, "RDA")
-p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F)
+p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size = D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)") 
 
 
 pdf(NULL)
@@ -810,10 +810,10 @@ p4 <- p.ccaB +
 ### Phylogenetic diversity of bacteria
 ```{r phylodiv,  fig.cap= "Faith phylogenetic diversity index (a) and principle coordinate analysis (PCoA) with unweighted unifrac distances (b).", echo=FALSE, fig.height=8, fig.asp=0.4, message=FALSE, warning=FALSE}
 
-p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free",shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(110)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(115)) + theme_bw() + theme(legend.position="none")
+p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free", shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(110)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(115)) + theme_bw() + theme(legend.position="none")  
 
 p2 <- ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
-p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") +  scale_colour_gradient(low = "cadetblue1", high = "navy" ) + guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1)
+p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") +  scale_colour_gradient(low = "cadetblue1", high = "navy" ) + guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1) + labs(shape = "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 pdf(NULL)
 gg <- ggarrange(p1, p.pcoa2, ncol = 2, widths = c(0.43,0.5), labels = "auto")
@@ -822,7 +822,7 @@ gg
 ```
 
 ### Redundancy analysis (Aitchison distances)
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=7.5, fig.asp= 0.8,message=FALSE, warning=FALSE}
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.8,message=FALSE, warning=FALSE}
 
 #KUROSOL
 
@@ -848,7 +848,8 @@ ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr +
 #anova(ord_ccaB0, ord_ccaB5) #HUM contributing the most
 #anova(ord_ccaB0, ord_ccaB6)
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") + geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Bacteria, Kurosol") 
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") + geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Bacteria, Kurosol") + labs(size= "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
+
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -914,7 +915,7 @@ ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr +
 
 
 p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
-    geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Fungi, Kurosol") 
+    geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Fungi, Kurosol") + labs(size= "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -966,7 +967,7 @@ ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr +
 #permutest(ord_ccaB)
 
 p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Soil") + geom_point(aes(size = Dloss)) + scale_size(breaks = c(30,40,50)) + scale_colour_gradient(low = "cadetblue1", high = "navy") +
-  ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17))
+  ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1014,7 +1015,7 @@ physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
 
 p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Soil") + geom_point(aes(size = Dloss)) + scale_size(breaks = c(30,40,50)) + scale_colour_gradient(low = "cadetblue1", high = "navy") +
-  ggtitle("Fungi, Chromosol") + scale_shape_manual(values = c(17))
+  ggtitle("Fungi, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
