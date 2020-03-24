@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -24,7 +24,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-
+  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -662,7 +662,7 @@ rownames(betadispGenes) <- c("Genes")
 
 betatest <- rbind(betadispBacteria, betadispGenes, betadispFungi )
 betatest <- data.frame(p = betatest)
-kable(betatest,caption = "Test for differences in compositional variance. All compositions were filtered to the most common features that were present in both soils.")
+kable(betatest,caption = "Test for differences in compositional variance between the Kurosol and the Chromosol. All compositions were filtered to the most common features that were present in both soils.")
 ```
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
@@ -1216,7 +1216,7 @@ print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(
  <br/>
 
 
-Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a), the gene abundances as predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils and included 175 bacterial and 65 fungal taxa as well as 1988 enzyme encoding genes. It showed that the Kurosol contained a different composition of key taxa with greater dispersion.  
+Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a), the gene abundances as predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils and included 175 bacterial and 65 fungal taxa as well as 1988 enzyme encoding genes. It showed that the Kurosol contained a different composition of key taxa with greater dispersion (betadisp *p* < 0.05).
 
 
 
