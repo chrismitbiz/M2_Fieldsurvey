@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -568,15 +568,18 @@ Soil diversity was further compared on a per-unit-dieldrin (diversity µg g^-2^)
 ## Compositional analysis
 
 ### PCA (Aitchison distances)
-```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for  compositions of bacteria, their enzyme predictions and fungi (n = 36). All abundances were filtered to those present in at least 50% of samples. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4,message=FALSE, warning=FALSE, results=FALSE}
+```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for  compositions of filtered bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33). Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4,message=FALSE, warning=FALSE, results=FALSE}
 
-physeq.B.flt = filter_taxa(physeqB, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
+physeq.B.flt  <-   prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.40*length(x)), TRUE) #must be present in x percent of samples
 physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
-physeq.F.flt = filter_taxa(physeqF, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt  <-   prune_samples(sample_data(physeqF)$Farm != "C", physeqF)
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
-physeq.E.flt = filter_taxa(physeqE, function(x) sum(x > 0) > (0.5*length(x)), TRUE) #must be present in x percent of samples
+physeq.E.flt  <-   prune_samples(sample_data(physeqE)$Farm != "C", physeqE)
+physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 
 #ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA",  "unifrac", weighted=TRUE)
@@ -619,6 +622,7 @@ p <- ggarrange(p.pcoa3, p.pcoaE3, p.pcoaF3, common.legend = TRUE, nrow = 1, ncol
 x = dev.off()
 p
 
+print(paste("After filtering the analysis included", ntaxa(physeq.B.flt),"and", ntaxa(physeq.F.flt),"bacterial and fungal taxa in the Kurosol and ", ntaxa(physeq.E.flt), "enzyme encoding genes"))
 ```
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
@@ -816,7 +820,7 @@ p2 <- ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
 p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") +  scale_colour_gradient(low = "cadetblue1", high = "navy" ) + guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1) + labs(shape = "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 pdf(NULL)
-gg <- ggarrange(p1, p.pcoa2, ncol = 2, widths = c(0.43,0.5), labels = "auto")
+gg <- ggarrange(p1, p.pcoa2, ncol = 2, widths = c(0.40,0.5), labels = "auto")
 x = dev.off()
 gg
 ```
@@ -1169,22 +1173,12 @@ print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(
             "bacterial and fungal taxa in the Kurosol and ", ntaxa(psCbac), "and", ntaxa(psCfun), "in the Chromosol"))
 ```
 
-(Fig. \@ref(fig:pcoa))  
+ <br/>
 
-- Compositional comparisons were made between phylogenetic abundance and presence:absence distance metrics (weighted and unweighted unifrac) and non-phylogenetic abundance and presence:absence distance metrics (Bray Curtis and Jaccard).  
-  
-- Bacteria (a & d)
-  - Overall, a greater community dispersion was seen in the Kurosol. 
-  - This is in contrast to the Chromosol, which contained a more homogenous pool of ASVs. 
-  - As unifrac included phylogenetic information this implied that the Kurosol was phylogenetically more dispersed and contained a more broad gene pool.
-- Enzyme metagenome (functional potential of bacteria) (b & e)
-  - Bray-Curtis (abundance) was compared to Jaccard distance (presence absence)
-  - There were similar genes present in each soil but their estimated abundances differed.
-  - While a higher dispersion of gene abundances was observed in the Kurosol, the gene abundances in the Chromosol were homogenous. This meant that the metabolic potentials were more differentially abundant in the soil with high dieldrin loss.  
-- Fungi (c & f)
-  - Fungal ASVs cluster into three destinct groups, wherby the Kurosol splits into two groups and the Chromosol into one. Hence, the Chromsol contained one homogenous pool of similar ASVs.
 
-<br/>
+Figure \@ref(fig:pcoa) compares the compositions of the most abundant bacteria (a), the gene abundances as predicted from bacterial ASVs with Picrust2 (b) and fungi (c).
+
+
 
 Fungal community composition in the Kurosol was more driven by organic matter composition compared to both, bacteria overall and fungi in the Chromosol. In the Kurosol, the variance explained in RDA1 and RDA2 was approximately twice as high for fungi (21.6% and 5.9%) compared to bacteria (9.8% and 5.9%). This was different to the Chromosol where the explained variation for RDA1 and RDA2 was similar for bacteria and fungi.  
 In the Kurosol, there was some grouping of samples where the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM. POS had little to no importance for bacterial and fungal composition in the Kurosol.   
