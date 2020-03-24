@@ -24,8 +24,6 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
-  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -569,7 +567,7 @@ Soil diversity was further compared on a per-unit-dieldrin (diversity µg g^-2^)
 ## Compositional analysis
 
 ### PCA (Aitchison distances)
-```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for compositions of the most common bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33), that were present in both soil. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=TRUE}
+```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for compositions of the most common bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33). After filtering the analysis included 175 and 65 bacterial and fungal taxa in the Kurosol respectively and 1988 enzyme encoding genes which were present in both soils. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=FALSE}
 
 physeq.B.flt  <-  prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
 physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.8*length(x)), TRUE) #must be present in x percent of samples
@@ -590,7 +588,7 @@ physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 #p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) +ggtitle("Bacteria, PCoA")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.B.flt, "RDA")
-p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Bacteria") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)") 
+p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Bacteria") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)", shape = "") 
 
 #ord_nmdsF <- phyloseq::ordinate(rare_Fun, "PCoA", "bray")
 #label <- round(ord_nmdsF$stress,3)
@@ -601,7 +599,7 @@ p.pcoa3 <- phyloseq::plot_ordination(physeq.B.flt, ord_pcoa , color = "Dloss", s
 #p.nmdsF2 <- phyloseq::plot_ordination(rare_Fun, ord_nmdsF , color = "Dloss", shape = "Soil") +geom_point(aes(size =  log1p(D1517))) +scale_colour_gradient(low = "cadetblue1", high = "navy")+ggtitle("Fungi PCoA") + annotate(geom = 'text', label = "Jaccard", x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.F.flt, "RDA")
-p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)") 
+p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size =  D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) + ggtitle("Fungi") +  scale_colour_gradient(low = "cadetblue1", high = "navy") + guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)", shape = "") 
 
 
 #ord_pcoabrayE <- phyloseq::ordinate(rare_EC, "NMDS", "bray")
@@ -614,7 +612,7 @@ p.pcoaF3 <- phyloseq::plot_ordination(physeq.F.flt, ord_pcoa , color = "Dloss", 
 #p.pcoaE2 <- phyloseq::plot_ordination(physeqE, ord_pcoaJE , color = "Dloss", shape = "Soil") + geom_point(aes(size =  log1p(D1517))) + scale_colour_gradient(low = "cadetblue1", high = "navy")+ ggtitle("Enzyme predictions, nMDS") + annotate(geom = 'text', label = paste("Jaccard, Stress = ", label), x = -Inf, y = -Inf, hjust = -0.05, vjust = -1)
 
 ord_pcoa <- phyloseq::ordinate(physeq.E.flt, "RDA")
-p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size = D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)") 
+p.pcoaE3 <- phyloseq::plot_ordination(physeq.E.flt, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") + geom_point(aes(size = D1517)) + scale_size(breaks = c(0.1,0.5,1.5)) +  ggtitle("Enzyme metagenome")+  scale_colour_gradient(low = "cadetblue1", high = "navy")+ guides(alpha = F) + labs(size = "Dieldrin (µg/g)", color = "Dieldrin loss (%)", shape = "") 
 
 
 pdf(NULL)
@@ -699,6 +697,35 @@ rownames(PermanovaGenes) <- c("Genes")
 betatest <- rbind(PermanovaBacteria,  PermanovaGenes, PermanovaFungi )
 kable(betatest, caption = "Permanova test for differences in composition between four groups (<=43%, >43%, <72% and >=72% dieldrin loss). All compositions were rarefied and filtered to the most common features that were present in both soils.")
 
+### Repeat on one soil type - not for printing
+physeq.B.flt <- prune_samples(sample_data(rare_Bac)$Soil == "Chromosol", rare_Bac)
+physeq.B.flt  <-  prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt)
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.8*length(x)), TRUE) 
+otus <- as.data.frame(t(otu_table(physeq.B.flt)))
+groups <- data.frame(groups = sample_data(physeq.B.flt)$Dloss_fct2)
+perm.soil <- adonis(otus ~ groups, groups,method = "bray") 
+PermanovaBacteria <- data.frame(R2 = perm.soil$aov.tab$R2[1], p = perm.soil$aov.tab$`Pr(>F)`[1])
+rownames(PermanovaBacteria) <- c("Bacteria")
+
+physeq.F.flt <- prune_samples(sample_data(rare_Fun)$Soil == "Chromosol", rare_Fun)
+physeq.F.flt  <-   prune_samples(sample_data(physeq.F.flt )$Farm != "C", physeq.F.flt)
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.60*length(x)), TRUE) 
+otus <- as.data.frame(t(otu_table(physeq.F.flt)))
+groups <- data.frame(groups = sample_data(physeq.F.flt)$Dloss_fct2)
+perm.soil <- adonis(otus ~ groups, groups,method = "bray") 
+PermanovaFungi <- data.frame(R2 = perm.soil$aov.tab$R2[1], p = perm.soil$aov.tab$`Pr(>F)`[1])
+rownames(PermanovaFungi) <- c("Fungi")
+
+physeq.E.flt <- prune_samples(sample_data(rare_EC)$Soil == "Chromosol", rare_EC)
+physeq.E.flt  <-   prune_samples(sample_data(physeq.E.flt)$Farm != "C", physeq.E.flt)
+physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.8*length(x)), TRUE)
+otus <- as.data.frame(t(otu_table(physeq.E.flt)))
+groups <- data.frame(groups = sample_data(physeq.E.flt)$Dloss_fct2)
+perm.soil <- adonis(otus ~ groups, groups,method = "bray") 
+PermanovaGenes <- data.frame(R2 = perm.soil$aov.tab$R2[1], p = perm.soil$aov.tab$`Pr(>F)`[1])
+rownames(PermanovaGenes) <- c("Genes")
+
+betatest <- rbind(PermanovaBacteria,  PermanovaGenes, PermanovaFungi )
 
 ```
 
@@ -890,7 +917,7 @@ p4 <- p.ccaB +
 
 
 ### Phylogenetic diversity of bacteria
-```{r phylodiv,  fig.cap= "Faith phylogenetic diversity index (a) and principle coordinate analysis (PCoA) with unweighted unifrac distances (b).", echo=FALSE, fig.height=8, fig.asp=0.4, message=FALSE, warning=FALSE}
+```{r phylodiv,  fig.cap= "Faith phylogenetic diversity (Faith PD) index (a) and principle coordinate analysis (PCoA) with unweighted unifrac distances (b). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", echo=FALSE, fig.height=8, fig.asp=0.4, message=FALSE, warning=FALSE, results=FALSE}
 
 p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free", shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(110)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(115)) + theme_bw() + theme(legend.position="none")  
 
@@ -901,6 +928,13 @@ pdf(NULL)
 gg <- ggarrange(p1, p.pcoa2, ncol = 2, widths = c(0.40,0.5), labels = "auto")
 x = dev.off()
 gg
+
+#Levene’s test
+#test if the variation is significantly different between groups
+require(car)
+meta.df <- data.frame(sample_data(physeqB))
+leveneTest(PD ~ Dloss_fct2, data = meta.df)
+
 ```
 
 ### Redundancy analysis (Aitchison distances)
@@ -1253,10 +1287,11 @@ print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(
 
  <br/>
 
-Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a), gene abundances as predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils which were 175 bacterial and 65 fungal taxa as well as 1988 enzyme encoding genes. It showed that the Kurosol contained a different composition  with greater dispersion (betadisp *p* < 0.05). 
+Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a) as well as gene abundances predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils (175 bacterial taxa, 65 fungal taxa and 1988 enzyme encoding genes). It showed that the Kurosol contained a different microbial composition with greater community and genetic dispersion (betadisp *p* < 0.05 with soil type as grouping variable). 
   
-
-
+Furthermore, figure \@ref(fig:pcoa) shows that the community and genetic composition was different between 'low-loss' and 'high-loss' groups in the Kurosol (<72 % and >=72 % dieldrin loss) and in the Chromosol (<=43 % and >43 % dieldrin loss). These compositional differences between groups was more clear in the Kurosol (Permanova *p* < 0.001) but marginally significant in the Chromosol (Permanova *p* = 0.05 bacteria, *p* = 0.16 fungi)
+  
+Phylogenetic diversity was similiar between soils and groups of low and high dieldrin loss (Kruskal-Wallis *p* > 0.05) (Fig. \@ref(fig:phylodiv). However variation in phylogenetic diversity marginally increased in samples where dieldrin loss was high (Levene's test, *p* = 0.069).
 
 Fungal community composition in the Kurosol was more driven by organic matter composition compared to both, bacteria overall and fungi in the Chromosol. In the Kurosol, the variance explained in RDA1 and RDA2 was approximately twice as high for fungi (21.6% and 5.9%) compared to bacteria (9.8% and 5.9%). This was different to the Chromosol where the explained variation for RDA1 and RDA2 was similar for bacteria and fungi.  
 In the Kurosol, there was some grouping of samples where the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM. POS had little to no importance for bacterial and fungal composition in the Kurosol.   
