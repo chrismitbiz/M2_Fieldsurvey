@@ -86,48 +86,6 @@ Note: Graphs are intended to be informational only and are not 'publication qual
   
 # Hypothesis
 Quality of soil organic matter is associated with the phylogenetic and metabolic capacity of soils to degrade persistent organic pollutants - here dieldrin.
-  
-# Materials and Methods
-## Site, soil description and dieldrin and total carbon measurements
-Site location and details, sampling procedure and soil physicochemical characteristics were described previously [@Krohn2019]. Briefly, we sampled two agricultural surface soils (0 - 10 cm, n = 36), a Kurosol and a Chromosol [@Isbell1996], which comprised of twelve grazed pastures that were subject to the Australian National Organochlorine Residue Management Plan [@DepartmentofNaturalResourcesandEnvironment1996] of which we obtained detailed records of dieldrin concentrations since 1987. 
-  
-It was found that both surface soils consisted of a similar texture which were classified as loam [@InternationalSocietyofSoilScienceISSS1929]. Furthermore, they had the same average pH (4.55 ± 0.04 SE) and were both in high-rainfall zones with similar annual maximum temperatures (20.9 - 21.9 ˚C). However, they differed in total carbon (TC) concentrations, in that the Kurosol measured just over half the carbon concentrations compared to the Chromosol (33.3 and 61.8 mg g^-1^, ± 1.05 and 1.72 SE).
-  
-The long-term dieldrin loss in percent per paddock was calculated using the difference of the average dieldrin concentrations from 2015/2017 (D1517) and the earliest available concentrations from 1987 to 1995. @Krohn2019 showed that the two soils differed in their apparent ability to degrade dieldrin. The Kurosol lost 1.7 times more dieldrin compared to the Chromosol (73 and 42 %, ± 0.07 and 0.04 SE) since 1988 and it was found that the TC, the carbon-to-nitrogen ratio (C:N), the microbial-carbon-to-total-carbon ratio (MBC:TC) and soil diversity were associated with dieldrin concentrations and dieldrin loss.
-  
-## Estimation of soil fractions
-Soil processing and acquisitions of infrared spectra followed the method set out in @Madhavan2017. Briefly, sieved (≤ 2 mm) and air dried soils were finely ground in a ball mill (Retsch MM400, Germany) at 25 rounds per second for 30 seconds. Diffuse reflectance spectra in the mid-and near-infrared (MNIRS) spectra (7800  - 450 cm-1 at 8 cm-1 resolution) were acquired for all samples using a PerkinElmer Frontier FT-NIR-MIR Spectrometer (PerkinElmer Inc., Waltham, MA, USA) equipped with a KBr beam-splitter, a DTGS detector and AutoDiff automated diffuse reflectance accessory (Pike Technologies, Madison, WI, USA). 
-  
-Spectra were pre-processed as described in @Madhavan2017 and concentrations of total organic carbon (TOC), particulate organic carbon (POC), resistant organic carbon (ROC) and humus (HOC) were predicted from MNIRS spectra of the Australian Soil Carbon Research Project (ScaRP, Baldock et al. 2013) using partial least squares (PLS) regression. To assess prediction accuracy the TOC concentrations from the PLS predictions were correlated with TC measurements of the same samples using a dry combustion analyzer (Perkin Elmer 2400 Series Ⅱ, R^2^ = 0.98). For all downstream analyses, POC, ROC and HOC were either transformed into percentages of TOC or centered log ratios [@Bruckner2017a]. 
-
-## Diversity measurements
-DNA of 0.25 g fresh soil was extracted using Powersoil DNA isolation kit (MoBio, Calsbad, USA) and stored at -20 ˚C. Marker genes were sequenced with 15% phiX control on a Illumina MiSeq platform (2 × 300) to determine bacterial and fungal diversity. For bacteria the V4 hypervariable region of the 16S-rRNA gene was targeted with primers 515F (GTGYCAGCMGCCGCGGTAA) / 806R (GGACTACNVGGGTWTCTAAT) [@Apprill2015; @Caporaso2012; @Walters2016] and for fungi the Internal Transcrined Spacer (ITS) region 2 [@Blaalid2013] with primers FITS7 (GTGARTCATCGAATCTTTG)/ITS4 (TCCTCCGCTTATTGATATGC) [@Egidi2019; @Katarina2012].  
-  
-The default settings of Qiime2 (v2020.2) [@Bolyen2019b] were used to assess quality of paired end reads, trim primers [@Martin2011], denoise and dereplicate sequences and filter chimeras (dada2) [@Callahan2016]. Sequences with number of expected errors >2 were discarded and 66% (bacteria) and 52% (fungi) of sequences were retained after filtering. Moreover a total of 19,918 and 4,712 unique amplicon sequence variants (ASVs) (bacteria and fungi respecively) were identified. Qiime2 was then used to train primer-specific classifiers using greengenes reference sequences (gg13.8 at 99% similarity) for bacteria [@McDonald2012a] and unite reference sequences (v8 dynamic) for fungi [@Community2019] and the classifiers were then used to assign taxonomic classifications to ASVs with qiime feature-classifier classify-sklearn [@Bokulich2018].  
-  
-For bacterial ASVs a phylogenetic tree was created using the qiime2 plugin q2-fragment-insertion that utilized SATé-enabled phylogenetic placements (SEPP) [@Janssen2018] with the greengenes 13.8 SEPP reference tree. By default sequences < 75% similarity by sequence identity to any record in the tree were not inserted into the tree. The tree was subsequently used to calculate weighted and unweighted unifrac distances in ordinations for bacteria and for phylogenetic analysis of associations to dieldrin loss as outlined below. 
-  
-To assess differences in diversity between samples with high and low dieldrin losses, alpha diversity indices were produced with phyloseq [@McMurdie2012a] on rarefied abundances of bacteria, their predicted enzyme metagenome and fungi, whereby the depth of resampling was set to the minimum sample size.  
-  
-Compositional comparisons of bacteria, enzyme and fungal abundances were made using principle component analysis (PCA) and redundancy analyis (RDA) after converting abundance tables into Aitchison distances (@Aitchison1982a). Significance of contraints **significance was assessed** (@Legendre2011a). 
-
-
-## Metacyc pathway associations to carbon fractions and dielrin concentrations
-The Picrust2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States 2) software  [@Douglas2019] was used to predict metabolic pathways (Metacyc, Karp 2002) based on the sequenced bacterial ASVs. Briefly, the picrust pipeline placed ASVs into a open-source reference tree based on prokaryotic genomes from the Integrated Microbial Genomes database [@Barbera2018; @Czech2020a; @Markowitz2012], inferred gene abundances per ASV [@Louca2018] and then predicted sample pathway abundances using MinPath [@Ye2009]. The full pipeline (https://github.com/picrust/picrust2/wiki/Full-pipeline-script) was run with default settings, except that the maximum Nearest Sequence Taxon Index (NSTI) was set to 0.65 in favour of greater accuracy of predictions. Prior to running the picrust2 pipeline, the ASV table was filtered to those ASVs that were present in at least two samples and with a minimum frequency of 10 reads. The final table output comprised of 432 pathways that represented the metabolic potentials of bacteria in each sample.
-  
-Sparse partial least squares (sPLS) analysis of the mixOmics package [@Rohart2017] was chosen to explore associations between metabolic pathway potentials and soil variables (ROC, HUM, POC, H and average dieldrin concentrations of 2015/2017). sPLS is a dimension reduction technique that integrates two high-dimensional data sets acquired from the same samples (here predicted pathway potentials and soil variables) to highlight general patterns of associations [@Meng2016b; @LeCao2008]. This method performs well when the number of samples (*n*) is smaller than the measured variables (*p*) and when variables exhibit multicollinearity.
-  
-X, the predictor matrix, was composed of predicted pathway potentials which were filtered to those present in at least 8 samples resulting in a total of 418 pathways. Each pathway was normalised to TC (ratio of potentials to TC) to remove carbon-related biases of metabolic pathway potentials. This was followed by centered logratio (clr) transformations to account for compositionality of the data [@Pawlowsky-Glahn2015a]. Matrix Y, the response matrix, was composed of ROC, HUM, POC, H and D1517 concentrations (g kg^-1^ soil) which were also clr transformed. The analysis was done in regression mode and the first two components were selected for analysis as they had sufficient predictive power based on the Q^2^ cutoff of 0.0975 [@LeCao2008; @Tenehaus1998]. The inclusion of a minimum of 400 and 375 pathways in component 1 and 2 respectively, resulted in highest predictive power.  A heatmap with Ward clustering from the mixOmics package was used to display pair-wise associations between pathways and soil variables from the two components. Only associations scores >= 0.40 were shown.
-  
-Additionally, we utilized sPLS discriminant analysis (PLS-DA) on the same data set to select pathways that most predicted long-term dieldrin losses [@LeCao2011]. Samples were grouped into factors that were below and above the median dieldrin loss (%) of each soil, with a total of four factors representing "low" and "high" dieldrin loss in the Chromosol (<=43% and >43% with n = 9 and 6) and Kurosol (<72% and >=72% with n = 9 and 9). After cross validation based on the Balanced Error Rate (BER), the first three components had sufficient predictive power. Subsequently four, fifteen and fifteen pathways were selected in the first, second and third component respecitively.  
-  
-The same analysis was done again on each soil separately, each time with pathways filtered to those present in at least 25% of samples.  
-  
-
-## Phylogenetic associations to dieldrin losses 
-After over 30 years of its last use, aged dieldrin is unlikely to have significant impact on bacterial abundances. Hence, we aimed to understand if the presence (not abundance) of phylogenetic clades can be associated with a soil environment that was conducive to greater long-term dieldrin losses. Thus, to test whether the presence of some bacterial clades was more likely in a soil with high or low dieldrin loss the package Phylofactor [@Washburne2019a] was used to perform generalized phylofactorization. Phylofactorization was chosen as it has the ability to detect similar shifts in microbial clades among different data (or soils) when mapped to the same phylogeny, even with minimal ASV overlap.  
-  
-The analysis was done across both soils (n = 33) and then separately on each soil type (Kurosol n=18 and Chromosol n=15). Any unidentified phyla and phyla with low prevalence were removed. Remaining ASVs filtered to a minimum of 25 reads per ASV and converted to presence/absence, which was modelled as the response variable with dieldrin loss (%) as numeric predictors. Phylofactor partitioned the phylogeny along edges with different log-odds of presence using generalized linear models (default mixed algorithm) with binomial distributions. The identified clades were then mapped onto the phylogenetic tree and their ASV counts and abundances compared to different levels of dieldrin loss. 
 
 <br/>
 
@@ -507,7 +465,7 @@ Overall the two soils contained a different carbon quantity and quality. Figure 
 <br/>
 
 ## Alpha diversity
-```{r alphadloss, fig.cap = "Alpha diversity of bacteria and fungi. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
+```{r alphadloss, fig.cap = "Alpha diversity of bacteria, fungi and the predicted enzyme metagenome. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 #p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
@@ -574,8 +532,6 @@ data.frame(sample_data(physeqE)) %>% melt(., measure.var =c("Observed", "Shannon
 ```
 
 
-
-
 ### Diversity per unit dieldrin
 ```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio to compare diversity of bacteria (a), fungi (b) and the predicted enzyme abundances (c) per unit dieldrin (µg/g). This is to demonstrate the effect of normalisting alpha diversity by the total carbon content or dieldrin concentration of a soil. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
@@ -602,10 +558,8 @@ Microbial richness was greater in samples with high long-term dieldrin losses (F
   
 A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson index which was 1.27 times greater in the Kurosol. Consequently, in a high-loss environment there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.  
     
-Samples with greatest long-term loss of dieldrin contained the greatest potential of different enzymes (Fig. \@ref(fig:alphadloss)c). Moreover in the Kurosol, Shannon's index  was greater in the high-loss samples while Pilou's evenness remained the same. Shannon's index accounts for both, abundance and evenness, so an increase of this index without an increase in evenness, indicated that more enzymes with differential potentials (abundances) were present in the high-loss environment of this soil, while maintaining the spread of different types of enzymes.  
-  
-The diversity of enzyme potentials in the Chromosol was more similar between samples of low and high dieldrin loss compared to the Kurosol. Only Pilou's evenness was different. This soil was thus composed of the same metabolic richness but the potentials (abundances) of enzymes in high-loss samples of this soil were unevenly distributed or were more concentrated in fewer enzymes.  
-  
+Interestingly, the diversity (Shannon's, Simpson's and Pilou's evenness) of the enzyme metagenome which was predicted from bacterial ASVs was smaller in the Kurosol compared to the Chromosol which is in contrast to the bacterial diversity itself (Fig. \@ref(fig:alphadloss)c).
+
 Soil diversity was further compared on a per-unit-dieldrin (µg/g) basis (Fig \@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg/g of dieldrin compared to the Chromosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment. 
   
 <br/>
@@ -2245,6 +2199,8 @@ In the Chromosol, no such clade-associations to dieldrin loss could be identifie
 
 ## Network analysis
 ```{r glassoallnodes , fig.cap = "", include = FALSE,  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8}
+
+#https://github.com/zdk123/SpiecEasi
 
 ## spiec easi "glasso" bacteria
 require(SpiecEasi)
