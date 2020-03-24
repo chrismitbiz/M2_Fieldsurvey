@@ -568,7 +568,7 @@ Soil diversity was further compared on a per-unit-dieldrin (diversity µg g^-2^)
 ## Compositional analysis
 
 ### PCA (Aitchison distances)
-```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for  compositions of filtered bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33). Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=TRUE}
+```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for compositions of the most common bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33), that were present in both soil. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=TRUE}
 
 physeq.B.flt  <-  prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
 physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.8*length(x)), TRUE) #must be present in x percent of samples
@@ -623,6 +623,46 @@ x = dev.off()
 p
 
 print(paste("After filtering the analysis included", ntaxa(physeq.B.flt),"and", ntaxa(physeq.F.flt),"bacterial and fungal taxa in the Kurosol and ", ntaxa(physeq.E.flt), "enzyme encoding genes"))
+
+```
+
+### Test for differences in compositional variance (Betadisp, Bray-Curtis)
+```{r betadisp, echo= FALSE,message=FALSE, warning=FALSE, results=TRUE}
+#Test of homogneity of groups
+## Bray-Curtis distances between samples
+physeq.B.flt  <-  prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (0.8*length(x)), TRUE) 
+otus <- as.data.frame(t(otu_table(physeq.B.flt)))
+dis <- vegdist(otus)
+groups <- data.frame(Soil = sample_data(physeq.B.flt)$Soil)
+betad <- betadisper(dis, groups$Soil)
+avobetad <- anova(betad)
+betadispBacteria <- avobetad[c(1),]
+rownames(betadispBacteria) <- c("Bacteria")
+
+physeq.F.flt  <-   prune_samples(sample_data(physeqF)$Farm != "C", physeqF)
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.60*length(x)), TRUE) 
+otus <- as.data.frame(t(otu_table(physeq.F.flt)))
+dis <- vegdist(otus)
+groups <- data.frame(Soil = sample_data(physeq.F.flt)$Soil)
+betad <- betadisper(dis, groups$Soil)
+avobetad <- anova(betad)
+betadispFungi <- avobetad[c(1),]
+rownames(betadispFungi) <- c("Fungi")
+
+physeq.E.flt  <-   prune_samples(sample_data(physeqE)$Farm != "C", physeqE)
+physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.8*length(x)), TRUE)
+otus <- as.data.frame(t(otu_table(physeq.E.flt)))
+dis <- vegdist(otus)
+groups <- data.frame(Soil = sample_data(physeq.E.flt)$Soil)
+betad <- betadisper(dis, groups$Soil)
+avobetad <- anova(betad)
+betadispGenes <- avobetad[c(1),]
+rownames(betadispGenes) <- c("Genes")
+
+betatest <- rbind(betadispBacteria, betadispGenes, betadispFungi )
+betatest <- data.frame(p = betatest)
+kable(betatest,caption = "Test for differences in compositional variance. All compositions were filtered to the most common features that were present in both soils.")
 ```
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
@@ -1176,7 +1216,7 @@ print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(
  <br/>
 
 
-Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a), the gene abundances as predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils and included 175 bacterial and 65 fungal taxa as well as 1988 enzyme encoding genes. It showed that the Kurosol contained a different microbial composition 
+Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a), the gene abundances as predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils and included 175 bacterial and 65 fungal taxa as well as 1988 enzyme encoding genes. It showed that the Kurosol contained a different composition of key taxa with greater dispersion.  
 
 
 
