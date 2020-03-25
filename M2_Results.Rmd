@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -24,6 +24,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -233,6 +234,9 @@ physeqF<-phyloseq(
   otu_table(SVs, taxa_are_rows = T), 
   tax_table(as.data.frame(taxtable)  %>% column_to_rownames("Feature.ID") %>% as.matrix()), 
   sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
+sample_names(physeqF)
+library(phylosmith)
+physeqF <- set_sample_order(physeqF, sort_on = "Paddock")
 
 #adding diversity measures (with ps object) to metadata and re-create ps object 
 #here a decision has to be made on sample size. Look at feature-table.qzv to see how many samples are lost with x sample size or how many features are lost with minimum sample size. This is used ONLY for diversity metrics (not differentially abundance anaylyis which I filter separately. So I generally use the minimum samples size if different between min/max is within 10fold. 
@@ -352,9 +356,10 @@ meta.df <- meta.df %>% rownames_to_column("OTUID") %>%
 physeqE@sam_data <- sample_data(meta.df)
 physeqE
 ```
+
 ## Predicted Metacyc pathways
 
-```{r physeqpw object,include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
+```{r physeqpw object, include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 # now for the pathway file
 pathway.pred <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv", col_names = TRUE)  %>% column_to_rownames("pathway")
 pw.names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/metacyc_pathway_info_full.tsv") %>% column_to_rownames("Id")  %>% dplyr::select(-ALTERNATIVE) %>% dplyr::select(-`SUPER-PATHWAYS`)%>% dplyr::select(-NAMES) %>% dplyr::select(-CLASS2)
@@ -362,6 +367,7 @@ physeq.pw <- phyloseq(otu_table(
              pathway.pred, taxa_are_rows = T), 
               tax_table(as.data.frame(pw.names) %>% as.matrix()),
              sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+physeq.pw
 ```
 
 ```{r headmetadata, warning=FALSE,message=FALSE,echo=FALSE, include=FALSE}
@@ -938,7 +944,7 @@ leveneTest(PD ~ Dloss_fct2, data = meta.df)
 ```
 
 ### Redundancy analysis (Aitchison distances)
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and the abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.8, message=FALSE, warning=FALSE}
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and included 2878 bacterial and 718 fungal ASVs. Abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.8, message=FALSE, warning=FALSE, results=FALSE}
 
 #KUROSOL
 
@@ -1287,23 +1293,21 @@ print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(
 
  <br/>
 
-Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a) as well as gene abundances predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils (175 bacterial taxa, 65 fungal taxa and 1988 enzyme encoding genes). It showed that the Kurosol contained a different microbial composition with greater community and genetic dispersion (betadisp *p* < 0.05 with soil type as grouping variable). 
+Figure \@ref(fig:pcoa) compared the compositions of the most common bacteria (a) as well as gene abundances predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils (175 bacterial taxa, 65 fungal taxa and 1988 enzyme encoding genes). It showed that the Kurosol contained a different microbial composition with greater community and genetic dispersion (betadisp *p* < 0.05 with soil type as grouping variable). 
   
-Furthermore, figure \@ref(fig:pcoa) shows that the community and genetic composition was different between 'low-loss' and 'high-loss' groups in the Kurosol (<72 % and >=72 % dieldrin loss) and in the Chromosol (<=43 % and >43 % dieldrin loss). These compositional differences between groups was more clear in the Kurosol (Permanova *p* < 0.001) but marginally significant in the Chromosol (Permanova *p* = 0.05 bacteria, *p* = 0.16 fungi)
+Furthermore, figure \@ref(fig:pcoa) shows that the community and genetic composition was different between 'low-loss' and 'high-loss' groups in the Kurosol (<72 % and >=72 % dieldrin loss) and in the Chromosol (<=43 % and >43 % dieldrin loss). These compositional differences between groups was significant in the Kurosol (Permanova *p* < 0.001) and only marginally significant in the Chromosol (Permanova *p* = 0.05 bacteria, *p* = 0.16 fungi)
   
-Phylogenetic diversity was similiar between soils and groups of low and high dieldrin loss (Kruskal-Wallis *p* > 0.05) (Fig. \@ref(fig:phylodiv). However variation in phylogenetic diversity marginally increased in samples where dieldrin loss was high (Levene's test, *p* = 0.069).
+The mean Faith's phylogenetic diversity was similiar between soils and groups of low and high dieldrin loss (Kruskal-Wallis *p* > 0.05) (Fig. \@ref(fig:phylodiv)a). However phylogentic variation trended higher in samples where dieldrin losses were high (Levene's test, *p* = 0.069). Phylogenetic dispersion was also apparent from unifrac distances in figure \@ref(fig:phylodiv)b which showed spreading of samples with high dieldrin loss compared to a tight clustering of groups samples with low dieldrin loss. 
 
-Fungal community composition in the Kurosol was more driven by organic matter composition compared to both, bacteria overall and fungi in the Chromosol. In the Kurosol, the variance explained in RDA1 and RDA2 was approximately twice as high for fungi (21.6% and 5.9%) compared to bacteria (9.8% and 5.9%). This was different to the Chromosol where the explained variation for RDA1 and RDA2 was similar for bacteria and fungi.  
-In the Kurosol, there was some grouping of samples where the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM. POS had little to no importance for bacterial and fungal composition in the Kurosol.   
-By contrast, the community in the Chromosol was more driven by POC. However, no association of the community and organic matter composition to long-term dieldrin loss (%) could be inferred.  
-    
-(Fig \@ref(fig:rda))  
+We further did RDA, to explore how ROC, HUM and POC was associated with microbial community compostion and dieldrin. Only in the Kurosol did carbon fractions significantly associate with the composition of bacteria and fungi (Fig \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant in the Kurosol (*p* < 0.001) but not in the Chromosol (*p* > 0.05). Thus, the variation of carbon fractions in the Kurosol explained 29.5 and 29.4 % of the compositional variation of bacteria and fungi respectively (RDA1 and RDA2 combined), while no effect on the microbial composition in the Chromosol could be detected.  
   
+Subsequent null-model comparisons to each ROC, HUM and ROC individually indicated that HUM was most important for the community composition, followed by ROC. In the Kurosol, there was some grouping of samples in which the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM. POC was insignificant in the Kurosol RDA which was also indicated by a short arrow in figure \@ref(fig:rda). 
+
 <br/>
 
 ## Metabolic potential
-### Comparison of xenobiotic degradation potentials
-```{r xenobgraphs, fig.cap = "Comparison of all xenobiotic degradation pathways predicted to be present.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.45, cache = TRUE}
+### Comparison of chlorinated compound degradation potentials
+```{r xenobgraphs, fig.cap = "Comparison of all xenobiotic degradation pathways predicted to be present in all samples. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.45, cache = TRUE}
 physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
 #physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE)
 #replace pw numbers with common name
@@ -1327,17 +1331,27 @@ physeq.pw_TCratio <-phyloseq(otu_table(
             data.TSS_TCratio.phyl, taxa_are_rows = T), 
               tax_table(as.data.frame(pw.names) %>% as.matrix()),
              sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
-ps_clr <- microbiome::transform(physeq.pw_TCratio, "log10p")
+ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
 
 physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 # figure                
-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl") | str_detect(tolower(COMMON.NAME), pattern =  "benze") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 
+#All aromatic compound degradation pathways
+p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+
+ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
+#physeq.pw.melt <- psmelt(physeq.pw)
 # wilcoxon test
 #physeq.pw.melt.TCratio %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl") | str_detect(tolower(COMMON.NAME), pattern =  "benze") ) %>% filter(Abundance != 0) %>%  ggpubr::compare_means(Abundance ~ Soil, data = ., group.by = "COMMON.NAME", method = "wilcox.test", paired = FALSE, symnum.args = list(), p.adjust.method = "holm") %>% as.data.frame() %>% dplyr::filter(p.adj <= 1)
 
-# "2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway, phenol degradation, cyclohexanol oxidation, 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
+#having some looksies
+#looksiedf <- unique (  (physeq.pw.melt %>% filter(CLASS1 == "Aromatic-Compounds-Degradation")) %>% dplyr::select(COMMON.NAME) )
+#unique( physeq.pw.melt %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl"))  %>% dplyr::select(COMMON.NAME) )
+
+#metacyc chlorinated compound degradation pathways
+# "2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
 ```
   
 <br/>
@@ -1610,44 +1624,6 @@ kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analys
 #flextable(simMat.flt)
 ```
 
-<br/>
-When both soils were included in sPLS analysis the strongest associations of metabolic potentials to dieldrin concentrations were negative, meaning that pathway potentials were predictive of lower dieldrin concentrations rather than higher. In general, when pathway potentials predicted lower dieldrin concentrations, they also predicted a lower C:N ratio and ROC proportions and higher POC proportions (Fig. \@ref(fig:plsheatmapsall). 
-  
-
-Some general info on highly associated metacyc pathways:  
-  
-- Anaerobic metabolism
-  - Coenzyme B and M biosynthesis
-    - required for methanogenesis in anaerobic respiration. 
-  - Reductive TCA cycle
-    - by anoxic photosynthetic bacteria and sulfur reducing bacteria
-  - L-isoleucine biosynthesis IV
-    - is a non-polar and uncharged molecule (amino acid)
-    - biosynthesis by anaerobic bacteria and archaea including chlostridium and methanobacteria
-  - pyruvate fermentation 
-    - central to anaerobic energy production
-  - 4-coumarate degradation (anaerobic)
-    - phenylpropanoid (aromatic plant compound)
-  - purine nucleobases degradation I (anaerobic)
-  
-- Ruderal traits, see @Wood2018
-  - pyrimidine deoxyribonucleosides salvage
-    - related to potential of ribosome production
-    - "The de novo synthesis of ribonucleotides is very expensive, and organisms have adapted to salvage pyrimidine deoxyribonucleosides salvagepotential precursors from their environment"
-  - glycogen degradation I
-    - The glycogen is broken down and utilized when carbon sources become limiting
-  - superpathway of L-aspartate and L-asparagine biosynthesis
-    - "This pathway is common in both prokaryotes and eukaryotes, and provides a link between amino acid and carbohydrate metabolism"
-  - Enterobactin biosynthesis
-    - siderophore to utilise the otherwise insoluble Fe^3+^
-    - almost exclusively produced by enterobacteria but also some Streptomyses sp. 
-    - produced extracellular and utilised by many other bacteria  
-
-<br/>
-
-Figure \@ref(fig:plsheatmapsku) shows that most of the metabolic pathway potentials in the Kurosol coincided with increased ROC proportions. In samples that contained a higher proportion of ROC the potential of x (number of pathways) pathways increased. Overall, this conicided with lower HUM proportion in those samples.  
-  
-<br/>
 
 
 ### Partial least squares discriminant analysis (PLS-DA)
@@ -1689,12 +1665,12 @@ data.TSS_TCratio.phyl <- data.TSS_TCratio %>% t
 
 physeq.pw_TCratio <-phyloseq(otu_table( data.TSS_TCratio.phyl, taxa_are_rows = T),   tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
 
-ps_clr <- microbiome::transform(physeq.pw_TCratio, "log10p")
+ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
 physeq.pw.melt.TCratio <- psmelt(ps_clr)
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 p1 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% c("PWY-7332","PWY-5392")) %>%
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 p1
 ```
 
@@ -1915,6 +1891,54 @@ splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec,splsda_comp3vec)
 
 kable(splsda_compvec %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
 ```
+
+<br/>
+
+Only 1 of the 44 chlorinated compound degradation pathways available in the Metacyc database was detected. Chlorosalicylate 
+
+39 armomatic compound degradation pathways out of 220 
+
+"2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway, phenol degradation, cyclohexanol oxidation, 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
+
+When both soils were included in sPLS analysis the strongest associations of metabolic potentials to dieldrin concentrations were negative, meaning that pathway potentials were predictive of lower dieldrin concentrations rather than higher. In general, when pathway potentials predicted lower dieldrin concentrations, they also predicted a lower C:N ratio and ROC proportions and higher POC proportions (Fig. \@ref(fig:plsheatmapsall). 
+  
+
+Some general info on highly associated metacyc pathways:  
+  
+- Anaerobic metabolism
+  - Coenzyme B and M biosynthesis
+    - required for methanogenesis in anaerobic respiration. 
+  - Reductive TCA cycle
+    - by anoxic photosynthetic bacteria and sulfur reducing bacteria
+  - L-isoleucine biosynthesis IV
+    - is a non-polar and uncharged molecule (amino acid)
+    - biosynthesis by anaerobic bacteria and archaea including chlostridium and methanobacteria
+  - pyruvate fermentation 
+    - central to anaerobic energy production
+  - 4-coumarate degradation (anaerobic)
+    - phenylpropanoid (aromatic plant compound)
+  - purine nucleobases degradation I (anaerobic)
+  
+- Ruderal traits, see @Wood2018
+  - pyrimidine deoxyribonucleosides salvage
+    - related to potential of ribosome production
+    - "The de novo synthesis of ribonucleotides is very expensive, and organisms have adapted to salvage pyrimidine deoxyribonucleosides salvagepotential precursors from their environment"
+  - glycogen degradation I
+    - The glycogen is broken down and utilized when carbon sources become limiting
+  - superpathway of L-aspartate and L-asparagine biosynthesis
+    - "This pathway is common in both prokaryotes and eukaryotes, and provides a link between amino acid and carbohydrate metabolism"
+  - Enterobactin biosynthesis
+    - siderophore to utilise the otherwise insoluble Fe^3+^
+    - almost exclusively produced by enterobacteria but also some Streptomyses sp. 
+    - produced extracellular and utilised by many other bacteria  
+
+<br/>
+
+Figure \@ref(fig:plsheatmapsku) shows that most of the metabolic pathway potentials in the Kurosol coincided with increased ROC proportions. In samples that contained a higher proportion of ROC the potential of x (number of pathways) pathways increased. Overall, this conicided with lower HUM proportion in those samples.  
+  
+<br/>
+
+<br/>
 
 
 ## Visual comparison of phylogeny and phylofactor analysis
@@ -2519,11 +2543,12 @@ physeq.B.flt
 min(taxa_sums(physeq.B.flt))
 physeq.F.flt
 min(taxa_sums(physeq.F.flt))
-
 #running the network analysis with spieceasi
-#pargs2 <- list(rep.num=50, seed=10010, ncores=4,thresh = 0.05)
-#t2 <- system.time(
-#  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
+?spiec.easi
+?pulsar.params
+pargs2 <- list(rep.num=25, seed=10010, ncores=4,thresh = 0.05, pulsar.select='batch')
+t2 <- system.time(
+  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
 #saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL")
 #sse.physeqBFK <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL")
 ##dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
