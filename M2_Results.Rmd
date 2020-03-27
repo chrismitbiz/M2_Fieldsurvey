@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -24,7 +24,6 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -361,7 +360,7 @@ physeqE
 
 ```{r physeqpw object, include=TRUE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 # now for the pathway file
-pathway.pred <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv", col_names = TRUE)  %>% column_to_rownames("pathway")
+pathway.pred <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv", col_names = TRUE)  %>% column_to_rownames("pathway")
 pw.names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/metacyc_pathway_info_full.tsv") %>% column_to_rownames("Id")  %>% dplyr::select(-ALTERNATIVE) %>% dplyr::select(-`SUPER-PATHWAYS`)%>% dplyr::select(-NAMES) %>% dplyr::select(-CLASS2)
 physeq.pw <- phyloseq(otu_table(
              pathway.pred, taxa_are_rows = T), 
@@ -1341,6 +1340,9 @@ p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), patter
 #All aromatic compound degradation pathways
 p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 
+#p3 <- physeq.pw.melt.TCratio %>% filter(str_detect(tolower(COMMON.NAME), pattern = "superpathway of methylglyoxal degradation")) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+
+
 ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
 #physeq.pw.melt <- psmelt(physeq.pw)
 # wilcoxon test
@@ -1425,9 +1427,9 @@ mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", margi
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.003 | D1517.dim1 <= -0.01)
+test1 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.003 | D1517.dim1 <= -0.01)
 
-kable(test, caption = "Top regression coefficients of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test1, caption = "Top regression coefficients of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 ```
 
 <br/>
@@ -1512,9 +1514,9 @@ mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
+test2 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1)
 
-kable(test, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test2, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 
 ```
 
@@ -1596,32 +1598,17 @@ mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", margins = c(5
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
+test3 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
   filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.01 | D1517.dim1 <= -0.005)
 
-kable(test, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across in the Chromosol (n=15). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
+kable(test3, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across in the Chromosol (n=15). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 
 ```
 
 ```{r, tblemixomicsch, echo = FALSE, message=FALSE, warning=FALSE, include= FALSE, eval=FALSE }
-#print the correlation coordinates
-#bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
-#cord.X = cor(pw.spls$X, bisect, use = "pairwise")
-##cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
-#simMat = as.matrix(cord.X %*% t(cord.Y))
-#filter1
-#simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
-#  filter(D1517 >= 0.65 |
-#           D1517 <= -0.65) %>% 
-#  arrange(D1517)
-
-#kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
-#  kable_styling(latex_options="scale_down") %>%
-#  as_image()
-
-#kable(simMat.flt, booktabs=TRUE, caption = "Chromosol only: Similarities of pathway potentials and components one and two of the sparse partial least squares analysis. Only similarities >= 0.65 to dieldrin concentrations are shown.") %>% 
-#  kable_styling(latex_options="scale_down")
-#flextable(simMat.flt)
+test_vec <- rbind(test1, test2, test3) %>%  
+  group_by(pathway) %>% 
+  filter(n()>1) 
 ```
 
 
@@ -1890,18 +1877,24 @@ splsda_comp3vec <- as.data.frame(selectVar(splsda.dloss2, comp = 3))
 splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec,splsda_comp3vec)
 
 kable(splsda_compvec %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
+
+
+
+
 ```
 
 <br/>
 
-Only 1 of the 44 chlorinated compound degradation pathways available in the Metacyc database was detected. Chlorosalicylate 
-
-39 armomatic compound degradation pathways out of 220 
-
-"2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway, phenol degradation, cyclohexanol oxidation, 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
-
-When both soils were included in sPLS analysis the strongest associations of metabolic potentials to dieldrin concentrations were negative, meaning that pathway potentials were predictive of lower dieldrin concentrations rather than higher. In general, when pathway potentials predicted lower dieldrin concentrations, they also predicted a lower C:N ratio and ROC proportions and higher POC proportions (Fig. \@ref(fig:plsheatmapsall). 
+###  Metabolic potential results summary
+Only 1 of the 44 chlorinated compound degradation pathways available in the Metacyc database (including the xenobiotics lindane and pentachlorophenol) was detected. Chlorosalicylate degradation was the only genetic potential found that was related to xenobiotic chlorinated compound degradation and these metabolic potentials were significantly greater in samples with high dieldrin loss (Fig. \@ref(fig:xenobgraphs)). Chlorosalicylates are chloroaromatics and active ingredients or additives of antimicrobial products and pesticides (reference).    
   
+Furthermore figure \@ref(fig:xenobgraphs) shows there was an increased mean metabolic potential of 39 aromatic compound degradation pathways in the Kurosol. 
+
+Figure \@ref(fig:plsheatmapsall), \@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) and \@ref(fig:plsdaratiocomp1to3) show that 
+  
+superpathway of fucose and rhamnose degradation
+
+
 
 Some general info on highly associated metacyc pathways:  
   
@@ -1932,11 +1925,7 @@ Some general info on highly associated metacyc pathways:
     - almost exclusively produced by enterobacteria but also some Streptomyses sp. 
     - produced extracellular and utilised by many other bacteria  
 
-<br/>
 
-Figure \@ref(fig:plsheatmapsku) shows that most of the metabolic pathway potentials in the Kurosol coincided with increased ROC proportions. In samples that contained a higher proportion of ROC the potential of x (number of pathways) pathways increased. Overall, this conicided with lower HUM proportion in those samples.  
-  
-<br/>
 
 <br/>
 
@@ -2537,27 +2526,29 @@ physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 10, physeq.B.flt) #must have at least x reads
 physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) > 10, physeq.F.flt) #must have at least x reads
 
-physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.3*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
 physeq.B.flt
 min(taxa_sums(physeq.B.flt))
 physeq.F.flt
 min(taxa_sums(physeq.F.flt))
 #running the network analysis with spieceasi
-?spiec.easi
-?pulsar.params
-pargs2 <- list(rep.num=25, seed=10010, ncores=4,thresh = 0.05, pulsar.select='batch')
-t2 <- system.time(
-  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
-#saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL")
-#sse.physeqBFK <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL")
-##dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
+
+#pargs2 <- list(rep.num=25, seed=10010, ncores=4,thresh = 0.05)
+#t2 <- system.time(
+#  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
+#saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL_26March20")
+#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL_26March20")
+#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL")
+#dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
 #plot(adj2igraph(getRefit(sse.physeqBFK)),vertex.color=dtype+1, vertex.size=9) #quick look
-#ig.glasso <- adj2igraph(getRefit(sse.physeqBF), 
-#                        vertex.attr= list(name =c(taxa_names(physeq.B.flt), taxa_names(physeq.F.flt))))
+
+
+
+#ig.glasso <- adj2igraph(getRefit(sse.physeqBFK), vertex.attr= list(name =c(taxa_names(physeq.B.flt), taxa_names(physeq.F.flt))))
 #getStability(sse.physeqBFK) #check how far we are from target stability threshold 0.05
 #sum(getRefit(sse.physeqBF))/2
-require(gephi)
+#require(gephi)
 #gephi_write_edges(ig.glasso, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/sse.physeqBFKUROSOL.csv") #write csv to use for gephi, then use gephi to and export node table 
 
 #edge vectors
@@ -2647,7 +2638,7 @@ min(taxa_sums(physeq.F.flt))
 #t2 <- system.time(
 #  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
 #saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_CHROMOSOL")
-#sse.physeqBFC <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_CHROMOSOL")
+#sse.physeqBFC <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_CHROMOSOL")
 #dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
 #plot(adj2igraph(getRefit(sse.physeqBFC)),vertex.color=dtype+1, vertex.size=9) #quick look
 #ig.glasso <- adj2igraph(getRefit(sse.physeqBFC), 
