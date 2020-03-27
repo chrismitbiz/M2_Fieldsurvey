@@ -1699,7 +1699,7 @@ p2
 ```
 
 
-```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into **log carbon ratios** before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1.2, cache = TRUE}
+```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into **log carbon ratios** before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1.7, cache = TRUE}
 require(mixOmics)
 #plsda  again this time with pathway converted to TC log ratios instead of centred log ratio
 
@@ -1790,7 +1790,7 @@ splsda_comp1vec <- as.data.frame(selectVar(splsda.dloss2, comp = 1))
 splsda_comp2vec <- as.data.frame(selectVar(splsda.dloss2, comp = 2))
 splsda_comp3vec <- as.data.frame(selectVar(splsda.dloss2, comp = 3))
 #splsda_comp4vec <- selectVar(splsda.dloss2, comp = 4)$name %>% as.vector()
-splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec)
+splsda_compvec <- rbind(splsda_comp1vec,splsda_comp2vec,splsda_comp3vec)
 
 
 # here we match the selected variables to the stable features comp1
@@ -1890,9 +1890,9 @@ Only 1 of the 44 chlorinated compound degradation pathways available in the Meta
   
 Furthermore figure \@ref(fig:xenobgraphs) shows there was an increased mean metabolic potential of 39 aromatic compound degradation pathways in the Kurosol. 
 
-Figure \@ref(fig:plsheatmapsall), \@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) and \@ref(fig:plsdaratiocomp1to3) show that 
+Figure \@ref(fig:plsheatmapsall), \@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) and \@ref(fig:plsdaratiocomp1to3).
   
-superpathway of fucose and rhamnose degradation
+Presense of superpathway of fucose and rhamnose degradation predicted less dieldrin concentrations and greater dieldin losses (Fig. \@ref(fig:plsheatmapsall, fig. \@ref(fig:plsheatmapsch) and fig. \@ref(fig:plsdaratiocomp1to3). 
 
 
 
