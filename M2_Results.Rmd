@@ -67,19 +67,13 @@ Note: Graphs are intended to be informational only and are not 'publication qual
 
 # Summary of results
 - We investigated two soils with differing abilities to degrade dieldrin after 30 years.
-- The soil better able to degrade dieldrin (Kurosol) was phylogenetically and metabolically more heterogeneous (Fig. \@ref(fig:pcoa)) and contained less carbon and a lower proportion of resistant organic carbon (Fig. \@ref(fig:carbonquality)).
-  - The genetic potential of metabolic pathways in this soil was more associated to relative amounts of resistant organic carbon (ROC) and humus (HUM) than to particulate organic carbon (POC) (Fig. \@ref(fig:plsheatmapsku)) . In other words, the genetic potential of more metablic pathways coincided with having relatively more ROC and HUM indicating that the Kurosol metabolism was adapted to processing ROC and HUM.
-  - The results suggest, that a soil that has a higher turnover of ROC and HUM will also degrade persistent pollutants faster.
-- Alpha diversity was not different between the two soils (Fig. \@ref(fig:alphadloss)).
-  - However, given the markedly lower total carbon and energy resources in the Kurosol (which contained less total carbon), this soil in fact had a higher diversity per unit of total carbon (and energy sources).
-  - Furthermore figure \@ref(fig:alphaperD17) shows that alpha diversity relative to dieldrin concentrations in the soil was significantly higher in the Kurosol compared to the Chromosol.
-  - Some potentials of metabolic pathways, known to be involved with xenobiotic degradation such as phenolic-compound-degradation or toluene degradation are actually similar or greater in the Chromosol, the soil that evidently did not degrade dieldrin as fast as the Kurosol. But when this potential is normalised to total carbon, then the Kurosol had a greater potential. 
-  - This study therefore suggests that the ability of a soil to degrade persistant pollutants is not associated with a measure of total diversity or metabolic potential but instead with greater diversity and metatbolic potential relative to the available carbon sources (here measured as total carbon). In effect, there was a greater 'efficiency' of the soil diversity.
-- Phylogenetic composition of bacteria was similar on phylum level between the Kurosol and Chromosol but there were differences in the distribution of unique ASVs that were present only in samples with either high or low dieldrin loss (Fig. \@ref(fig:trees)).
-  - In the Kurosol a clade of Firmicutes, Bacteriodetes, Actinobacteria, Chloroflexi and the genus Geobacter were all more likely to be found in high-loss samples than in low loss samples.
-  - There were no clades found in the Chromosol that could be associated with samples that had higher dieldrin losses in this soil.
-- The association network of bacteria and fungi in the Kurosol (Fig \@ref(fig:networkallpictureKUROSOLlowhigh)) revealed a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and where an integral part in mediating associations.
-- There was no such clear grouping in the Chromosol.
+- The soil better able to degrade dieldrin (Kurosol)...
+  - was phylogenetically and metabolically more heterogeneous and contained less organic matter but the composition of organic matter was richer with humus and particulate carbon, relative to resistant organic carbon.
+  - contained a higher diversity per unit of dieldrin and per unit carbon.
+  - was metabolically associated to carbon fractions.
+  - contained more and more different phylogenetic clades that were associated with dieldrin loss.
+  - contained distinct community associations in samples with high dieldrin-loss. 
+
   
 # Hypothesis
 Quality of soil organic matter is associated with the phylogenetic and metabolic capacity of soils to degrade persistent organic pollutants - here dieldrin.
@@ -2622,6 +2616,7 @@ knitr::include_graphics("./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL
 <br/>
   
 The association network of bacteria and fungi in the Kurosol (Fig. \@ref(fig:networkKUROSOLmodules)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations. This was not seen in the Chromosol (Fig. \@ref(fig:networkCHROMOSOLmodule)). 
+
 
 Note
 Further to explore: module correlations to carbon fractions, Keystone taxa mediating associations
