@@ -24,7 +24,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
+
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -322,9 +322,9 @@ print(paste("The number of reads and ASVs left after filtering is",round(sum(tax
 #conda activate picrust2 or source activate on hpc environment
 #picrust2_pipeline.py -s dna-sequences.fasta --max_nsti 0.65 --stratified -i feature-table.biom -o picrust2_out_pipeline -p 4
 
-EC_metagenome <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/EC_metagenome_out/pred_metagenome_unstrat.tsv") %>%  column_to_rownames("function")
+EC_metagenome <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/EC_metagenome_out/pred_metagenome_unstrat.tsv") %>%  column_to_rownames("function")
 
-EC_names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/2020_0113_picrust_ASVminfreq10minspl2_2551ASV_0.65minNSTI/picrust2_out_pipeline/EC_metagenome_out/pred_metagenome_unstratEC_desc.tsv") %>% dplyr::select(matches("function|description|Class|Class2")) %>% column_to_rownames("function")
+EC_names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/pred_metagenome_unstratEC_desc.tsv") %>% dplyr::select(matches("function|description|Class|Class2")) %>% column_to_rownames("function")
 ### create ps object ####
 physeqE <-phyloseq(
         otu_table(EC_metagenome, taxa_are_rows = T), 
@@ -944,7 +944,7 @@ leveneTest(PD ~ Dloss_fct2, data = meta.df)
 ```
 
 ### Redundancy analysis (Aitchison distances)
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and included 2878 bacterial and 718 fungal ASVs. Abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=9, fig.asp= 0.8, message=FALSE, warning=FALSE, results=FALSE}
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and included 2878 bacterial and 718 fungal ASVs. Abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=10, fig.asp= 1.1, message=FALSE, warning=FALSE, results=FALSE}
 
 #KUROSOL
 
@@ -1078,6 +1078,8 @@ p2 <- p.ccaB +
 psKfun <- physeq.F.flt
 
 
+
+
 #CHROMOSOL
 #Bacteria
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Chromosol", physeqB)
@@ -1177,25 +1179,37 @@ p4 <- p.ccaB +
 
 psCfun <- physeq.F.flt
 
-
 #KUROSOL
-#ENZYMES
+# ENZYME METAGENOME
 physeq.E.flt <- prune_samples(sample_data(physeqE)$Soil == "Kurosol", physeqE)
 physeq.E.flt  <-   prune_samples(sample_data(physeq.E.flt)$Farm != "C", physeq.E.flt)
 physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 
 ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+
+
 #require(vegan)
 #permutest(ord_ccaF)
+#Testing significance
+#ord_ccaF0 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ 0)
+#ord_ccaF1 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + ROC.clr)
+#ord_ccaF2 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ POC.clr + ROC.clr)
+#ord_ccaF3 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ POC.clr + HUM.clr)
+#ord_ccaF4 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ POC.clr)
+#ord_ccaF5 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr)
+#ord_ccaF6 <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ ROC.clr)
+#require(vegan)
+#permutest(ord_ccaE)
+#anova(ord_ccaF0, ord_ccaF4) # POC the least/weakest 
+#anova(ord_ccaF0, ord_ccaF5) # HUM contributing most 
+#anova(ord_ccaF0, ord_ccaF6) # ROC strong association
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Dloss_fct2") +
-    geom_point(aes(size =  Dloss)) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Enzymes, Kurosol") 
+p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss") +
+    geom_point(aes(size =  Dloss)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Enzyme metagenome, Kurosol") + labs(size= "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
-arrowmat <- vegan::scores(ord_ccaB, display = "bp")
+arrowmat <- vegan::scores(ord_ccaE, display = "bp")
 arrowmat <- data.frame(arrowmat)
 rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
 # Add labels, make a data.frame
@@ -1217,7 +1231,7 @@ label_map <- aes(x = 1.8 * RDA1,
 
 arrowhead = arrow(length = unit(0.02, "npc"))
 # Make a new graphic
-p5 <- p.ccaB + 
+p5 <- p.ccaE + 
   geom_segment(
     mapping = arrow_map, 
     size = .5, 
@@ -1229,17 +1243,22 @@ p5 <- p.ccaB +
   size = 4,  
   data = arrowdf, 
   show.legend = FALSE)
+
+psE <- physeq.E.flt
+
+
 #ENZYMES
 #Chromosol
 physeq.E.flt <- prune_samples(sample_data(physeqE)$Soil == "Chromosol", physeqE)
 physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (0.15*length(x)), TRUE) #must be present in x percent of samples
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
-
 ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
-p.ccaB  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Dloss_fct2") +
-    geom_point(aes(size = Dloss)) +
-    scale_colour_gradient(low = "cadetblue1", high = "navy")+
-  ggtitle("Enzymes, Chromosol") 
+#require(vegan)
+#permutest(ord_ccaE) # not significant
+#anova(ord_ccaE)
+
+p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Soil") + geom_point(aes(size = Dloss)) + scale_size(breaks = c(30,40,50)) + scale_colour_gradient(low = "cadetblue1", high = "navy") +
+  ggtitle("Enzyme metagenome, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1264,7 +1283,7 @@ label_map <- aes(x = 2.5 * RDA1,
 
 arrowhead = arrow(length = unit(0.02, "npc"))
 # Make a new graphic
-p6 <- p.ccaB + 
+p6 <- p.ccaE + 
   geom_segment(
     mapping = arrow_map, 
     size = .5, 
@@ -1280,15 +1299,14 @@ p6 <- p.ccaB +
 
 
 pdf(NULL)
-g1 <- ggarrange( nrow = 2, ncol = 1, p1,p2,  common.legend = TRUE, legend = "right")
-g2 <- ggarrange(nrow = 2, ncol = 1, p3, p4, common.legend = TRUE, legend = "right")
-#g3 <- ggarrange(nrow = 2, ncol = 1, p5, p6, common.legend = TRUE, legend = "right")
+g1 <- ggarrange( nrow = 3, ncol = 1, p1,p2,p5,  common.legend = TRUE, legend = "right")
+g2 <- ggarrange(nrow = 3, ncol = 1, p3, p4,p6, common.legend = TRUE, legend = "right")
+#g3 <- ggarrange(nrow = 1, ncol = 2,   common.legend = TRUE, legend = "right")
 g4 <- ggarrange(nrow = 1, ncol = 2, g1,g2)
 x = dev.off()
 g4
 
-print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(psKfun),
-            "bacterial and fungal taxa in the Kurosol and ", ntaxa(psCbac), "and", ntaxa(psCfun), "in the Chromosol"))
+print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(psKfun), "bacterial and fungal taxa in the Kurosol and ", ntaxa(psCbac), "and", ntaxa(psCfun), "in the Chromosol"))
 ```
 
  <br/>
@@ -1299,7 +1317,7 @@ Furthermore, figure \@ref(fig:pcoa) shows that the community and genetic composi
   
 The mean Faith's phylogenetic diversity was similiar between soils and groups of low and high dieldrin loss (Kruskal-Wallis *p* > 0.05) (Fig. \@ref(fig:phylodiv)a). However phylogentic variation trended higher in samples where dieldrin losses were high (Levene's test, *p* = 0.069). Phylogenetic dispersion was also apparent from unifrac distances in figure \@ref(fig:phylodiv)b which showed spreading of samples with high dieldrin loss compared to a tight clustering of groups samples with low dieldrin loss. 
 
-We further did RDA, to explore how ROC, HUM and POC was associated with microbial community compostion and dieldrin. Only in the Kurosol did carbon fractions significantly associate with the composition of bacteria and fungi (Fig \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant in the Kurosol (*p* < 0.001) but not in the Chromosol (*p* > 0.05). Thus, the variation of carbon fractions in the Kurosol explained 29.5 and 29.4 % of the compositional variation of bacteria and fungi respectively (RDA1 and RDA2 combined), while no effect on the microbial composition in the Chromosol could be detected.  
+We further did RDA, to explore how ROC, HUM and POC was associated with microbial community compostion and dieldrin. Only in the Kurosol did carbon fractions significantly associate with the composition of bacteria, the enzyme metagenome and fungi (Fig \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant for the Kurosol (*p* < 0.001) but not for the Chromosol (*p* > 0.05). The variation of carbon fractions in the Kurosol therefore explained 29.5 and 29.4 % of the compositional variation of bacteria and fungi respectively (RDA1 and RDA2 combined), while no effect on the microbial composition in the Chromosol could be detected.  
   
 Subsequent null-model comparisons to each ROC, HUM and ROC individually indicated that HUM was most important for the community composition, followed by ROC. In the Kurosol, there was some grouping of samples in which the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM. POC was insignificant in the Kurosol RDA which was also indicated by a short arrow in figure \@ref(fig:rda). 
 
@@ -1383,7 +1401,8 @@ taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
 x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
 y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
 y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
-
+#TC <- as.matrix(sample_data(physeq.pw.flt)[,c("TC")] )
+#y$H <- as.numeric( y$H / TC)
 #option to normalise to sample sum (ie.percentages) before clr transform
 #y <- y/ rowSums(y)
 
@@ -1398,7 +1417,7 @@ pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, k
 #plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
 #abline(h = 0.0975)
 
-mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", margins = c(5, 30), threshold = 0.4)
+mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", margins = c(5, 30), threshold = 0.3)
 
 #cim does not output into markdown, export graph and link to mardown, or does it? sometimes it works
 #knitr::include_graphics("./mixomics_heatmaps_regression_bothsoils_spls.png")
@@ -1480,6 +1499,8 @@ mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
+nrow(test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>% filter(Dloss.dim1 > 0 | Dloss.dim2 > 0 ))
+
 test2 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>% filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.0002 | Dloss.dim1 <= -0.0004)
 
 kable(test2, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
@@ -1488,10 +1509,10 @@ kable(test2, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis 
 
 ```{r, tblemixomicskuNOTINCLUDE, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, eval=FALSE }
 #print the correlation coordinates
-#bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
-#cord.X = cor(pw.spls$X, bisect, use = "pairwise")
-#cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
-#simMat = as.matrix(cord.X %*% t(cord.Y))
+bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
+cord.X = cor(pw.spls$X, bisect, use = "pairwise")
+cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
+simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_column("pathway")
 #filter1
 #simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
 #  filter(D1517 >= 0.65 |
@@ -1545,6 +1566,7 @@ mixOmics::cim(pw.spls, comp = 1, xlab = "", title = "Chromosol", margins = c(5, 
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
+
 test3 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>%
   filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.005 | Dloss.dim1 <= -0.005)
 
@@ -1802,44 +1824,14 @@ Only 1 of the 44 chlorinated compound degradation pathways available in the Meta
 Furthermore figure \@ref(fig:xenobgraphs) shows that the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses. 
 
 Among 410 Metacyc pathways included in sPLS regression and sPLS-DA, the genentic potential for oxidative glucose degradation was most predictive for both, high dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and lower dieldrin loss (Fig. \@ref(fig:plsdaratiocomp1to3)). On the other hand, the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3).  
-Furthermore, from figure \@ref(fig:plsheatmapsall) it was apparent that metabolic potentials that were associated with low dieldrin concentrations were also associated to POC, HUM and H but not to ROC. 
-
-
-
-\@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) 
+Furthermore, from figure \@ref(fig:plsheatmapsall) it was apparent that across both soils the metabolic potentials that were associated with low dieldrin concentrations were also associated to POC, HUM and H but not to ROC.   
   
-Presense of superpathway of fucose and rhamnose degradation predicted less dieldrin concentrations and greater dieldin losses (Fig. \@ref(fig:plsheatmapsall), fig. \@ref(fig:plsheatmapsch) and fig. \@ref(fig:plsdaratiocomp1to3). 
-
-
-
-Some general info on highly associated metacyc pathways:  
+Compared to the Chromosol, the Kurosol had a higher proportion of pathways that were associated to greater dieldrin losses (46% of pathways with positive regression coefficients compared to 28%) (Fig. \@ref(fig:plsheatmapsku) and  \@ref(fig:plsheatmapsch)). Furthermore, the co-associations of metabolic potentials to carbon fraction and dieldrin losses were reversed in the Kurosol and the Chromosol. In the Kurosol, the metabolic potentials that were associated to greater dieldrin losses were also associated to more H, HUM and ROC while in the Chromosol these pathways were co-associated with lower dieldrin losses.  
   
-- Anaerobic metabolism
-  - Coenzyme B and M biosynthesis
-    - required for methanogenesis in anaerobic respiration. 
-  - Reductive TCA cycle
-    - by anoxic photosynthetic bacteria and sulfur reducing bacteria
-  - L-isoleucine biosynthesis IV
-    - is a non-polar and uncharged molecule (amino acid)
-    - biosynthesis by anaerobic bacteria and archaea including chlostridium and methanobacteria
-  - pyruvate fermentation 
-    - central to anaerobic energy production
-  - 4-coumarate degradation (anaerobic)
-    - phenylpropanoid (aromatic plant compound)
-  - purine nucleobases degradation I (anaerobic)
+Creatinine degradation was observed in both soils to be associated with increased dieldrin losses (Table 5 and 6). "Creatinine is a breakdown product of creatine phosphate in muscle. Creatinine is excreted in the urine"  
   
-- Ruderal traits, see @Wood2018
-  - pyrimidine deoxyribonucleosides salvage
-    - related to potential of ribosome production
-    - "The de novo synthesis of ribonucleotides is very expensive, and organisms have adapted to salvage pyrimidine deoxyribonucleosides salvagepotential precursors from their environment"
-  - glycogen degradation I
-    - The glycogen is broken down and utilized when carbon sources become limiting
-  - superpathway of L-aspartate and L-asparagine biosynthesis
-    - "This pathway is common in both prokaryotes and eukaryotes, and provides a link between amino acid and carbohydrate metabolism"
-  - Enterobactin biosynthesis
-    - siderophore to utilise the otherwise insoluble Fe^3+^
-    - almost exclusively produced by enterobacteria but also some Streptomyses sp. 
-    - produced extracellular and utilised by many other bacteria  
+ 
+
 
 
 
