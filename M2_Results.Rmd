@@ -1787,7 +1787,7 @@ my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 #preselection 
 selection <- splsda_compvec %>% filter(value.var >= 0.3 | value.var <= -0.27)
 #figure                
-physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway potentials (Relative abundance)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 
 
 selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
@@ -1801,7 +1801,9 @@ Only 1 of the 44 chlorinated compound degradation pathways available in the Meta
   
 Furthermore figure \@ref(fig:xenobgraphs) shows that the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses. 
 
-Among 410 Metacyc pathways included in sPLS, the genentic potential for oxidative glucose degradation, which was greater in the Chromosol (Kruskal *p* < 0.001) was the most predictive for high dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4). This coincided with associations to greater ROC and lower POC and HUM concentrations. 
+Among 410 Metacyc pathways included in sPLS, the genentic potential for oxidative glucose degradation was the most predictive for both, high dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and lower dieldrin loss (Fig. \@ref(fig:plsdaratiocomp1to3)). On the other hand, the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3). 
+
+
 
 \@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) and \@ref(fig:plsdaratiocomp1to3).
   
