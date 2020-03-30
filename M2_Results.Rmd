@@ -1460,7 +1460,7 @@ simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>% rownames_to_colum
 ```
 
 
-```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variables included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE}
+```{r plsheatmapsku, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Kurosol samples (n = 18). Soil variables included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE}
 
 
 #Kurosol
@@ -1529,7 +1529,7 @@ simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_colu
 ```
 
 
-```{r plsheatmapsch,fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Chromosol samples (n = 15). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis. Only associations scores >= 0.50 are shown.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE }
+```{r plsheatmapsch,fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for Chromosol samples (n = 15). Soil variabels included the average dieldrin concentrations from 2015 and 2017 (log D1517), C:N ratio (log CN), H:C ratio (log HC), ROC, HUM and POC. The pathway potentials and ROC, HUM and POC were clr transformed before analysis.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.6, cache = TRUE }
 
 #Chromosol
 physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Chromosol", physeq.pw)
@@ -1811,9 +1811,9 @@ selection <- splsda_compvec %>% filter(value.var >= 0.3 | value.var <= -0.27)
 #figure                
 physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway potentials (Relative abundance)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 
-
-selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
-kable(splsda_compvec %>% filter(name %in% selection$name) %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
+#table with most associated pathways 
+#selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
+#kable(splsda_compvec %>% filter(name %in% selection$name) %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
 ```
 
 <br/>
@@ -1829,11 +1829,6 @@ Furthermore, from figure \@ref(fig:plsheatmapsall) it was apparent that across b
 Compared to the Chromosol, the Kurosol had a higher proportion of pathways that were associated to greater dieldrin losses (46% of pathways with positive regression coefficients compared to 28%) (Fig. \@ref(fig:plsheatmapsku) and  \@ref(fig:plsheatmapsch)). Furthermore, the co-associations of metabolic potentials to carbon fraction and dieldrin losses were reversed in the Kurosol and the Chromosol. In the Kurosol, the metabolic potentials that were associated to greater dieldrin losses were also associated to more H, HUM and ROC while in the Chromosol these pathways were co-associated with lower dieldrin losses.  
   
 Creatinine degradation was observed in both soils to be associated with increased dieldrin losses (Table 5 and 6). "Creatinine is a breakdown product of creatine phosphate in muscle. Creatinine is excreted in the urine"  
-  
- 
-
-
-
 
 <br/>
 
