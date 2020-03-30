@@ -1394,11 +1394,11 @@ y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg)
 require(compositions)
 y <- data.frame(clr(y))
 pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(400, 375, 150))
-tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 5, progressBar = FALSE, nrepeat = 500)
+#tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 5, progressBar = FALSE, nrepeat = 500)
 #plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
 #abline(h = 0.0975)
 
-mixOmics::cim(pw.spls, comp = 1:3, xlab = "", title = "Across both soils", margins = c(5, 30), threshold = 0.4)
+mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Across both soils", margins = c(5, 30), threshold = 0.4)
 
 #cim does not output into markdown, export graph and link to mardown, or does it? sometimes it works
 #knitr::include_graphics("./mixomics_heatmaps_regression_bothsoils_spls.png")
@@ -1421,7 +1421,7 @@ kable(test1, caption = "Top regression coefficients of sPLS analysis across both
 
 ```{r, tblemixomicsall, echo = FALSE, message=FALSE, warning=FALSE, include = FALSE, eval = FALSE}
 #print the correlation coordinates
-bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
+bisect = pw.spls$variates$X[, 1:3] + pw.spls$variates$Y[, 1:3]
 cord.X = cor(pw.spls$X, bisect, use = "pairwise")
 cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
 simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>% rownames_to_column("pathway")
@@ -1454,19 +1454,19 @@ taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
 
 #tables for analysis
 x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
-y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
-y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "Dloss", "H")])
+#y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
 
 #relative data
 require(compositions)
 y <- data.frame(clr(y))
 
 
-pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(5,10,5,5))
+#pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(5,10,5,5))
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(250,25))
 #tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 500)
 #plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
 #abline(h = 0.0975)
-
 mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 25))
 #cim does not output into markdown, export graph and link to mardown
 #knitr::include_graphics("./mixomics_heatmaps_regression_KUROSOL_spls.png")
@@ -1480,7 +1480,7 @@ mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test2 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim2)
+test2 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>% filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.0002 | Dloss.dim1 <= -0.0004)
 
 kable(test2, booktabs=TRUE, caption = "Regression coefficients of sPLS analysis across in the Kurosol (n=18). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 
@@ -1520,19 +1520,19 @@ taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
 
 #tables for analysis
 x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
-y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
-y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "Dloss", "H")])
+#y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
 
 #relative data
 require(compositions)
 y <- data.frame(clr(y))
 
-pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(100,10,10))
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(400,10))
 #tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
 #plot(tune.spls$Q2.total,main = "sPLS Q^2 Values by Principal Component")
 #abline(h = 0.0975)
 
-mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", margins = c(5, 25))
+mixOmics::cim(pw.spls, comp = 1, xlab = "", title = "Chromosol", margins = c(5, 25))
 
 #mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", threshold = 0.5, margins = c(5, 15))
 #cim does not output into markdown, export graph and link to mardown
@@ -1545,8 +1545,8 @@ mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Chromosol", margins = c(5
 
 pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test3 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2 ) %>%
-  filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.01 | D1517.dim1 <= -0.005)
+test3 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>%
+  filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.005 | Dloss.dim1 <= -0.005)
 
 kable(test3, booktabs=TRUE, caption = "Top regression coefficients of sPLS analysis across in the Chromosol (n=15). Values are the predicted effect of the metabolic pathway potentials on dieldrin concentrations") %>% kable_styling(latex_options="scale_down")
 
@@ -1801,11 +1801,12 @@ Only 1 of the 44 chlorinated compound degradation pathways available in the Meta
   
 Furthermore figure \@ref(fig:xenobgraphs) shows that the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses. 
 
-Among 410 Metacyc pathways included in sPLS, the genentic potential for oxidative glucose degradation was the most predictive for both, high dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and lower dieldrin loss (Fig. \@ref(fig:plsdaratiocomp1to3)). On the other hand, the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3). 
+Among 410 Metacyc pathways included in sPLS regression and sPLS-DA, the genentic potential for oxidative glucose degradation was most predictive for both, high dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and lower dieldrin loss (Fig. \@ref(fig:plsdaratiocomp1to3)). On the other hand, the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3).  
+Furthermore, from figure \@ref(fig:plsheatmapsall) it was apparent that metabolic potentials that were associated with low dieldrin concentrations were also associated to POC, HUM and H but not to ROC. 
 
 
 
-\@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) and \@ref(fig:plsdaratiocomp1to3).
+\@ref(fig:plsheatmapsku), \@ref(fig:plsheatmapsch) 
   
 Presense of superpathway of fucose and rhamnose degradation predicted less dieldrin concentrations and greater dieldin losses (Fig. \@ref(fig:plsheatmapsall), fig. \@ref(fig:plsheatmapsch) and fig. \@ref(fig:plsdaratiocomp1to3). 
 
