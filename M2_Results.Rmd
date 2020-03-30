@@ -1,5 +1,5 @@
 ---
-title: "PrepreDRAFT: A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
+title: "PreDRAFT: A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
 subtitle: "Associations of organic matter quality and soil diversity to long term dieldrin loss"
 output: 
  bookdown::html_document2:
