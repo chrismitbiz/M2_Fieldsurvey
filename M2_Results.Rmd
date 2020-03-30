@@ -2,13 +2,13 @@
 title: "PrepreDRAFT: A preliminary field survey indicated that carbon quality is a driver for the metabolic capacity of soils to biodegrade persistant organic pollutants"
 subtitle: "Associations of organic matter quality and soil diversity to long term dieldrin loss"
 output: 
+ bookdown::word_document2:
+    reference_docx: "M2_Results_template.docx"
  bookdown::html_document2:
   fig_caption: yes
   toc: yes
   toc_float: true
   number_sections: false
- bookdown::word_document2:
-    reference_docx: "M2_Results_template.docx"
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
@@ -16,12 +16,6 @@ editor_options:
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
-knit: (function(input_file, encoding) {
-  out_dir <- 'docs';
-  rmarkdown::render(input_file,
-  encoding=encoding,
-  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
