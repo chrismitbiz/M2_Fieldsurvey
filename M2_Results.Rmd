@@ -2680,7 +2680,7 @@ Further to explore: module correlations to carbon fractions, Keystone taxa media
 
 
 # Acknowledgements
-Josh Vido, Helen Hayden, Matt Kitching (check a), Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Sarah Knowler
+Josh Vido, Helen Hayden, Matt Kitching, Gene Drendle, Steven Batinovic, Steve Petrovski, Jen Wood, Sarah Knowler
 
 # References
 
