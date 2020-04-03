@@ -897,7 +897,7 @@ ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr +
 
 
 p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
-    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Fungi, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = 3.2, y = 11,label = paste(expression('(F'[3*','*14]~'='~2.3*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)  
+    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Fungi, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = 3.2, y = 8,label = paste(expression('(F'[3*','*14]~'='~2.3*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)  
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1064,7 +1064,7 @@ ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr +
 #anova(ord_ccaF0, ord_ccaF6) # ROC strong association
 
 p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss") +
-    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Enzyme metagenome, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)")+ scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = 2.5, y = 4.5,label = paste(expression('(F'[3*','*14]~'='~2.8*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)
+    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = "cadetblue1", high = "navy") + ggtitle("Enzyme metagenome, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)")+ scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = 3, y = 4.5,label = paste(expression('(F'[3*','*14]~'='~2.8*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
