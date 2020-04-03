@@ -451,33 +451,13 @@ cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %
 
 #kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
 ```
-
-<br/>
-
+  
+  
 Overall the two soils contained a different carbon quantity and quality. Figure \@ref(fig:carbonquality) showed that the Kurosol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC). On the other hand, the organic matter composition of the Kurosol was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). And a higher dieldrin loss in the Kurosol was associated with more humus. A higher proportion of POC was associated with more dieldrin loss. Furthermore, greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). Correlation analysis further highlighted that greater dieldrin losses were correlated to low C:N, low ROC and a high POC.
 
 <br/>
 
-
-
-
-
-<br/>
-
-Microbial richness was greater in samples with high long-term dieldrin losses (Fig. \@ref(fig:alphadloss)a, b and c). For example, bacterial richness and their predicted enzyme abundances were highest in samples with highest dieldrin loss (>=72% dieldrin loss in the Kurosol). Fungal richness also trended higher in high-loss in samples within each soil. 
-  
-A higher ASV richness coincided with increases in other diversity indices, especially an increased bacterial Simpson's index which was 1.27 times greater in the Kurosol. Consequently, in a high-loss environment there were more ASVs that were differently abundant, particularly the more dominant bacterial ASVs.  
-    
-Interestingly, the diversity (Shannon's, Simpson's and Pilou's evenness) of the enzyme metagenome which was predicted from bacterial ASVs was smaller in the Kurosol compared to the Chromosol which is in contrast to the bacterial diversity itself (Fig. \@ref(fig:alphadloss)c).
-
-Soil diversity was further compared on a per-unit-dieldrin (diversity µg g^-2^) basis (Fig \@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg/g of dieldrin compared to the Chromosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment, including the functional diversity based on the enzyme metagenome.
-  
-<br/>
-
-
 ## Compositional analysis
-
-### PCA (Aitchison distances)
 ```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for compositions of the most common bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33). After filtering the analysis included 175 and 65 bacterial and fungal taxa in the Kurosol respectively and 1988 enzyme encoding genes which were present in both soils. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) of samples. The shape of symbols indicate soil type.", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=FALSE}
 
 physeq.B.flt  <-  prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
@@ -537,7 +517,6 @@ p
 print(paste("After filtering the analysis included", ntaxa(physeq.B.flt),"and", ntaxa(physeq.F.flt),"bacterial and fungal taxa in the Kurosol respectively and ", ntaxa(physeq.E.flt), "enzyme encoding genes"))
 
 ```
-<br/>
 
 ```{r betadisp, echo= FALSE,message=FALSE, warning=FALSE, results=TRUE, include=FALSE}
 #Test of homogneity of groups
@@ -639,7 +618,6 @@ rownames(PermanovaGenes) <- c("Genes")
 betatest <- rbind(PermanovaBacteria,  PermanovaGenes, PermanovaFungi )
 
 ```
-
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
 
@@ -826,11 +804,6 @@ p4 <- p.ccaB +
   show.legend = FALSE)
 ```
 
-<br/>
-
-
-
-### Redundancy analysis (Aitchison distances)
 ```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and included 2878 bacterial and 718 fungal ASVs. Abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=10, fig.asp= 1.1, message=FALSE, warning=FALSE, results=FALSE}
 
 #KUROSOL
@@ -1192,10 +1165,12 @@ g4
 
 print(paste("After filtering the analysis included", ntaxa(psKbac),"and", ntaxa(psKfun), "bacterial and fungal taxa in the Kurosol and ", ntaxa(psCbac), "and", ntaxa(psCfun), "in the Chromosol"))
 ```
+  
+<br/>
 
- <br/>
-
-Figure \@ref(fig:pcoa) compared the compositions of the most common bacteria (a) as well as gene abundances predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils (175 bacterial taxa, 65 fungal taxa and 1988 enzyme encoding genes). It showed that the Kurosol contained a different microbial composition with greater community and genetic dispersion (betadisp *p* < 0.05 with soil type as grouping variable). 
+Microbial richness and diversity was greater in samples with high long-term dieldrin losses (Fig. S\@ref(fig:alphadloss)a, b and c). Soil diversity was further compared on a per-unit-dieldrin (diversity µg g^-2^) basis (Fig. S\@ref(fig:alphaperD17)). It showed that the Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity for each µg g^-1^ of dieldrin compared to the Chromosol. Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment, including the functional diversity based on the enzyme metagenome.  
+  
+Figure \@ref(fig:pcoa) compares the compositions of the most common bacteria (a) as well as gene abundances predicted from bacterial ASVs with Picrust2 (b) and fungi (c). It only included taxa and genes that were commonly found in both soils (175 bacterial taxa, 65 fungal taxa and 1988 enzyme encoding genes). It showed that the Kurosol contained a different microbial composition with greater community and genetic dispersion (betadisp *p* < 0.05 with soil type as grouping variable). 
   
 Furthermore, figure \@ref(fig:pcoa) shows that the community and genetic composition was different between 'low-loss' and 'high-loss' groups in the Kurosol (<72 % and >=72 % dieldrin loss) and in the Chromosol (<=43 % and >43 % dieldrin loss). These compositional differences between groups was significant in the Kurosol (Permanova *p* < 0.001) and only marginally significant in the Chromosol (Permanova *p* = 0.05 bacteria, *p* = 0.16 fungi)
   
@@ -1266,10 +1241,10 @@ cord.X = cor(pw.spls$X, bisect, use = "pairwise")
 cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
 simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_column("pathway")
 #filter1
-#simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
-#  filter(D1517 >= 0.65 |
-#           D1517 <= -0.65) %>% 
-#  arrange(D1517)
+simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
+  filter(D1517 >= 0.65 |
+           D1517 <= -0.65) %>% 
+  arrange(D1517)
 
 #kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
 #  kable_styling(latex_options="scale_down") %>%
