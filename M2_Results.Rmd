@@ -1182,8 +1182,6 @@ Subsequent null-model comparisons to each ROC, HUM and ROC individually indicate
 <br/>
 
 ## Metabolic potential
-
-### Partial least squares discriminant analysis (PLS-DA)
   
 Note: The following pathways were selected by PLS-DA to be key predictors for dielrin loss (dieldrin loss in four factors)
 ```{r plsdakurNOTINCLUDE, fig.cap = "Kurosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA).  Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo= FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE, include= FALSE, eval=FALSE}
@@ -1265,7 +1263,6 @@ p2 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% c("PWY-5392","PWY-7255", "PWY
 ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 p2
 ```
-
 
 ```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Pathway potentials were transformed into carbon ratios before analysis. Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=14, fig.asp = 0.8, cache = TRUE}
 require(mixOmics)
@@ -1415,9 +1412,6 @@ physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dlos
 #kable(splsda_compvec %>% filter(name %in% selection$name) %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
 ```
 
-<br/>
-
-### Partial least squares regression
 ```{r plsheatmapsku, message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 0.6, results = FALSE, cache = TRUE}
 
 
