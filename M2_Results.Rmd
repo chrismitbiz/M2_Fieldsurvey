@@ -1554,7 +1554,7 @@ library(ggnewscale)
 
 <br/>
 
-```{r trees, fig.cap = " Soil comparison of phylogeny of all ASVs present (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. The same clades and their associated ASV abundances are shown (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width=11, fig.asp = 1.7, cache = TRUE }
+```{r trees, fig.cap = " Soil comparison of phylogeny of all ASVs present (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. The same clades and their associated ASV abundances are shown (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width=11, fig.asp = 1.7, cache = TRUE }
 # To annotate tree with significant clades I used phylofactor mixed algorithm with presence absence of ASVs as response variable to dieldrin loss. In other words i am modelling the effect of the soil environment of a low or high dieldrin-loss on clades in the bacterial phylogeny. 
 #https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf
 
@@ -1783,21 +1783,20 @@ taxadfku <- taxadfku %>% rownames_to_column("OTU") %>% filter(OTU %in% pf.list$O
 taxadfku$Kingdom <-  str_replace_all(taxadfku[, "Kingdom"], "k__", "")
 taxadfku$Phylum <-  str_replace_all(taxadfku[, "Phylum"], " p__", "")
 taxadfku$Class <-  str_replace_all(taxadfku[, "Class"], " c__", "")
-taxadfku$Order <-  str_replace_all(taxadfku[, "Order"], " o__", "")
+taxadfku$Order <-  str_replace_all(taxadfku[, "Family"], " f__", "")
 tax.df <- taxadfku %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, Phylum,Class,Order) %>% column_to_rownames("OTUID")
-
 
 physeq.subset <- phyloseq::prune_taxa(rownames(tax_table(physeq.B.flt)) %in% as.vector(pf.list$OTU), physeq.B.flt)
 tree.df <-  phy_tree(physeq.subset)
 df <- data.frame(label = tree.df$tip.label, 
                  Phylum = as.vector(tax.df$Phylum),
                  class = as.vector(tax.df$Class),
-                 order = as.vector(tax.df$Order)) 
+                 order = as.vector(tax.df$Order),
+                 Family = as.vector(tax.df$family)) 
 p <- ggtree(tree.df) %<+% df    +
   geom_tiplab(aes(label= order, color = Phylum),align=TRUE, linesize=.5, size = 2) +
   theme_tree2()  + theme(axis.title.x = element_text(size=10)) + guides(color = guide_legend(override.aes = list(size=5))) + scale_colour_manual(values = colours)
 #step1 tick
-
 
 #create merged otutable with total counts by dieldrin loss - to use as heatmap 
 require(metagMisc)
@@ -1839,7 +1838,7 @@ Note: Need to clarify significance calculations. Deviance is huge but nonetheles
   
 Note: The following graphs are filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments. Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
 
-#### Phylofactors identified across both soils 
+#### Phylofactors identified across both soils (convert to table)
 "Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
 ```{r pfmixall, eval=TRUE, include=TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
 require(metagMisc)
@@ -1904,7 +1903,7 @@ ggarrange(p1, p2, labels = "auto")
 
 <br/>
 
-#### Phylofactors identified in Kurosol samples
+#### Phylofactors identified in Kurosol samples (convert to table)
 "Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
 ```{r pfmixKU, eval=TRUE, include=TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
 require(metagMisc)
@@ -1981,7 +1980,7 @@ ggarrange(p1, p2, labels = "auto")
 
 <br/>
 
-#### Phylofactors identified in Chromosol samples only
+#### Phylofactors identified in Chromosol samples only (convert to table)
 "Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
 ```{r pfmixCH, eval=TRUE, include=TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE }
 require(metagMisc)
