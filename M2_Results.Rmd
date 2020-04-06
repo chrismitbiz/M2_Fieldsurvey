@@ -1545,7 +1545,7 @@ Compared to the Chromosol, the Kurosol had a higher proportion of pathways that 
 <br/>
 
 ## Phylogenetic analysis
-```{r treesnotinclude,fig.cap = "Comparison of the phylogeney of all ASVs present in the Kurosol and the Chromosol. Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss environment. Samples where determined to be a high-loss environment where the loss was above the median loss of each soil type. Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Phylofactorisation was performed with the R package phylofactor and polygons highlight phylogenetic clades with increased presence in high loss samples. Prior to analysis ASVs were filted to those with a minimum of 10 reads", message=FALSE, warning=FALSE,echo=FALSE, fig.width=12, fig.asp = 0.75, cache = TRUE }
+```{r treesnotinclude,fig.cap = "Comparison of the phylogeny of all ASVs present in the Kurosol and the Chromosol (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. Clades and associated ASV abundances are further shown (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=12, fig.asp = 0.75, cache = TRUE }
 library(ggtree)
 library(ggnewscale)
 #create prevalance table in separate file and determine which phyla to filter out beforehand. 
@@ -1554,7 +1554,7 @@ library(ggnewscale)
 
 <br/>
 
-```{r trees, fig.cap = "Comparison of the phylogeney of all ASVs present in the Kurosol and the Chromosol. Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss environment. Samples where determined to be a high-loss environment where the loss was above the median loss of each soil type. Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Phylofactorisation was performed with the R package phylofactor and polygons highlight phylogenetic clades with increased presence in high loss samples. Prior to analysis ASVs were filted to those with a minimum of 10 reads", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width=11, fig.asp = 1.5, cache = TRUE }
+```{r trees, fig.cap = "Comparison of the phylogeney of all ASVs present in the Kurosol and the Chromosol. Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss environment. Samples where determined to be a high-loss environment where the loss was above the median loss of each soil type. Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Phylofactorisation was performed with the R package phylofactor and polygons highlight phylogenetic clades with increased presence in high loss samples. Prior to analysis ASVs were filted to those with a minimum of 10 reads", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width=11, fig.asp = 1.7, cache = TRUE }
 # To annotate tree with significant clades I used phylofactor mixed algorithm with presence absence of ASVs as response variable to dieldrin loss. In other words i am modelling the effect of the soil environment of a low or high dieldrin-loss on clades in the bacterial phylogeny. 
 #https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf
 
@@ -1694,7 +1694,7 @@ tree.df <-  phy_tree(physeq.B.flt)
 ggtree_gps <- groupOTU(tree.df, phyla.list, "Phylum")  #create phyla.list above
 #tree graphing with colours for phyla
 colours <- c("grey29", "tomato1", "gray","gray", "tan4",
-             "pink","turquoise3", "aquamarine4", "cadetblue4", "gray69", "gold", "dodgerblue2", "grey55", "orange", "deeppink", "grey10", "darkgoldenrod4", "seagreen3", "darkred", "yellowgreen", "seagreen3", "tomato1") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
+             "pink","turquoise3", "aquamarine4", "cadetblue4", "gray69", "gold", "dodgerblue2", "grey55", "orange", "deeppink", "grey10", "darkgoldenrod", "seagreen3", "darkred", "yellowgreen", "seagreen3", "tomato1") # "pink", "seagreen3" "darksalmon" "yellowgreen","seagreen3","tomato1"
 ggtree_phyla2 <- ggtree(ggtree_gps, aes(color=Phylum,alpha = 0.5), layout = 'circular', branch.length = 'none') +  theme(legend.position="right") + scale_colour_manual(values = colours) + guides(color = guide_legend(override.aes = list(size=5)))
 p2 <- ggtree_phyla2 + ggtitle("Chromosol")+ guides(alpha = F)
 #p2 <- p2  +  geom_balance(node = 3637, alpha =0.4, color = "red") + geom_balance(node = 3482,alpha =0.2, color = "red") +  geom_balance(node = 4249, alpha =0.2, color = "red") +  geom_balance(node = 3785, alpha =0.2, color = "red")  +  geom_balance(node = 4185,alpha =0.2, color = "red")
@@ -1835,7 +1835,7 @@ p4
 Note: Need to clarify significance calculations. Deviance is huge but nonetheless seems to be significant and match the high density of presence of unique ASVs in outer ring. 
 
   
-### Phylogenetic clades that were associated to dieldrin loss (THIS WILL BECOME A TABLE)
+## Phylogenetic clades that were associated to dieldrin loss (THIS WILL BECOME A TABLE)
   
 Note: The following graphs are filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments. Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
 
