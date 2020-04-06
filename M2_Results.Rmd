@@ -1551,9 +1551,9 @@ library(ggnewscale)
 #create prevalance table in separate file and determine which phyla to filter out beforehand. 
 #https://ucdavis-bioinformatics-training.github.io/2017-September-Microbial-Community-Analysis-Workshop/friday/MCA_Workshop_R/phyloseq.html
 ```
+
 <br/>
 
-### Phylogenetic tree 
 ```{r trees, fig.cap = "Comparison of the phylogeney of all ASVs present in the Kurosol and the Chromosol. Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss environment. Samples where determined to be a high-loss environment where the loss was above the median loss of each soil type. Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Phylofactorisation was performed with the R package phylofactor and polygons highlight phylogenetic clades with increased presence in high loss samples. Prior to analysis ASVs were filted to those with a minimum of 10 reads", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width=11, fig.asp = 1.5, cache = TRUE }
 # To annotate tree with significant clades I used phylofactor mixed algorithm with presence absence of ASVs as response variable to dieldrin loss. In other words i am modelling the effect of the soil environment of a low or high dieldrin-loss on clades in the bacterial phylogeny. 
 #https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf
@@ -1829,6 +1829,7 @@ p4
 #print("Model of factor 1")
 #pf_gpf_mix_Kurosol10factorsDloss$models[[1]]
 ```
+
 <br/>
   
 Note: Need to clarify significance calculations. Deviance is huge but nonetheless seems to be significant and match the high density of presence of unique ASVs in outer ring. 
