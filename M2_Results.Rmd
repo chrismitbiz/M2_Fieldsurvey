@@ -1921,16 +1921,6 @@ Z <- Z  %>% left_join(Z5) %>%  mutate_each(funs(replace(., which(is.na(.)), "pre
 #write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes.csv", row.names = TRUE)
 ```
 
-
-```{r networkallpicture, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity); pink = module 0, jade green = module 1, blue = module 2, darkgrey = module 3, purple = module 4, orange = module 5 , moss green = module 6", include = FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE, eval=FALSE }
-knitr::include_graphics("./glassonetwork_allsamples_modules_atlas.png")
-```
-
-```{r networkallpictureunique, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Green = ASVs unique to the Chromosol, orange = ASVs unique to the Kurosol, grey = ASVs present in both soils", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE, include=FALSE, eval=FALSE }
-knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs.png")
-```
-<br/>
-
 ### Kurosol
 ```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE}
 
@@ -2070,99 +2060,8 @@ uniqueK_bac <- count(modules %>% filter(modularity_class == 4) %>% filter(presen
 print(paste("Module 0 consisted of ", round((bac$n),0),"% bacteria and ",round((fun$n),0),"% fungi and contained", round((uniqueK$n),0), "% of unique ASVs in the 'high-loss' and ", round((uniqueC$n),0), "% of unique ASVs in the 'low-loss'. And of those ASVs that were unique in the 'low-loss samples'" , round((uniqueK_bac$n),0),"% were fungi"))
 ```
 
-```{r glassomodulecor, eval=FALSE, include=FALSE, fig.cap = "", include = FALSE,  message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE }
-#create correlations of z-scores of the ASVs in each module to identify ecological preferences of each module
-#modules was exported from gephi after running the algorithm there
-modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KurosolInclmodules06April20.csv") 
-modules <- modules %>% dplyr::select(Id, kingdom, modularity_class) %>% rename(OTUID = Id)
-otusB <- as.data.frame(otu_table(physeq.B.flt))
-otusF <- as.data.frame(otu_table(physeq.F.flt))
-otusBF <- rbind(otusB, otusF) %>% rownames_to_column("OTUID")
-modules <-  modules %>% left_join(otusBF) %>% dplyr::select(-OTUID, -kingdom)
-modules <-  modules %>% group_by(modularity_class) %>%  summarise_at(vars(`C01`:`C18`), base::sum) %>% column_to_rownames("modularity_class") 
-
-metadf <- sample_data(physeq.B.flt) %>% data.frame()
-physeqBF <- phyloseq(otu_table(modules, taxa_are_rows = T), 
-             sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
-ps_modulesZ <- microbiome::transform(physeqBF, "Z")
-otu_clr <- as.data.frame(otu_table(ps_modulesZ)) %>% t %>% data.frame() %>% rownames_to_column("SampleId")
-#correlations of modules to variables 
-require(psych)
-require(reshape2)
-testdf <- data.frame(sample_data(ps_modulesZ))
-testdf <- testdf %>% rownames_to_column("SampleId") %>% left_join(otu_clr)
-correlation_matrix=corr.test(testdf[,c("D1517","ppDDE", "ppDDT", "DDT1517", "TC","TN","CN",  "HC", "P",   "CP" ,"pH" ,"b_copies_ngDNA" ,"f_copies_ngDNA","Dloss" ,"DDTloss","C_Sand","F_Sand" , "T_Sand","Silt_1", "Clay_1","Organic.Matter", "Field.Capacity", "Wilting.Point", "Kaolinite." ,"Illite.", "Smectite.", "Gibbsite." , "Clay_total","POC.pct","HUM.pct" ,"ROC.pct","POC","HUM" ,"ROC", "H", "X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X17")], method="spearman", adjust="holm")
-shapiro.test(testdf[,c("ROC.clr")])
-r_matrix=correlation_matrix$r
-r_matrix[row(r_matrix)>col(r_matrix)]=0
-diag(r_matrix)=0
-p_matrix=correlation_matrix$p
-p_matrix[row(p_matrix)>col(p_matrix)]=1
-diag(p_matrix)=1
-r_table=melt(r_matrix)
-p_table=melt(p_matrix)
-cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
-
-module0_cor <- cortable %>% 
-  filter(r_table.Var1 == "X0" | 
-           r_table.Var2 == "X0") %>% 
-  filter(r_table.value >= 0.6 |
-           r_table.value <= -0.6) %>%
-  arrange(p_table.value)
-
-require(ppcor)
-#do some semipartial correlation to check which of the carbon fractions is most associated with the module, check correlation while accounting for total carbon.
-# partial correlation
-#pcor.test(x = testdf[,c("X0")], y = testdf[,c("POC")], 
-#          z =  testdf[,c("ROC","HUM")])
-##    estimate      p.value statistic   n gp  Method
-## 1 0.7700591 0.0004838338  4.516335 18  2 pearson   HUM while control for ROC/POC
-##  -0.6990402 0.002585018 -3.657717 18  2 pearson    ROC while control for HUM/POC
-##    0.2606078 0.3296309  1.010006 18  2 pearson     POC --- 
-
-module1_cor <- cortable %>% 
-  filter(r_table.Var1 == "X1" | 
-           r_table.Var2 == "X1") %>% 
-  filter(r_table.value >= 0.5 |
-           r_table.value <= -0.5) 
-
-module2_cor <- cortable %>% 
-  filter(r_table.Var1 == "X2" | 
-           r_table.Var2 == "X2") %>% 
-  filter(r_table.value >= 0.5 |
-           r_table.value <= -0.5) 
-
-module3_cor <- cortable %>% 
-  filter(r_table.Var1 == "X3" | 
-           r_table.Var2 == "X3") %>% 
-  filter(r_table.value >= 0.5 |
-           r_table.value <= -0.5) 
-
-module4_cor <- cortable %>% 
-  filter(r_table.Var1 == "X4" | 
-           r_table.Var2 == "X4") %>% 
-  filter(r_table.value >= 0.5 |
-           r_table.value <= -0.5)
-
-module5_cor <- cortable %>% 
-  filter(r_table.Var1 == "X5" | 
-           r_table.Var2 == "X5") %>% 
-  filter(r_table.value >= 0.5 |
-           r_table.value <= -0.5)
-
-module17_cor <- cortable %>% 
-  filter(r_table.Var1 == "X6" | 
-           r_table.Var2 == "X6") %>% 
-  filter(r_table.value >= 0.5 |
-           r_table.value <= -0.5)
-
-module_cor <-  rbind(module1_cor,module2_cor,module3_cor,module4_cor,module5_cor,module6_cor) %>%  arrange(p_table.value)
-module_cor %>% filter(p_table.value <= 0.001)
-```
-
 ```{r networkKUROSOLmodules, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="47%", out.height="20%", fig.show='hold'}
 knitr::include_graphics(c("./glassonetwork_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_KUROSOL.png") )
-
 ```
 
 ### Chromosol
@@ -2251,8 +2150,120 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL06April.csv", row.names = FALSE)
 ```
 
-```{r networkmodulesandunique, fig.cap = "Network of cross-domain (fungi (F) and bacteria (B) together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
+```{r networkmodulesandunique, fig.cap = "Network of cross-domain co-occurances (fungi (F) and bacteria (B) together) using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
 knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL2.png"))
+```
+
+
+```{r glassomodulecor, fig.cap = "Scatterplot of the normalised abundances of the combined taxa in module zero from the network analysis of the Kurosol.",  message=FALSE, warning=FALSE, echo=FALSE, fig.width=3, fig.asp = 1, include=TRUE, cache = TRUE }
+#create correlations of z-scores of the ASVs in each module to identify ecological preferences of each module
+
+#filtering
+physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) #soil 
+physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF) #soil
+
+physeq.B.flt <- prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt) #take out outlier paddock
+physeq.F.flt <- prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt) #take out outlier paddock
+
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt) 
+physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
+
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 200, physeq.B.flt) #must have at least x reads
+physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) > 100, physeq.F.flt) #must have at least x reads
+
+physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+
+#modules was exported from gephi after running the algorithm there
+modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KurosolInclmodules06April20.csv") 
+modules <- modules %>% dplyr::select(Id, kingdom, modularity_class) %>% rename(OTUID = Id)
+otusB <- as.data.frame(otu_table(physeq.B.flt))
+otusF <- as.data.frame(otu_table(physeq.F.flt))
+otusBF <- rbind(otusB, otusF) %>% rownames_to_column("OTUID")
+modules <-  modules %>% left_join(otusBF) %>% dplyr::select(-OTUID, -kingdom)
+modules <-  modules %>% group_by(modularity_class) %>%  summarise_at(vars(`C01`:`C18`), base::sum) %>% column_to_rownames("modularity_class") 
+
+metadf <- sample_data(physeq.B.flt) %>% data.frame()
+physeqBF <- phyloseq(otu_table(modules, taxa_are_rows = T), 
+             sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
+ps_modulesZ <- microbiome::transform(physeqBF, "Z")
+otu_clr <- as.data.frame(otu_table(ps_modulesZ)) %>% t %>% data.frame() %>% rownames_to_column("SampleId")
+#correlations of modules to variables 
+require(psych)
+require(reshape2)
+testdf <- data.frame(sample_data(ps_modulesZ))
+testdf <- testdf %>% rownames_to_column("SampleId") %>% left_join(otu_clr)
+correlation_matrix=corr.test(testdf[,c("D1517","ppDDE", "ppDDT", "DDT1517", "TC","TN","CN",  "HC", "P",   "CP" ,"pH" ,"b_copies_ngDNA" ,"f_copies_ngDNA","Dloss" ,"DDTloss","C_Sand","F_Sand" , "T_Sand","Silt_1", "Clay_1","Organic.Matter", "Field.Capacity", "Wilting.Point", "Kaolinite." ,"Illite.", "Smectite.", "Gibbsite." , "Clay_total","POC.pct","HUM.pct" ,"ROC.pct","POC","HUM" ,"ROC", "H", "X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X17")], method="spearman", adjust="holm")
+#shapiro.test(testdf[,c("ROC.clr")])
+r_matrix=correlation_matrix$r
+r_matrix[row(r_matrix)>col(r_matrix)]=0
+diag(r_matrix)=0
+p_matrix=correlation_matrix$p
+p_matrix[row(p_matrix)>col(p_matrix)]=1
+diag(p_matrix)=1
+r_table=melt(r_matrix)
+p_table=melt(p_matrix)
+cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
+
+module0_cor <- cortable %>% 
+  filter(r_table.Var1 == "X0" | 
+           r_table.Var2 == "X0") %>% 
+  filter(r_table.value >= 0.6 |
+           r_table.value <= -0.6) %>%
+  arrange(p_table.value)
+
+#require(ppcor)
+#do some semipartial correlation to check which of the carbon fractions is most associated with the module, check correlation while accounting for total carbon.
+# partial correlation
+#pcor.test(x = testdf[,c("X0")], y = testdf[,c("POC")], 
+#          z =  testdf[,c("ROC","HUM")])
+##    estimate      p.value statistic   n gp  Method
+## 1 0.7700591 0.0004838338  4.516335 18  2 pearson   HUM while control for ROC/POC
+##  -0.6990402 0.002585018 -3.657717 18  2 pearson    ROC while control for HUM/POC
+##    0.2606078 0.3296309  1.010006 18  2 pearson     POC --- 
+
+module1_cor <- cortable %>% 
+  filter(r_table.Var1 == "X1" | 
+           r_table.Var2 == "X1") %>% 
+  filter(r_table.value >= 0.5 |
+           r_table.value <= -0.5) 
+
+module2_cor <- cortable %>% 
+  filter(r_table.Var1 == "X2" | 
+           r_table.Var2 == "X2") %>% 
+  filter(r_table.value >= 0.5 |
+           r_table.value <= -0.5) 
+
+module3_cor <- cortable %>% 
+  filter(r_table.Var1 == "X3" | 
+           r_table.Var2 == "X3") %>% 
+  filter(r_table.value >= 0.5 |
+           r_table.value <= -0.5) 
+
+module4_cor <- cortable %>% 
+  filter(r_table.Var1 == "X4" | 
+           r_table.Var2 == "X4") %>% 
+  filter(r_table.value >= 0.5 |
+           r_table.value <= -0.5)
+
+module5_cor <- cortable %>% 
+  filter(r_table.Var1 == "X5" | 
+           r_table.Var2 == "X5") %>% 
+  filter(r_table.value >= 0.5 |
+           r_table.value <= -0.5)
+
+module17_cor <- cortable %>% 
+  filter(r_table.Var1 == "X6" | 
+           r_table.Var2 == "X6") %>% 
+  filter(r_table.value >= 0.5 |
+           r_table.value <= -0.5)
+
+module_cor <-  rbind(module0_cor, module1_cor,module2_cor,module3_cor,module4_cor,module5_cor,module17_cor) %>%  arrange(p_table.value)
+#module_cor %>% filter(p_table.value <= 0.001)
+
+plot.df <- psmelt(ps_modulesZ)
+plot.df %>% filter(OTU %in% c(0)) %>%  ggscatter(data =., x = "HUM", y = "Abundance", facet.by = "OTU",add = "reg.line", conf.int = TRUE, add.params = list(color = "blue", fill = "lightgray"), ylab = "Abundance module 0 (Z-score)", panel.labs = list(OTU = c("Module zero (Kurosol)")) ) + stat_cor(method = "spearman") + xlab(bquote('Humus (g '*~kg^-1*')'))
+
 ```
 
 <br/>
