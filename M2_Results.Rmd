@@ -120,7 +120,7 @@ metadata2$Dloss_fct2 <-  factor(metadata2$Dloss_fct2,
 
 ```
 
-```{r physeqb object,include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
+```{r physeqb, include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 #SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertfilt_min10readsmin2spls.qza")
 SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered_gg.qza")
 taxonomy <- read_tsv("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/taxonomy_gg.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
@@ -211,7 +211,7 @@ print(paste("The number of reads and ASVs left after filtering is",round(sum(tax
 
 ```
 
-```{r physeqf object,include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
+```{r physeqf, include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 #FUNGI
 SVs <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Fungi/M2_Qiime_Fungi/feature_table_M2Fungi.qza")
 # Renaming samples to match the second run
@@ -296,7 +296,7 @@ print(paste("The number of reads and ASVs left after filtering is",round(sum(tax
 
 ```
   
-```{r physeqE object,include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
+```{r physeqE,include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 #Enzyme metagenome (picrust predictions)
 #Run picrust2 on hpc or on home computer and import as phyloseq object
 #Manually create a category file which can be used as 'taxonomy' to aid graphs and colours. 
@@ -345,7 +345,7 @@ physeqE@sam_data <- sample_data(meta.df)
 physeqE
 ```
 
-```{r physeqpw object, include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
+```{r physeqpw, include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 # now for the pathway file
 pathway.pred <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv", col_names = TRUE)  %>% column_to_rownames("pathway")
 pw.names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Picrust/metacyc_pathway_info_full.tsv") %>% column_to_rownames("Id")  %>% dplyr::select(-ALTERNATIVE) %>% dplyr::select(-`SUPER-PATHWAYS`)%>% dplyr::select(-NAMES) %>% dplyr::select(-CLASS2)
@@ -354,6 +354,59 @@ physeq.pw <- phyloseq(otu_table(
               tax_table(as.data.frame(pw.names) %>% as.matrix()),
              sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
 physeq.pw
+```
+
+```{r associations, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE, include=FALSE, cache=TRUE}
+
+
+# now for the pathway file
+#pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE)
+#rm(pathway.assoc)
+
+physeqB.flt = prune_taxa(taxa_sums(physeqB) >= 10, physeqB) #minimum reads per feature
+physeqB.flt = filter_taxa(physeqB.flt , function(x) sum(x > 0) > (0.06*length(x)), TRUE) #minimum presense in x% of samples
+#filter any phyla that have not been classified i.e. are "NA"
+physeqB.flt = subset_taxa(physeqB.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
+taxa.df <- tax_table(physeqB.flt)@.Data %>% as.data.frame() %>% rownames_to_column("taxon")
+contributions_rhamca <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results/contributions_FUC-RHAMCAT-PWY.csv") %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+contributions_gluco <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results/contributions_DHGLUCONATE-PYR-CAT-PWY.csv")  %>% arrange(desc(taxon_rel_function_abun))   %>% left_join(taxa.df)
+
+#o__Bacillales (incl Bacillus longiquaesitum) for the rhamcat pathway (5% of the total potential) 
+#f__Bradyrhizobiaceae. for the DHGLUCONATE pathway (20% of the total potential)
+
+contributions_rhamca2 <- contributions_rhamca %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+
+contributions_gluco2 <- contributions_gluco %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+
+Bacillus <- pathway.assoc %>% filter(taxon == "ad4cba5280fb47cbebea01e7031af61c")
+
+
+###check if Bacillus abundance is important for dieldrin loss 
+#filtering out mitochondria and Chloroplast and unknown phyla
+#subset_taxa(physeqB_gg, Class==" c__Chloroplast")
+#subset_taxa(physeqB_gg, Family == " f__mitochondria")
+physeqB_gg <- subset_taxa(physeqB, (Class!=" c__Chloroplast") | is.na(Class))
+physeqB_gg <- subset_taxa(physeqB_gg, (Family!=" f__mitochondria") | is.na(Family))
+physeqB_gg = subset_taxa(physeqB_gg, !is.na(Phylum) & !Phylum %in% c("", " p__"))
+physeqB.flt <- prune_taxa(taxa_sums(physeqB_gg) >= 10, physeqB_gg)
+physeqtest = filter_taxa(physeqB.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #minimum
+OTUTable <- as.data.frame(otu_table(physeqtest))  #Our OTU table. Rows are OTUs and columns are samples
+Dloss <- sample_data(physeqtest)$Dloss        #Our independent variable
+tree <- phyloseq::phy_tree(physeqtest)
+tree <- ape::unroot(tree)
+taxadf <- as.data.frame(tax_table(physeqtest)@.Data)
+taxadf <- unite(taxadf, taxonomy, sep = ";", remove = TRUE, na.rm = FALSE) %>% rownames_to_column("OTU_ID")
+#testing which phylogenetic edges capture variation
+frmla <- Data ~ Dloss #Must put ILR coordinates as "Data"
+my.data.frame <- data.frame('Dloss'=Dloss)
+require(phylofactor)
+PF.mult <- PhyloFactor(OTUTable,tree,X=my.data.frame,frmla=frmla,nfactors=10)
+PF.mult$factors
+summary(aov(PF.mult$models[[1]]))
+smry <- pf.summary(PF.mult, taxadf,  factor=10)
+td <- pf.tidy(smry)
+td
+
 ```
 
 ```{r headmetadata, warning=FALSE,message=FALSE,echo=FALSE, include=FALSE}
@@ -1563,7 +1616,7 @@ library(ggnewscale)
 #https://ucdavis-bioinformatics-training.github.io/2017-September-Microbial-Community-Analysis-Workshop/friday/MCA_Workshop_R/phyloseq.html
 ```
 
-```{r trees, fig.cap = "Soil comparison of phylogeny of all ASVs present (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. ASV abundances of the same clades are shown on the right (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width=11.5, fig.asp = 1.55, cache = TRUE }
+```{r trees, fig.cap = "Soil comparison of phylogeny of all ASVs present (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. ASV abundances of the same clades are shown on the right (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width= 11.5, fig.asp = 1.6, cache = TRUE }
 
 # To annotate tree with significant clades I used phylofactor mixed algorithm with presence absence of ASVs as response variable to dieldrin loss. In other words i am modelling the effect of the soil environment of a low or high dieldrin-loss on clades in the bacterial phylogeny. 
 #https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf
