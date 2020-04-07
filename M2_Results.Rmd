@@ -1782,7 +1782,7 @@ taxadfku <- taxadfku %>% rownames_to_column("OTU") %>% filter(OTU %in% pf.list$O
 taxadfku$Kingdom <-  str_replace_all(taxadfku[, "Kingdom"], "k__", "")
 taxadfku$Phylum <-  str_replace_all(taxadfku[, "Phylum"], " p__", "")
 taxadfku$Class <-  str_replace_all(taxadfku[, "Class"], " c__", "")
-taxadfku$Order <-  str_replace_all(taxadfku[, "Family"], " f__", "")
+taxadfku$Order <-  str_replace_all(taxadfku[, "Order"], " o__", "")
 tax.df <- taxadfku %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, Phylum,Class,Order) %>% column_to_rownames("OTUID")
 
 physeq.subset <- phyloseq::prune_taxa(rownames(tax_table(physeq.B.flt)) %in% as.vector(pf.list$OTU), physeq.B.flt)
@@ -1831,7 +1831,18 @@ p4
   
 Note: Need to clarify significance calculations. Deviance is huge but nonetheless seems to be significant and match the high density of presence of unique ASVs in outer ring. 
 
+<br/>
+
+Figure \@ref(fig:trees) affirmed that the phylogenetic composition of the Kurosol and the Chromosol was similar which was also observed with the Faith PD diversity index,  fig. S\@ref(fig:phylodiv)a). However, the number of red lines in the outer rings show that the Kurosol contained more unique ASVs in high-loss samples. Per sample, the Kurosol contained 48 unique ASVs on average compared to 21 in the Chromosol. This  observation is in line with a greater phylogenetic dispersion seen in figure S\@ref(fig:phylodiv)b and implied a greater phylogenetic versatility in samples with greater dieldrin degradation. 
   
+Moreover, generalised linear models (glm) in the R package 'phylofactor', with presence/absence of ASVs as response and dieldrin loss (%) as predictor, indicated that there were phylogentic clades that had a significantly higher chance to be found in 'high-loss' samples (shown as polygons on phylogenetic tree in figure  \@ref(fig:trees)). In some instances, these phylogenetic clades coincided with higher clustering of unique ASVs. This meant that genetic versatility was greater in samples were greater dieldrin degradation was observed.  
+  
+For example the presence of clades of Firmicutes, Bacteriodetes, Chloroflexi and Actinobacteria were associated with increased dieldrin losses (Fig. \@ref(fig:pfmixall) and \@ref(fig:pfmixKU)). Moreover, a group of ASVs were identified that belong to genus *Geobacter* (order Desulfuromonadales), which were overrepresented in samples with highest dieldrin losses (Fig \@ref(fig:pfmixKU)). It was observed that all of these clades contained more and more different ASVs in 'high-loss' samples. Mean abundances of these ASVs were not associated with dielrin loss. 
+  
+In the Chromosol, the presence of a clade of Acidobacteria and Actinobacteria was associated with dieldrin loss (Fig \@ref(fig:pfmixCH)). 
+
+<br/>
+
 ## Phylogenetic clades that were associated to dieldrin loss (THIS WILL BECOME A TABLE)
   
 Note: The following graphs are filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments. Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
@@ -1898,8 +1909,6 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 
 ggarrange(p1, p2, labels = "auto")
 ```
-
-<br/>
 
 #### Phylofactors identified in Kurosol samples (convert to table)
 "Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
@@ -2037,15 +2046,10 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 ggarrange(p1, p2, labels = "auto")
 ```
 
+
+
 <br/>
 
-Figure \@ref(fig:trees) affirmed that the phylogenetic composition of the Kurosol and the Chromosol was similar which was also observed with the Faith PD diversity index,  fig. S\@ref(fig:phylodiv)a). However, the number of red lines in the outer rings show that the Kurosol contained more unique ASVs in high-loss samples. Per sample, the Kurosol contained 48 unique ASVs on average compared to 21 in the Chromosol. This  observation is in line with a greater phylogenetic dispersion seen in figure S\@ref(fig:phylodiv)b and implied a greater phylogenetic versatility in samples with greater dieldrin degradation. 
-  
-Moreover, generalised linear models (glm) in the R package 'phylofactor', with presence/absence of ASVs as response and dieldrin loss (%) as predictor, indicated that there were phylogentic clades that had a significantly higher chance to be found in 'high-loss' samples (shown as polygons on phylogenetic tree in figure  \@ref(fig:trees)). In some instances, these phylogenetic clades coincided with higher clustering of unique ASVs. This meant that genetic versatility was greater in samples were greater dieldrin degradation was observed.  
-  
-For example the presence of clades of Firmicutes, Bacteriodetes, Chloroflexi and Actinobacteria were associated with increased dieldrin losses (Fig. \@ref(fig:pfmixall) and \@ref(fig:pfmixKU)). Moreover, a group of ASVs were identified that belong to genus *Geobacter* (order Desulfuromonadales), which were overrepresented in samples with highest dieldrin losses (Fig \@ref(fig:pfmixKU)). It was observed that all of these clades contained more and more different ASVs in 'high-loss' samples. Mean abundances of these ASVs were not associated with dielrin loss. 
-  
-In the Chromosol, the presence of a clade of Acidobacteria and Actinobacteria was associated with dieldrin loss (Fig \@ref(fig:pfmixCH)). 
 
 <br/>
 
@@ -2238,7 +2242,6 @@ taxadfhighF.lossK <- tax_table(physeqF.highlossK)@.Data  %>% as.data.frame %>% r
 #write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KUROSOL05April.csv", row.names = FALSE)
 ```
 
-
 ```{r modulecomposition, include = FALSE, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
 
 #check compostion of modules (fungi/bacteria or uniqueness) 
@@ -2365,21 +2368,13 @@ module_cor <-  rbind(module1_cor,module2_cor,module3_cor,module4_cor,module5_cor
 module_cor %>% filter(p_table.value <= 0.001)
 ```
 
-
-```{r networkallpictureKUROSOLlowhigh,  fig.cap = "Network of cross-domain (fungi (F) and bacteria (B) together) co-occurances of the Kurosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Top: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Bottom: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18.", message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="30%", out.height="20%", fig.show='hold',fig.align='center'}
+```{r networkKUROSOLmodules, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="47%", out.height="20%", fig.show='hold'}
 knitr::include_graphics(c("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL.png","./glassonetwork_allsamples_modules_atlas_COLOURBYMODULES_KUROSOL.png") )
 
 ```
 
-
-```{r networkKUROSOLmodules, fig.cap = "Network of cross-domain (fungi (F) and bacteria (B) together) co-occurances of the Kurosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Top: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Bottom: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
-knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYMODULES_KUROSOL.png")
-
-```
-<br/>
-
 ### Chromosol
-```{r glassoallCHRnotinclud , fig.cap = "", include = FALSE,  eval = FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8}
+```{r glassoallCHRnotinclud , include = FALSE,  eval = FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8}
 
 ## spiec easi "glasso" bacteria
 require(SpiecEasi)
@@ -2464,19 +2459,13 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 #write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL.csv", row.names = FALSE)
 ```
 
-```{r networkCHROMOSOLunique, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
-knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_UNIQUEASVs_CHROMSOL1.png")
-```
-
-"Network of cross-domain (fungi (F) and bacteria (B) together) co-occurances of the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Top: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Bottom: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 15."
-```{r networkCHROMOSOLmodule, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
-knitr::include_graphics("./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL.png")
-
+```{r networkmodulesandunique, fig.cap = "Network of cross-domain (fungi (F) and bacteria (B) together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Top: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Bottom: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 15.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
+knitr::include_graphics(c("./glassonetwork_allsamples_modules_atlas_UNIQUEASVs_CHROMSOL1.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL.png"))
 ```
 
 <br/>
   
-The association network of bacteria and fungi in the Kurosol (Fig. \@ref(fig:networkKUROSOLmodules)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations. This was not seen in the Chromosol (Fig. \@ref(fig:networkCHROMOSOLmodule)). 
+The association network of bacteria and fungi in the Kurosol (Fig. \@ref(fig:networkmodulesandunique)) shows a clear separation of associations that cluster around ASVs that were unique in the high-loss samples and ASVs that were unique in low-loss samples, indicating those unique ASVs were driven by different environmental conditions and were an integral part in mediating associations. This was not seen in the Chromosol (Fig. \@ref(fig:networkmodulesandunique)). 
 
 
 Note
