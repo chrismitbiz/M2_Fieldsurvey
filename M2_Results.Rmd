@@ -25,7 +25,6 @@ knit: (function(input_file, encoding) {
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
   
-  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -1545,7 +1544,7 @@ Compared to the Chromosol, the Kurosol had a higher proportion of pathways that 
 <br/>
 
 ## Phylogenetic analysis
-```{r treesnotinclude,fig.cap = "Comparison of the phylogeny of all ASVs present in the Kurosol and the Chromosol (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. Clades and associated ASV abundances are further shown (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=12, fig.asp = 0.75, cache = TRUE }
+```{r treesnotinclude,fig.cap = "Comparison of bacterial phylogeny present in the Kurosol and the Chromosol (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. Clades and associated ASV abundances are further shown (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=12, fig.asp = 0.75, cache = TRUE }
 library(ggtree)
 library(ggnewscale)
 #create prevalance table in separate file and determine which phyla to filter out beforehand. 
@@ -1791,8 +1790,7 @@ tree.df <-  phy_tree(physeq.subset)
 df <- data.frame(label = tree.df$tip.label, 
                  Phylum = as.vector(tax.df$Phylum),
                  class = as.vector(tax.df$Class),
-                 order = as.vector(tax.df$Order),
-                 Family = as.vector(tax.df$family)) 
+                 order = as.vector(tax.df$Order)) 
 p <- ggtree(tree.df) %<+% df    +
   geom_tiplab(aes(label= order, color = Phylum),align=TRUE, linesize=.5, size = 2) +
   theme_tree2()  + theme(axis.title.x = element_text(size=10)) + guides(color = guide_legend(override.aes = list(size=5))) + scale_colour_manual(values = colours)
@@ -2132,40 +2130,161 @@ Z <- Z  %>% left_join(Z5) %>%  mutate_each(funs(replace(., which(is.na(.)), "pre
 knitr::include_graphics("./glassonetwork_allsamples_modules_atlas.png")
 ```
 
+```{r networkallpictureunique, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Green = ASVs unique to the Chromosol, orange = ASVs unique to the Kurosol, grey = ASVs present in both soils", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE, include=FALSE, eval=FALSE }
+knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs.png")
+```
+<br/>
+
+### Kurosol
+```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE}
+
+## spiec easi "glasso" bacteria
+#filter so that file size stays manageable but assuring that there are unique taxa present in both soils. 
+
+require(SpiecEasi)
+library(phyloseq)
+#cross domain (and with 4 cores)
+#filtering
+physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) #soil 
+physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF) #soil
+
+physeq.B.flt <- prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt) #take out outlier paddock
+physeq.F.flt <- prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt) #take out outlier paddock
+
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt) 
+physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
+
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 200, physeq.B.flt) #must have at least x reads
+physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) > 100, physeq.F.flt) #must have at least x reads
+
+physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+#physeq.B.flt
+#min(taxa_sums(physeq.B.flt))
+#physeq.F.flt
+#min(taxa_sums(physeq.F.flt))
+#running the network analysis with spieceasi
+
+#pargs2 <- list(rep.num=25, seed=10010, ncores=4,thresh = 0.05)
+#t2 <- system.time(
+#  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
+#saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL_05April20")
+#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL_05April20")
+#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL_04April20")
+#ERROR/Warning
+#In grid.Call.graphics(C_setviewport, vp, TRUE) : VECTOR_ELT() can only be applied to a 'list', not a 'character' 2: In grid.Call.graphics(C_setviewport, vp, TRUE) : VECTOR_ELT() can only be applied to a 'list', not a 'double'
+#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL")
+#dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
+
+#plot(adj2igraph(getRefit(sse.physeqBFK)),vertex.color=dtype+1, vertex.size=9) #quick look
+#dev.off()
+
+#ig.glasso <- adj2igraph(getRefit(sse.physeqBFK), vertex.attr= list(name =c(taxa_names(physeq.B.flt), taxa_names(physeq.F.flt))))
+
+#getStability(sse.physeqBFK) #check how far we are from target stability threshold 0.05
+#sum(getRefit(sse.physeqBF))/2
+#require(gephi)
+#gephi_write_edges(ig.glasso, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/sse.physeqBFKUROSOL05April20.csv") #write csv to use for gephi, then use gephi to and export node table 
+
+#edge vectors
+#sse.physeqBF_toGephi <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/edges.ssephyseqBF03april20.csv")
+
+
+#sse.physeqBF_toGephi_edgelabels <- sse.physeqBF_toGephi %>% left_join(taxaBF) 
+#write.csv(sse.physeqBF_toGephi_edgelabels , "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/sse.physeqBF_toGephi_edgelabels03April20.csv", row.names = FALSE)
+
+
+#node vectors
+#create a list that defines an ASV as unique in each soil or present in both
+#exported nodes from gephi , relabel here and reimport to gephi
+#nodes <- read.csv("~/Downloads/nodes.csv") 
+
+physeqB.lowlossK <- prune_samples(sample_data(physeq.B.flt)$Dloss_fct2 == ">=72%", physeq.B.flt)
+physeqB.lowlossK <- prune_taxa(taxa_sums(physeqB.lowlossK) == 0, physeqB.lowlossK)
+taxadflowlossK <- tax_table(physeqB.lowlossK)@.Data %>% as.data.frame %>% rownames_to_column("OTUID")
+physeqF.lowlossK <- prune_samples(sample_data(physeq.F.flt)$Dloss_fct2 == ">=72%", physeq.F.flt)
+physeqF.lowlossK <- prune_taxa(taxa_sums(physeqF.lowlossK) == 0, physeqF.lowlossK)
+taxadflowF.lossK <- tax_table(physeqF.lowlossK)@.Data %>% as.data.frame %>% rownames_to_column("OTUID")
+# xtaxa not present in the HIGH LOSS part of the Kurosol - ONLY present in the low-loss Kurosol, label = "low"
+
+physeqB.highlossK <- prune_samples(sample_data(physeq.B.flt)$Dloss_fct2 != ">=72%", physeq.B.flt)
+physeqB.highlossK <- prune_taxa(taxa_sums(physeqB.highlossK) == 0, physeqB.highlossK)
+taxadfhighlossK <- tax_table(physeqB.highlossK)@.Data  %>% as.data.frame %>% rownames_to_column("OTUID")
+physeqF.highlossK <- prune_samples(sample_data(physeq.F.flt)$Dloss_fct2 != ">=72%", physeq.F.flt)
+physeqF.highlossK <- prune_taxa(taxa_sums(physeqF.highlossK) == 0, physeqF.highlossK)
+taxadfhighF.lossK <- tax_table(physeqF.highlossK)@.Data  %>% as.data.frame %>% rownames_to_column("OTUID")
+#x taxa not present in the LOW LOSS part of the Kurosol - ONLY present in the HIGH-loss, label = "high"
+
+#taxaB <- tax_table(physeq.B.flt)@.Data %>% data.frame() %>% rownames_to_column("Target")
+#taxaF <- tax_table(physeq.F.flt)@.Data %>% data.frame() %>% rownames_to_column("Target")
+
+#taxaBF <- rbind(taxaB, taxaF) %>% dplyr::select(Target, Kingdom, Phylum, Family, Genus)
+#taxaBF$Kingdom <-  str_replace_all(taxaBF[, "Kingdom"], "k__", "")
+#taxaBF$Phylum <-  str_replace_all(taxaBF[, "Phylum"], " p__", "")
+#taxaBF$Phylum <-  str_replace_all(taxaBF[, "Family"], " f__", "")
+#taxaBF$Phylum <-  str_replace_all(taxaBF[, "Genus"], " g__", "")
+
+#Z  <- nodes %>% rename(Target = Id) %>% left_join(taxaBF) %>% rename(OTUID = Target) %>% dplyr::select(OTUID,Kingdom, Phylum,Family, Genus)
+#Z1 <- as.data.frame(otu_table(physeqB.lowlossK)) %>% rownames_to_column("OTUID") %>% mutate(presence = "unique in low loss") %>% dplyr::select(OTUID, presence)
+#Z2 <- as.data.frame(otu_table(physeqB.highlossK)) %>% rownames_to_column("OTUID")%>% mutate(presence= "unique in high loss")%>% dplyr::select(OTUID, presence)
+#Z3 <- as.data.frame(otu_table(physeqF.lowlossK)) %>% rownames_to_column("OTUID") %>% mutate(presence = "unique in low loss") %>% dplyr::select(OTUID, presence)
+#Z4 <- as.data.frame(otu_table(physeqF.highlossK)) %>% rownames_to_column("OTUID")%>% mutate(presence= "unique in high loss")%>% dplyr::select(OTUID, presence)
+#Z5 <- rbind(Z1,Z2,Z3,Z4)%>% as.data.frame()
+#Z <- Z  %>% left_join(Z5) %>%  mutate_each(funs(replace(., which(is.na(.)), "present in both"))) %>% rename(Id = OTUID)
+#rename Kingdom vector 
+#level_key <- c(Archaea = "A", Bacteria = "B", Fungi = "F")
+#Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key)) 
+
+#write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KUROSOL05April.csv", row.names = FALSE)
+```
+
+
 ```{r modulecomposition, include = FALSE, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
 
 #check compostion of modules (fungi/bacteria or uniqueness) 
-modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_modules.csv") 
-modules <- modules %>% dplyr::select(Id, kingdom, modularity_class, presence) %>% rename(OTUID = Id)
+modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KurosolInclmodules06April20.csv") 
+modules <- modules %>% dplyr::select(Id, kingdom, phylum, family, genus, modularity_class, presence) %>% rename(OTUID = Id)
 #
-sum <- count(modules %>% filter(modularity_class == 2) %>% filter(kingdom == "D_0__Bacteria")) + count(modules %>% filter(modularity_class == 2) %>% filter(kingdom == "k__Fungi")) 
-bac <- count(modules %>% filter(modularity_class == 2) %>% filter(kingdom == "D_0__Bacteria")) / sum * 100
-fun <-  count(modules %>% filter(modularity_class == 2) %>% filter(kingdom == "k__Fungi")) / sum * 100
-sum <- count(modules %>% filter(modularity_class == 2) %>% filter(presence == "present in both")) + count(modules %>% filter(modularity_class == 2) %>% filter(presence == "unique Kurosol")) + count(modules %>% filter(modularity_class == 2) %>% filter(presence == "unique Chromosol")) 
-uniqueK <- count(modules %>% filter(modularity_class == 2) %>% filter(presence == "unique Kurosol")) / sum * 100
-uniqueC <- count(modules %>% filter(modularity_class == 2) %>% filter(presence == "unique Chromosol")) / sum * 100
-print(paste("Module 2 consisted of ", round((bac$n),2),"% bacteria and ",round((fun$n),2),"% fungi and did not contain any ASVs that were unique to Chromosol. And there were", round((uniqueK$n),2),"% unique ASVs from the Kurosol"))
+sum <- count(modules %>% filter(modularity_class == 0) %>% filter(kingdom == "B")) + count(modules %>% filter(modularity_class == 0) %>% filter(kingdom == "F")) 
+bac <- count(modules %>% filter(modularity_class == 0) %>% filter(kingdom == "B")) / sum * 100
+fun <-  count(modules %>% filter(modularity_class == 0) %>% filter(kingdom == "F")) / sum * 100
 
-sum <- count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "D_0__Bacteria")) + count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "k__Fungi")) 
-bac <- count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "D_0__Bacteria")) / sum * 100
-fun <-  count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "k__Fungi")) / sum * 100
-sum <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "present in both")) + count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique Kurosol")) + count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique Chromosol")) 
-uniqueK <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique Kurosol")) / sum * 100
-uniqueC <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique Chromosol")) / sum * 100
-#module 4 consists of 44% bacteria and 56% fungi and contains almost no unique Kurosol ASVs. 30% of ASVs are unique to Chromosol. 
-print(paste("Module 4 consisted of ", round((bac$n),2),"% bacteria and ",round((fun$n),2),"% fungi and and contained almost no unique Kurosol ASVs. In module 4 There were", round((uniqueC$n),2),"% unique ASVs from the Chromosol"))
+sum <- count(modules %>% filter(modularity_class == 0) %>% filter(presence == "present in both")) 
+
+#+ count(modules %>% filter(modularity_class == 0) %>% filter(presence == "unique in high loss")) + count(modules %>% filter(modularity_class == 0) %>% filter(presence == "unique in low loss")) 
+
+uniqueK <- count(modules %>% filter(modularity_class == 0) %>% filter(presence == "unique in high loss")) / sum * 100
+uniqueC <- count(modules %>% filter(modularity_class == 0) %>% filter(presence == "unique in low loss")) / sum * 100
+
+uniqueK_bac <- count(modules %>% filter(modularity_class == 0) %>% filter(presence == "unique in high loss") %>% filter(kingdom == "B") ) / count(modules %>% filter(modularity_class == 0) %>% filter(presence == "unique in high loss")) * 100
+
+print(paste("Module 0 consisted of ", round((bac$n),0),"% bacteria and ",round((fun$n),0),"% fungi and contained", round((uniqueK$n),0), "% of unique ASVs in the 'high-loss' and ", round((uniqueC$n),0), "% of unique ASVs in the 'low-loss'. And of those ASVs that were unique in the 'high-loss samples'" , round((uniqueK_bac$n),0),"% were bacteria"))
+
+
+#Module 4, this modules appeared to contain all of the unique taxa in the 'low-loss' samples. 
+sum <- count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "B")) + count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "F")) 
+bac <- count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "B")) / sum * 100
+fun <-  count(modules %>% filter(modularity_class == 4) %>% filter(kingdom == "F")) / sum * 100
+
+sum <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "present in both")) 
+uniqueK <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique in high loss")) / sum * 100
+uniqueC <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique in low loss")) / sum * 100
+
+uniqueK_bac <- count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique in low loss") %>% filter(kingdom == "F") ) / count(modules %>% filter(modularity_class == 4) %>% filter(presence == "unique in low loss")) * 100
+
+print(paste("Module 0 consisted of ", round((bac$n),0),"% bacteria and ",round((fun$n),0),"% fungi and contained", round((uniqueK$n),0), "% of unique ASVs in the 'high-loss' and ", round((uniqueC$n),0), "% of unique ASVs in the 'low-loss'. And of those ASVs that were unique in the 'low-loss samples'" , round((uniqueK_bac$n),0),"% were fungi"))
 ```
 
-```{r glassoallcor, eval=FALSE, include=FALSE, fig.cap = "", include = FALSE,  message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE }
+```{r glassomodulecor, eval=FALSE, include=FALSE, fig.cap = "", include = FALSE,  message=FALSE, warning=FALSE,echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE }
 #create correlations of z-scores of the ASVs in each module to identify ecological preferences of each module
 #modules was exported from gephi after running the algorithm there
-modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_modules.csv") 
+modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KurosolInclmodules06April20.csv") 
 modules <- modules %>% dplyr::select(Id, kingdom, modularity_class) %>% rename(OTUID = Id)
 otusB <- as.data.frame(otu_table(physeq.B.flt))
 otusF <- as.data.frame(otu_table(physeq.F.flt))
 otusBF <- rbind(otusB, otusF) %>% rownames_to_column("OTUID")
 modules <-  modules %>% left_join(otusBF) %>% dplyr::select(-OTUID, -kingdom)
-modules <-  modules %>% group_by(modularity_class) %>%  summarise_at(vars(`C01`:`C36`), base::sum) %>% column_to_rownames("modularity_class") 
+modules <-  modules %>% group_by(modularity_class) %>%  summarise_at(vars(`C01`:`C18`), base::sum) %>% column_to_rownames("modularity_class") 
 
 metadf <- sample_data(physeq.B.flt) %>% data.frame()
 physeqBF <- phyloseq(otu_table(modules, taxa_are_rows = T), 
@@ -2177,7 +2296,8 @@ require(psych)
 require(reshape2)
 testdf <- data.frame(sample_data(ps_modulesZ))
 testdf <- testdf %>% rownames_to_column("SampleId") %>% left_join(otu_clr)
-correlation_matrix=corr.test(testdf[,c("D1517","ppDDE", "ppDDT", "DDT1517", "TC","TN","CN",  "HC", "P",   "CP" ,"pH" ,"b_copies_ngDNA" ,"f_copies_ngDNA","Dloss" ,"DDTloss","C_Sand","F_Sand" , "T_Sand","Silt_1", "Clay_1","Organic.Matter", "Field.Capacity", "Wilting.Point", "Kaolinite." ,"Illite.", "Smectite.", "Gibbsite." , "Clay_total","POC.clr","HUM.clr" ,"ROC.clr","POC","HUM" ,"ROC", "H", "X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11")], method="spearman", adjust="holm")
+correlation_matrix=corr.test(testdf[,c("D1517","ppDDE", "ppDDT", "DDT1517", "TC","TN","CN",  "HC", "P",   "CP" ,"pH" ,"b_copies_ngDNA" ,"f_copies_ngDNA","Dloss" ,"DDTloss","C_Sand","F_Sand" , "T_Sand","Silt_1", "Clay_1","Organic.Matter", "Field.Capacity", "Wilting.Point", "Kaolinite." ,"Illite.", "Smectite.", "Gibbsite." , "Clay_total","POC.pct","HUM.pct" ,"ROC.pct","POC","HUM" ,"ROC", "H", "X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X17")], method="spearman", adjust="holm")
+shapiro.test(testdf[,c("ROC.clr")])
 r_matrix=correlation_matrix$r
 r_matrix[row(r_matrix)>col(r_matrix)]=0
 diag(r_matrix)=0
@@ -2194,6 +2314,16 @@ module0_cor <- cortable %>%
   filter(r_table.value >= 0.6 |
            r_table.value <= -0.6) %>%
   arrange(p_table.value)
+
+require(ppcor)
+#do some semipartial correlation to check which of the carbon fractions is most associated with the module, check correlation while accounting for total carbon.
+# partial correlation
+#pcor.test(x = testdf[,c("X0")], y = testdf[,c("POC")], 
+#          z =  testdf[,c("ROC","HUM")])
+##    estimate      p.value statistic   n gp  Method
+## 1 0.7700591 0.0004838338  4.516335 18  2 pearson   HUM while control for ROC/POC
+##  -0.6990402 0.002585018 -3.657717 18  2 pearson    ROC while control for HUM/POC
+##    0.2606078 0.3296309  1.010006 18  2 pearson     POC --- 
 
 module1_cor <- cortable %>% 
   filter(r_table.Var1 == "X1" | 
@@ -2225,7 +2355,7 @@ module5_cor <- cortable %>%
   filter(r_table.value >= 0.5 |
            r_table.value <= -0.5)
 
-module6_cor <- cortable %>% 
+module17_cor <- cortable %>% 
   filter(r_table.Var1 == "X6" | 
            r_table.Var2 == "X6") %>% 
   filter(r_table.value >= 0.5 |
@@ -2235,116 +2365,10 @@ module_cor <-  rbind(module1_cor,module2_cor,module3_cor,module4_cor,module5_cor
 module_cor %>% filter(p_table.value <= 0.001)
 ```
 
-```{r networkallpictureunique, fig.cap = "Network of cross-domain (fungi and bacteria together) co-occurances using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Green = ASVs unique to the Chromosol, orange = ASVs unique to the Kurosol, grey = ASVs present in both soils", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE, include=FALSE, eval=FALSE }
-knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs.png")
-```
-<br/>
 
-### Kurosol
-```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE}
+```{r networkallpictureKUROSOLlowhigh,  fig.cap = "Network of cross-domain (fungi (F) and bacteria (B) together) co-occurances of the Kurosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Top: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Bottom: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18.", message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="30%", out.height="20%", fig.show='hold',fig.align='center'}
+knitr::include_graphics(c("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL.png","./glassonetwork_allsamples_modules_atlas_COLOURBYMODULES_KUROSOL.png") )
 
-## spiec easi "glasso" bacteria
-#filter so that file size stays manageable but assuring that there are unique taxa present in both soils. 
-
-require(SpiecEasi)
-library(phyloseq)
-#cross domain (and with 4 cores)
-#filtering
-physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) #soil 
-physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF) #soil
-
-physeq.B.flt <- prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt) #take out outlier paddock
-physeq.F.flt <- prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt) #take out outlier paddock
-
-physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt) 
-physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
-
-physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 200, physeq.B.flt) #must have at least x reads
-physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) > 100, physeq.F.flt) #must have at least x reads
-
-physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
-physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
-physeq.B.flt
-#min(taxa_sums(physeq.B.flt))
-physeq.F.flt
-#min(taxa_sums(physeq.F.flt))
-#running the network analysis with spieceasi
-
-#pargs2 <- list(rep.num=25, seed=10010, ncores=4,thresh = 0.05)
-#t2 <- system.time(
-#  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
-#saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_KUROSOL_05April20")
-sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL_05April20")
-#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL_04April20")
-#ERROR/Warning
-#In grid.Call.graphics(C_setviewport, vp, TRUE) : VECTOR_ELT() can only be applied to a 'list', not a 'character' 2: In grid.Call.graphics(C_setviewport, vp, TRUE) : VECTOR_ELT() can only be applied to a 'list', not a 'double'
-#sse.physeqBFK <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_KUROSOL")
-#dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
-
-#plot(adj2igraph(getRefit(sse.physeqBFK)),vertex.color=dtype+1, vertex.size=9) #quick look
-#dev.off()
-
-ig.glasso <- adj2igraph(getRefit(sse.physeqBFK), vertex.attr= list(name =c(taxa_names(physeq.B.flt), taxa_names(physeq.F.flt))))
-
-#getStability(sse.physeqBFK) #check how far we are from target stability threshold 0.05
-#sum(getRefit(sse.physeqBF))/2
-require(gephi)
-gephi_write_edges(ig.glasso, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/sse.physeqBFKUROSOL05April20.csv") #write csv to use for gephi, then use gephi to and export node table 
-
-#edge vectors
-sse.physeqBF_toGephi <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/edges.ssephyseqBF03april20.csv")
-
-
-#sse.physeqBF_toGephi_edgelabels <- sse.physeqBF_toGephi %>% left_join(taxaBF) 
-#write.csv(sse.physeqBF_toGephi_edgelabels , "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/sse.physeqBF_toGephi_edgelabels03April20.csv", row.names = FALSE)
-
-
-#node vectors
-#create a list that defines an ASV as unique in each soil or present in both
-#exported nodes from gephi , relabel here and reimport to gephi
-#nodes <- read.csv("~/Downloads/nodes.csv") 
-
-#physeqB.lowlossK <- prune_samples(sample_data(physeq.B.flt)$Dloss_fct2 == ">=72%", physeq.B.flt)
-#physeqB.lowlossK <- prune_taxa(taxa_sums(physeqB.lowlossK) == 0, physeqB.lowlossK)
-#taxadflowlossK <- tax_table(physeqB.lowlossK)@.Data %>% as.data.frame %>% rownames_to_column("OTUID")
-#physeqF.lowlossK <- prune_samples(sample_data(physeq.F.flt)$Dloss_fct2 == ">=72%", physeq.F.flt)
-#physeqF.lowlossK <- prune_taxa(taxa_sums(physeqF.lowlossK) == 0, physeqF.lowlossK)
-#taxadflowF.lossK <- tax_table(physeqF.lowlossK)@.Data %>% as.data.frame %>% rownames_to_column("OTUID")
-
-# xtaxa not present in the HIGH LOSS part of the Kurosol - ONLY present in the low-loss Kurosol, label = "low"
-#physeqB.highlossK <- prune_samples(sample_data(physeq.B.flt)$Dloss_fct2 != ">=72%", physeq.B.flt)
-#physeqB.highlossK <- prune_taxa(taxa_sums(physeqB.highlossK) == 0, physeqB.highlossK)
-#taxadfhighlossK <- tax_table(physeqB.highlossK)@.Data  %>% as.data.frame %>% rownames_to_column("OTUID")
-#physeqF.highlossK <- prune_samples(sample_data(physeq.F.flt)$Dloss_fct2 != ">=72%", physeq.F.flt)
-#physeqF.highlossK <- prune_taxa(taxa_sums(physeqF.highlossK) == 0, physeqF.highlossK)
-#taxadfhighF.lossK <- tax_table(physeqF.highlossK)@.Data  %>% as.data.frame %>% rownames_to_column("OTUID")
-#x taxa not present in the LOW LOSS part of the Kurosol - ONLY present in the HIGH-loss, label = "high"
-
-#taxaB <- tax_table(physeq.B.flt)@.Data %>% data.frame() %>% rownames_to_column("Target")
-#taxaF <- tax_table(physeq.F.flt)@.Data %>% data.frame() %>% rownames_to_column("Target")
-
-#taxaBF <- rbind(taxaB, taxaF) %>% dplyr::select(Target, Kingdom, Phylum, Family, Genus)
-#taxaBF$Kingdom <-  str_replace_all(taxaBF[, "Kingdom"], "k__", "")
-#taxaBF$Phylum <-  str_replace_all(taxaBF[, "Phylum"], " p__", "")
-#taxaBF$Phylum <-  str_replace_all(taxaBF[, "Family"], " f__", "")
-#taxaBF$Phylum <-  str_replace_all(taxaBF[, "Genus"], " g__", "")
-
-#Z  <- nodes %>% rename(Target = Id) %>% left_join(taxaBF) %>% rename(OTUID = Target) %>% dplyr::select(OTUID,Kingdom, Phylum,Family, Genus)
-#Z1 <- as.data.frame(otu_table(physeqB.lowlossK)) %>% rownames_to_column("OTUID") %>% mutate(presence = "unique in low loss") %>% dplyr::select(OTUID, presence)
-#Z2 <- as.data.frame(otu_table(physeqB.highlossK)) %>% rownames_to_column("OTUID")%>% mutate(presence= "unique in high loss")%>% dplyr::select(OTUID, presence)
-#Z3 <- as.data.frame(otu_table(physeqF.lowlossK)) %>% rownames_to_column("OTUID") %>% mutate(presence = "unique in low loss") %>% dplyr::select(OTUID, presence)
-#Z4 <- as.data.frame(otu_table(physeqF.highlossK)) %>% rownames_to_column("OTUID")%>% mutate(presence= "unique in high loss")%>% dplyr::select(OTUID, presence)
-#Z5 <- rbind(Z1,Z2,Z3,Z4)%>% as.data.frame()
-#Z <- Z  %>% left_join(Z5) %>%  mutate_each(funs(replace(., which(is.na(.)), "present in both"))) %>% rename(Id = OTUID)
-#rename Kingdom vector 
-#level_key <- c(Archaea = "A", Bacteria = "B", Fungi = "F")
-#Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key)) 
-
-write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KUROSOL05April.csv", row.names = FALSE)
-```
-
-```{r networkallpictureKUROSOLlowhigh, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE}
-knitr::include_graphics("./glassonetwork_allsamples_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL.png")
 ```
 
 
@@ -2371,26 +2395,26 @@ physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 200, physeq.B.flt) #must have at least x reads
 physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) > 100, physeq.F.flt) #must have at least x reads
 
-physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
-physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
-physeq.B.flt
-min(taxa_sums(physeq.B.flt))
-physeq.F.flt
-min(taxa_sums(physeq.F.flt))
+#physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+#physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+#physeq.B.flt
+#min(taxa_sums(physeq.B.flt))
+#physeq.F.flt
+#min(taxa_sums(physeq.F.flt))
 
 #running the network analysis with spieceasi
-#pargs2 <- list(rep.num=50, seed=10010, ncores=4,thresh = 0.05)
+#pargs2 <- list(rep.num=25, seed=10010, ncores=4,thresh = 0.05)
 #t2 <- system.time(
 #  sse.physeqBF <- spiec.easi(list(physeq.B.flt, physeq.F.flt), method='glasso', nlambda=30, lambda.min.ratio=1e-2, sel.criterion='stars', pulsar.select=TRUE, pulsar.params = pargs2))
-#saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_CHROMOSOL")
-#sse.physeqBFC <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_CHROMOSOL")
+#saveRDS(sse.physeqBF, file = "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/R_FieldSurvey16s_M2/sse.physeqBF_CHROMOSOL06April20")
+#sse.physeqBFC <- readRDS("/Volumes/Backup Plus/ManualFileBackup/SpiecEasiFiles/sse.physeqBF_CHROMOSOL06April20")
 #dtype <- c(rep(1,ntaxa(physeq.B.flt)), rep(2,ntaxa(physeq.F.flt)))
 #plot(adj2igraph(getRefit(sse.physeqBFC)),vertex.color=dtype+1, vertex.size=9) #quick look
-#ig.glasso <- adj2igraph(getRefit(sse.physeqBFC), 
-#                        vertex.attr= list(name =c(taxa_names(physeq.B.flt), taxa_names(physeq.F.flt))))
-#getStability(sse.physeqBFC) #check how far we are from target stability threshold 0.05
+#ig.glasso <- adj2igraph(getRefit(sse.physeqBF), 
+#                        vertex.attr= list(name =c(taxa_names(physeq.B.flt), #taxa_names(physeq.F.flt))))
+#getStability(sse.physeqBF) #check how far we are from target stability threshold 0.05
 #sum(getRefit(sse.physeqBF))/2
-require(gephi)
+#require(gephi)
 #gephi_write_edges(ig.glasso, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/sse.physeqBFCHROMOSOL.csv") #write csv to use for gephi, then use gephi to and export node table 
 
 #edge vectors
