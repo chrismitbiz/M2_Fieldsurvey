@@ -1406,6 +1406,29 @@ physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dlos
 #kable(splsda_compvec %>% filter(name %in% selection$name) %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
 ```
 
+```{r plsdatableall, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE}
+
+physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
+physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.50*length(x)), TRUE)
+physeq.pw.flt.clr <- microbiome::transform(physeq.pw.flt, "clr")
+taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt.clr)@.Data[,c("COMMON-NAME")]))
+taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
+
+x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM", "ROC", "POC", "D1517", "H")])
+y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
+
+require(compositions)
+y <- data.frame(clr(y))
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = FALSE, keepX = c(400, 375, 150))
+
+pred <- predict(pw.spls, as.matrix(x))
+test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
+test1 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2,D1517.dim3) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.003 | D1517.dim1 <= -0.01)
+
+kable(test1, booktabs = T,  digits = 2, col.names = c("Pathway", "Dim1", "Dim2", "Dim3"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)")
+```
+
 ```{r plsheatmapsku, message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 0.6, results = FALSE, cache = TRUE}
 
 
@@ -1530,15 +1553,13 @@ test_vec <- rbind(test1, test2, test3) %>%
 
 **Metabolic potential results summary**  
   
-Chlorosalicylate degradation was the only genetic potential found that was related to xenobiotic chlorinated compound degradation and these metabolic potentials were significantly greater in samples with high dieldrin loss (Fig. \@ref(fig:xenobgraphs)). Chlorosalicylates are chloroaromatics and active ingredients or additives of antimicrobial products and pesticides (reference).    
+Among 410 Metacyc pathways included in sPLS regression and sPLS-DA, the genentic potential for oxidative glucose degradation was most predictive for both, high dieldrin concentrations (Fig. S\@ref(fig:plsheatmapsall)) and lower dieldrin loss (Fig. \@ref(fig:plsdaratiocomp1to3)). On the other hand, the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3)).  
   
-Furthermore figure \@ref(fig:xenobgraphs) shows that the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses. 
-
-Among 410 Metacyc pathways included in sPLS regression and sPLS-DA, the genentic potential for oxidative glucose degradation was most predictive for both, high dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and lower dieldrin loss (Fig. \@ref(fig:plsdaratiocomp1to3)). On the other hand, the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations (Fig. \@ref(fig:plsheatmapsall) and table 4) and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3)).  
-  
-Furthermore, from figure \@ref(fig:plsheatmapsall) it was apparent that across both soils the metabolic potentials that were associated with low dieldrin concentrations were also associated to POC, HUM and H but not to ROC.   
+Furthermore, from figure S\@ref(fig:plsheatmapsall) it was apparent that across both soils the metabolic potentials that were associated with low dieldrin concentrations were also associated to POC, HUM and H but not to ROC.   
   
 Compared to the Chromosol, the Kurosol had a higher proportion of pathways that were associated to greater dieldrin losses (46% of pathways with positive regression coefficients compared to 28%) (Fig. \@ref(fig:plsheatmapsku) and  \@ref(fig:plsheatmapsch)).  
+
+Chlorosalicylate degradation was the only genetic potential found that was related to xenobiotic chlorinated compound degradation and these metabolic potentials were significantly greater in samples with high dieldrin loss (Fig. S\@ref(fig:xenobgraphs)). Furthermore figure S\@ref(fig:xenobgraphs) shows that the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses. Chlorosalicylates are chloroaromatics and active ingredients or additives of antimicrobial products and pesticides (reference).  
 
 <br/>
 
@@ -2487,7 +2508,7 @@ pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
 test1 <- test %>% dplyr::select(pathway, D1517.dim1,D1517.dim2,D1517.dim3) %>% filter(D1517.dim1 != 0 | D1517.dim2 != 0 ) %>% arrange(D1517.dim1) %>% filter(D1517.dim1 >= 0.003 | D1517.dim1 <= -0.01)
 
-kable(test1, booktabs = T,  digits = 2, col.names = c("Pathway", "Dim1", "Dim2", "Dim3"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)") 
+#kable(test1, booktabs = T,  digits = 2, col.names = c("Pathway", "Dim1", "Dim2", "Dim3"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)") 
 ```
 
 <br/>
