@@ -72,9 +72,10 @@ Note:
 
 # Summary of results  
   
-- A field survey of two soils with constrasting abilities to dissipate the aged chlorinated xenobiotic dieldrin, indicated that functional diversity which coincided with high dieldrin-dissipation was associated to organic matter which contained more humus and less resistant carbon.   
-- 
-- From the results we speculated that xenobiotic degradation improves if soil diversity and function is  adapated for metabolism of aromatic carbon sourced with a high turnover of resistant carbon. Soils accumulating carbon may therefore be less able to degrade xenobitics. 
+- A field survey of two soils with constrasting abilities to dissipate the chlorinated xenobiotic dieldrin, indicated that the functional diversity which was associated to high dieldrin dissipation was also associated to a greater humus fraction of organic matter.  
+- Carbon quality was related to the soil's functionial potential and associated to dieldrin dissepation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and greater humus content.  
+- The presence of some taxonomic groups were 
+- From the results we speculated that soils rich in high quality carbon sources may be less able to degrade xenobitics and that xenobiotic degradation can be increased by conditioning the soil diversity and function to a metabolism of low quality carbon sources. 
 
   
 - The soil better able to degrade dieldrin...
@@ -363,8 +364,11 @@ physeq.pw
 ```{r associations, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE, include=FALSE, cache=TRUE}
 
 # now for the pathway file
-pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE)
+#pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE)
+#glycolmetabolism <- pathway.assoc %>% filter(`function` == "GLYCOL-GLYOXDEG-PWY")
+#lactogalacto <- pathway.assoc %>% filter(`function` == "LACTOSECAT-PWY")
 #rm(pathway.assoc)
+
 
 
 physeqB.flt = prune_taxa(taxa_sums(physeqB) >= 10, physeqB) #minimum reads per feature
@@ -373,15 +377,33 @@ physeqB.flt = filter_taxa(physeqB.flt , function(x) sum(x > 0) > (0.06*length(x)
 physeqB.flt = subset_taxa(physeqB.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
 taxa.df <- tax_table(physeqB.flt)@.Data %>% as.data.frame() %>% rownames_to_column("taxon")
 contributions_rhamca <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results/contributions_FUC-RHAMCAT-PWY.csv") %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
-contributions_gluco <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results/contributions_DHGLUCONATE-PYR-CAT-PWY.csv")  %>% arrange(desc(taxon_rel_function_abun))   %>% left_join(taxa.df)
+contributions_rhamca2 <- contributions_rhamca %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+contributions_rhamca2 %>% group_by(Order) %>% summarise(sum = sum(sumtaxonfunabu)) %>% arrange(desc(sum))
+#o__Actinomycetales 1.34
+#o__Acidobacteriales"      1.21
+#o__Solirubrobacterales"   1.10
+#o__Bacillales (incl Bacillus longiquaesitum) (5% of the total potential) 
 
-#o__Bacillales (incl Bacillus longiquaesitum) for the rhamcat pathway (5% of the total potential) 
+contributions_gluco <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results/contributions_DHGLUCONATE-PYR-CAT-PWY.csv")  %>% arrange(desc(taxon_rel_function_abun))   %>% left_join(taxa.df)
+contributions_gluco2 <- contributions_gluco %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+contributions_gluco2 %>% group_by(Order) %>% summarise(sum = sum(sumtaxonfunabu)) %>% arrange(desc(sum))
+#o__Rhizobiales 4.76
 #f__Bradyrhizobiaceae. for the DHGLUCONATE pathway (20% of the total potential)
 
+glycolmetabolism  <- glycolmetabolism %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+glycolmetabolism  <- glycolmetabolism  %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+glycolmetabolism %>% group_by(Order) %>% summarise(sum = sum(sumtaxonfunabu)) %>% arrange(desc(sum))
+#o__Acidobacteriales 0.562
+#o__Actinomycetales 0.502
 
-contributions_rhamca2 <- contributions_rhamca %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+lactogalacto <-  lactogalacto %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+lactogalacto <-  lactogalacto %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+lactogalacto %>% group_by(Order) %>% summarise(sum = sum(sumtaxonfunabu))
+#0.307 o__Solirubrobacterales
+#0.25 o__Acidobacteriales
 
-contributions_gluco2 <- contributions_gluco %>% group_by(taxon, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+
+
 
 Bacillus <- pathway.assoc %>% filter(taxon == "ad4cba5280fb47cbebea01e7031af61c")
 geobacter <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list4ku$OTU))
@@ -1764,7 +1786,7 @@ p1.1 <- p1.1 + new_scale_fill()
 #Across both soils phylofactors
 #p1.1 <- p1.1 +  geom_balance(node = 6872,alpha =0.4, color = "red") +  geom_balance(node = 6485,alpha =0.2, color = "red") +  geom_balance(node = 6370, alpha =0.2, color = "red") +  geom_balance(node = 5516, alpha =0.2, color = "red")  +  geom_balance(node = 5227,alpha =0.2, color = "red")+  geom_balance(node = 4983,alpha =0.2, color = "red") #as identified with phylofactor
 #Across both soils AND KUROSOL phylofactors
-p1.1 <- p1.1 +  geom_balance(node = 6869,alpha =0.4, color = "red") +  geom_balance(node = 6485,alpha =0.2, color = "red") +  geom_balance(node = 6370, alpha =0.2, color = "red") +  geom_balance(node = 5516, alpha =0.2, color = "red")  +  geom_balance(node = 5227,alpha =0.2, color = "red")+  geom_balance(node = 4967,alpha =0.2, color = "red") #as identified with phylofactor
+p1.1 <- p1.1 +  geom_balance(node = 6869,alpha =0.4, color = "red") +  geom_balance(node = 6485,alpha =0.2, color = "red") +  geom_balance(node = 6370, alpha =0.2, color = "red") +  geom_balance(node = 5514, alpha =0.2, color = "red")  +  geom_balance(node = 5227,alpha =0.2, color = "red")+  geom_balance(node = 4967,alpha =0.2, color = "red") #as identified with phylofactor
 
 
 #Chromosol
