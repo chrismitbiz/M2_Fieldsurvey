@@ -1288,40 +1288,6 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "fre
 p1
 ```
 
-```{r plsdachNOTINCLUDE, fig.cap = "Chromosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE, include= FALSE, eval=FALSE}
-  
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-#ps_clr <- microbiome::transform(physeq.pw, "compositional")
-#physeq.pw.melt.comp <- psmelt(ps_clr)
-
-p1 <- physeq.pw.melt.comp   %>% filter(OTU %in% c("PWY-5430","PWY-5178","PWY-1882","HCAMHPDEG-PWY","PWY-6690","PWY-6397","PWY-6404","PWY0-1277","PWY-6948","PWY-7007","PWY-5654","PWY-7376")) %>%
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (relative abundance)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
-p1
-
-
-```
-
-```{r plsdach2NOTINCLUDE, fig.cap = "Chromosol: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE,include=FALSE, eval=FALSE }
-p2 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% c("PWY-5430","PWY-5178","PWY-1882","HCAMHPDEG-PWY","PWY-6690","PWY-6397","PWY-6404","PWY0-1277","PWY-6948","PWY-7007","PWY-5654","PWY-7376")) %>%
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
-p2
-```
-
-```{r plsdaallNOTINCLUDE, fig.cap = "Across all 36 samples: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE,  include= FALSE, eval=FALSE}
-  
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-
-p1 <- physeq.pw.melt.comp   %>% filter(OTU %in% c("PWY-5392","PWY-7255", "PWY-6562","SUCSYN-PWY","PPGPPMET-PWY","CODH-PWY","PWY-7347","PWY-5198","PWY-7392","PWY-6167","PWY-6654","CATECHOL-ORTHO-CLEAVAGE-PWY","PWY-5656","NAD-BIOSYNTHESIS-II,PWY-5417","PWY-6182","PWY-6185","PWY-7295","P261-PWY","ARG+POLYAMINE-SYN")) %>%
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (relative abundance)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
-p1
-```
-
-```{r plsdall2NOTINCLUDE, fig.cap = "Across all 36 samples: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE, include= FALSE, eval=FALSE}
-p2 <- physeq.pw.melt.TCratio   %>% filter(OTU %in% c("PWY-5392","PWY-7255", "PWY-6562","SUCSYN-PWY","PPGPPMET-PWY","CODH-PWY","PWY-7347","PWY-5198","PWY-7392","PWY-6167","PWY-6654","CATECHOL-ORTHO-CLEAVAGE-PWY","PWY-5656","NAD-BIOSYNTHESIS-II,PWY-5417","PWY-6182","PWY-6185","PWY-7295","P261-PWY","ARG+POLYAMINE-SYN")) %>%
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway (Logratio to total carbon)", xlab = "Dieldrin loss") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
-p2
-```
-
 ```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials which were top contributors to variation in partial least squares discriminant anaylysis (PLS-DA) across both soils (n = 33) and therefore key predictors for dielrin loss (%). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=14, fig.asp = 0.8, cache = TRUE}
 require(mixOmics)
 TSS.divide = function(x){
@@ -1470,29 +1436,6 @@ physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dlos
 #kable(splsda_compvec %>% filter(name %in% selection$name) %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
 ```
 
-```{r plsdatableall, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE}
-
-physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
-physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.50*length(x)), TRUE)
-physeq.pw.flt.clr <- microbiome::transform(physeq.pw.flt, "clr")
-taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt.clr)@.Data[,c("COMMON-NAME")]))
-taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
-
-x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
-y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "Dloss", "CN")])
-#y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
-
-#require(compositions)
-#y <- data.frame(clr(y))
-pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = TRUE, keepX = c(150, 25, 50))
-pred <- predict(pw.spls, as.matrix(x))
-test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
-test1 <- test %>% dplyr::select(pathway,Dloss.dim1,Dloss.dim2) %>% filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.0005 | Dloss.dim1 <= -0.012)
-
-
-kable(test1, booktabs = T,  digits = 3, col.names = c("Pathway", "Dim1", "Dim2"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)")
-```
-
 ```{r plsheatmapsall, message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.asp = 1, cache = TRUE}
 
 #process: 
@@ -1520,7 +1463,7 @@ y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "
 #test <- apply(x, 2, mytest) %>% as.data.frame()
 
 #relative data
-require(compositions)
+#require(compositions)
 #y <- data.frame(clr(y))
 pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = TRUE, keepX = c(150, 25, 50))
 #tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 5, progressBar = FALSE, nrepeat = 500)
@@ -1543,10 +1486,20 @@ pred <- predict(pw.spls, as.matrix(x))
 test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
 test1 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2,Dloss.dim3) %>%  arrange(Dloss.dim1) %>% filter(Dloss.dim1 >= 0.0005 | Dloss.dim2 >= 0.0005)
 
-#kable(test1, booktabs = T,  digits = 2, col.names = c("Pathway", "Dim1", "Dim2", "Dim3"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)") 
+#print the correlation coordinates
+bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
+cord.X = cor(pw.spls$X, bisect, use = "pairwise")
+cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
+simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_column("pathway")
+#filter1
+simMat.flt.all <- simMat %>% data.frame() %>% column_to_rownames("pathway") %>% round(2) %>%  rownames_to_column("pathway") %>% 
+  filter(Dloss >= 0.73 |
+           Dloss <= -0.86) %>% 
+  arrange(Dloss)
+
 ```
 
-```{r splskurosol, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for all samples and for  Kurosol samples only. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and hydrogen (H). The pathway potentials and ROC, HUM and POC were clr transformed before analysis.", message=FALSE, warning=FALSE, echo=FALSE, out.width="47%", out.height="20%", fig.show='hold', cache = TRUE}
+```{r splskurosol, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for all samples and for  Kurosol samples only. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and hydrogen (H). The pathway potentials and ROC, HUM and POC were clr transformed before analysis.", message=FALSE, warning=FALSE, echo=FALSE, out.width="49%", out.height="40%", fig.show='hold', cache = TRUE}
 
 #Kurosol
 physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Kurosol", physeq.pw)
@@ -1587,7 +1540,18 @@ test2 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>% filter(Dlos
 
 knitr::include_graphics(c("./mixomics_all.png","./mixomics_kurosol.png")  )
 
+#print the correlation coordinates
+bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
+cord.X = cor(pw.spls$X, bisect, use = "pairwise")
+cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
+simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_column("pathway")
+#filter1
+simMat.flt <- simMat %>% data.frame() %>% column_to_rownames("pathway") %>% round(2) %>%  rownames_to_column("pathway") %>% 
+  filter(Dloss >= 0.73 |
+           Dloss <= -0.86) %>% 
+  arrange(Dloss)
 ```
+
 
 ```{r, tblemixomicskuNOTINCLUDE, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, eval=FALSE }
 #print the correlation coordinates
@@ -1596,10 +1560,10 @@ cord.X = cor(pw.spls$X, bisect, use = "pairwise")
 cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
 simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_column("pathway")
 #filter1
-simMat.flt <- round(simMat,2) %>% data.frame() %>% rownames_to_column("Pathway") %>%
-  filter(D1517 >= 0.65 |
-           D1517 <= -0.65) %>% 
-  arrange(D1517)
+simMat.flt <- simMat %>% data.frame() %>% column_to_rownames("pathway") %>% round(2) %>%  rownames_to_column("pathway") %>% 
+  filter(Dloss >= 0.73 |
+           Dloss <= -0.86) %>% 
+  arrange(Dloss)
 
 #kable(simMat.flt,  "latex", booktabs=TRUE, caption = "This is the table caption") %>% 
 #  kable_styling(latex_options="scale_down") %>%
@@ -1663,12 +1627,42 @@ test_vec <- rbind(test1, test2, test3) %>%
   filter(n()>1) 
 ```
 
+```{r kable1, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
+kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
+```
+
+```{r kable2, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
+kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
+```
+
+```{r plsdatableall, message=FALSE, warning=FALSE, echo=FALSE, include = FALSE, cache = TRUE}
+
+physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
+physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.50*length(x)), TRUE)
+physeq.pw.flt.clr <- microbiome::transform(physeq.pw.flt, "clr")
+taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt.clr)@.Data[,c("COMMON-NAME")]))
+taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
+
+x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
+y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "Dloss", "CN")])
+#y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
+
+#require(compositions)
+#y <- data.frame(clr(y))
+pw.spls <- mixOmics::spls(x, y, ncomp =5,  mode = "regression", scale = TRUE, keepX = c(150, 25, 50))
+pred <- predict(pw.spls, as.matrix(x))
+test <- data.frame(pred$B.hat) %>% rownames_to_column("pathway")
+test1 <- test %>% dplyr::select(pathway,Dloss.dim1,Dloss.dim2) %>% filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.004 | Dloss.dim1 <= -0.013)
+
+kable(test1,  digits = 3, col.names = c("Pathway", "Dim1", "Dim2"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)")
+```
+
 <br/>
   
-Among 410 Metacyc pathways included in sPLS regression and sPLS-DA, the genentic potential the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for low dieldrin concentrations (**Table x**, Fig. \@ref(fig:splskurosol)) and high dieldrin loss  (Fig. \@ref(fig:plsdaratiocomp1to3)).  
-  
-The two soils had in common that positive pathway associations to dieldrin loss coincided with associations to lower POC (Fig. \@ref(fig:plsheatmaps)).
+Among 410 Metacyc pathways included in sPLS regression and sPLS-DA the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for high dieldrin dissipation across both soils (**Table x**, Fig. \@ref(fig:plsdaratiocomp1to3) and \@ref(fig:splskurosol)). Within the Kurosol samples lactose and galactose degradation was the most strongly associated to more dieldrin dissipation.  
+On the other hand oxidative glucose degradatin was associated with samples of low dieldrin disspation (Fig. \@ref(fig:plsdaratiocomp1to3))
 
+  
 Chlorosalicylate degradation was the only genetic potential found that was related to xenobiotic chlorinated compound degradation and these metabolic potentials were significantly greater in samples with high dieldrin loss (Fig. S\@ref(fig:xenobgraphs)). Furthermore figure S\@ref(fig:xenobgraphs) shows that the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses. Chlorosalicylates are chloroaromatics and active ingredients or additives of antimicrobial products and pesticides (reference).  
   
 <br/>
