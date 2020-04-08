@@ -71,20 +71,14 @@ Note:
   
 
 # Summary of results  
-  
-- A field survey of two soils with constrasting abilities to dissipate the chlorinated xenobiotic dieldrin, indicated that the functional diversity which was associated to high dieldrin dissipation was also associated to a greater humus fraction of organic matter.  
-- Carbon quality was related to the soil's functionial potential and associated to dieldrin dissepation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and greater humus content.  
-- The presence of some taxonomic groups were 
-- From the results we speculated that soils rich in high quality carbon sources may be less able to degrade xenobitics and that xenobiotic degradation can be increased by conditioning the soil diversity and function to a metabolism of low quality carbon sources. 
+- Overall, from the results we speculate that soil function and diversity needs to be conditioned to humus for soils to gain a greater capacity for xenobiotic degradation.
+- The results show that carbon quality was related to the soil's functional diversity and associated to dieldrin dissepation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and concurrently greater humus content.  
+- Some groups of bacteria in the order of Acidobacteriales and Solirubrobacteriales which largely contributed to these genetic potentials were also more likely to be present in 'high-loss' samples.  
+- The presence of five other taxonomic groups (Actinobacteria, Chloroflexi, Planctomycetes, Bacteroidetes and *Geobacter sp.*) was associated with high dieldrin loss and curiously for all of them the genetic potential of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for these taxons (Link to metacyc pathway [here](@https://metacyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-3781#)). (More literature reading needed here, relating to efficiency of metabolism?)  
+- By contrast, the genetic potential of oxidative glucose degradion was associated with low dieldrin dissipation. Rhizobiales bacteria (N-fixing rhizobia) contained the biggest abundance of this pathway potential from Picrust2. - The network analysis further showed that there are unique associations between bacteria and fungi in a high-loss soil environment and as a group they were driven by humus content. 
+
 
   
-- The soil better able to degrade dieldrin...
-  - contained less organic matter but the composition of organic matter comprised of more humus and particulate carbon, relative to resistant organic carbon and it was phylogenetically and metabolically more heterogeneous per unit carbon.
-  - contained a microbial community and functional metagenome that was associated to the carbon fractions.
-  - had a bigger per-unit-carbon genepool for chloroaromatic and aromatic degradation pathways although no organochlorine degradation potentials (such as lindane or pentachlorophenol) were detected. 
-  - contained more and more different phylogenetic clades that were associated with dieldrin loss.
-  - contained distinct community associations in samples with high dieldrin-loss which were driven by different keystone taxa and environmental conditions. 
-- greater long-term dieldrin degradation was associated with genetic potentials for fucose, rhamnose and glycol degradation, while less degradation with oxidative glucose degradation.
   
 # Hypothesis
 Quality of soil organic matter is associated with the phylogenetic and metabolic capacity of soils to degrade persistent organic pollutants - here dieldrin.
@@ -364,10 +358,18 @@ physeq.pw
 ```{r associations, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE, include=FALSE, cache=TRUE}
 
 # now for the pathway file
-#pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE)
+pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE)
 #glycolmetabolism <- pathway.assoc %>% filter(`function` == "GLYCOL-GLYOXDEG-PWY")
 #lactogalacto <- pathway.assoc %>% filter(`function` == "LACTOSECAT-PWY")
-#rm(pathway.assoc)
+Bacillus <- pathway.assoc %>% filter(taxon == "ad4cba5280fb47cbebea01e7031af61c")
+geobacter <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list4ku$OTU))
+chloroflexi <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list1$OTU))
+planctomycetes <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list2$OTU))
+actinobacteria <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list3$OTU))
+Acidobacteriales <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list4$OTU))
+bacteroidales <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list5$OTU))
+random <- sample_n(pathway.assoc, 10000)
+rm(pathway.assoc)
 
 
 
@@ -402,16 +404,35 @@ lactogalacto %>% group_by(Order) %>% summarise(sum = sum(sumtaxonfunabu))
 #0.307 o__Solirubrobacterales
 #0.25 o__Acidobacteriales
 
-
-
-
-Bacillus <- pathway.assoc %>% filter(taxon == "ad4cba5280fb47cbebea01e7031af61c")
-geobacter <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list4ku$OTU))
-chloroflexi <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list1$OTU))
-planctomycetes <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list2$OTU))
-actinobacteria <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list3$OTU))
-bacteroidales <- pathway.assoc %>% filter(taxon %in% as.vector(pf.list4$OTU))
+geobacter <-  geobacter %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+geobacter <-  geobacter %>% group_by(`function`, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+pw.names2 <- pw.names %>% rownames_to_column("function") 
+geobacter <- geobacter %>% left_join(pw.names2)
 # apart from bacillus all have aerobic respiration I (cytochrome c) (PWY-3781) as the one of the main relative pathway contribution
+
+bacteroidales <-  bacteroidales %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+bacteroidales <-  bacteroidales %>% group_by(`function`, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+pw.names2 <- pw.names %>% rownames_to_column("function") 
+bacteroidales <- bacteroidales %>% left_join(pw.names2)
+
+Acidobacteriales <-  Acidobacteriales %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+Acidobacteriales <-  Acidobacteriales %>% group_by(`function`, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+pw.names2 <- pw.names %>% rownames_to_column("function") 
+Acidobacteriales <- Acidobacteriales %>% left_join(pw.names2)
+
+actinobacteria <-  actinobacteria %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+actinobacteria <-  actinobacteria %>% group_by(`function`, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+pw.names2 <- pw.names %>% rownames_to_column("function") 
+actinobacteria <- actinobacteria %>% left_join(pw.names2)
+
+random <-  random %>% arrange(desc(taxon_rel_function_abun))  %>% left_join(taxa.df)
+random <-  random %>% group_by(`function`, Phylum, Order, Family, Genus, Species) %>% summarize(sumtaxonfunabu = sum(taxon_rel_function_abun)) %>% arrange(desc(sumtaxonfunabu))
+pw.names2 <- pw.names %>% rownames_to_column("function") 
+random <- random %>% left_join(pw.names2)
+
+
+# apart from bacillus all have aerobic respiration I (cytochrome c) (PWY-3781) as the one of the main relative pathway contribution
+
 
 
 ###check if Bacillus abundance is important for dieldrin loss 
@@ -1453,6 +1474,7 @@ selection <- splsda_compvec %>% filter(value.var >= 0.3 | value.var <= -0.27)
 #figure      
 #	'&beta;-(1,4)-mannan degradation'
 #c("3-phenylpropanoate degradation")
+#c("aerobic respiration I (cytochrome c)") (PWY-3781)
 #selection$name
 physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway potentials (Abundance soilC-1)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons) +
 ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)'))
@@ -2395,7 +2417,7 @@ Josh Vido, Helen Hayden, Matt Kitching, Gene Drendle, Steven Batinovic, Steve Pe
 # Supplementary Material
 ## Sample data
 ```{r sampledata, echo = FALSE, message=FALSE, warning=FALSE,}
-kable(metadata2[c(1:6,33:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")], caption = "Sample data (unformated)", digits = 2)
+kable(metadata2[c(1:6,33:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")], caption = "Sample data (unformated and incomplete)", digits = 2)
 
 require(flextable)
 #flextable(metadata2[c(1:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")])
