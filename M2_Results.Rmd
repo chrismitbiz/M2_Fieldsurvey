@@ -1540,7 +1540,7 @@ pve <- nrow(test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>%
 test2 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>% filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.0002 | Dloss.dim1 <= -0.0004)
 #print(paste("There were", round(pve,2), "% pathways with positive regression coefficients in the Kurosol"))
 
-knitr::include_graphics(c("./mixomics_all.png","./mixomics_kurosol.png")  )
+knitr::include_graphics(c("./mixomics_all.png","./mixomics_kurosol1.png")  )
 
 #print the correlation coordinates
 bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
@@ -1632,8 +1632,7 @@ test_vec <- rbind(test1, test2, test3) %>%
 
 <br/>
   
-Among 410 Metacyc pathways included in sPLS regression and sPLS-DA the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for high dieldrin dissipation across both soils (**Table x**, Fig. \@ref(fig:plsdaratiocomp1to3) and \@ref(fig:splskurosol)). In the Kurosol lactose and galactose degradation was most strongly associated to more dieldrin dissipation (**Table x**, Fig. \@ref(fig:splskurosol)).  
-On the other hand oxidative glucose degradation (Fig. \@ref(fig:plsdaratiocomp1to3)) was associated with samples of low dieldrin disspation.  
+Among 410 Metacyc pathways included in sPLS regression and sPLS-DA the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for high dieldrin dissipation across both soils (**Table x**, Fig. \@ref(fig:plsdaratiocomp1to3) and \@ref(fig:splskurosol)). In the Kurosol lactose and galactose degradation was most strongly associated to more dieldrin loss as well as higher Humus content (**Table x**, Fig. \@ref(fig:splskurosol)). On the other hand oxidative glucose degradation (Fig. \@ref(fig:plsdaratiocomp1to3)) was associated with samples of low dieldrin disspation.  
   
 
     
