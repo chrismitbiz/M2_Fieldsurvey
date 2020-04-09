@@ -40,12 +40,12 @@ Note:
   
 
 # Summary of results  
-- Overall, from the results we speculate that soil function and diversity need to be conditioned to complex carbon sources and a versatile metabolism for soils to gain a greater capacity for degradation of xenobiotic organics.
 - The results show that carbon quality was related to functional diversity and associated to dieldrin dissipation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and concurrently greater humus content.
 - Beta and phylogenetic diversity were dispersed, and more unique taxa present in high-loss samples indicating that a greater genetic versatility was needed for dieldrin degradation. 
 - Some groups of bacteria in the order of Actinobacteria, Acidobacteriales and Solirubrobacteriales which had the highest abundances of the identified carbohydrate and alcohol degradation pathway potentials were also more likely to be present in samples with high dieldrin dissipation. Four other taxonomic clades belonging to Chloroflexi, Planctomycetes, Bacteroidetes and Geobacter sp. were also associated with high dieldrin dissipation and curiously the pathway of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for all of these clades (Link to metacyc pathway [here](https://metacyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-3781)). (More literature reading needed here, relating to efficiency of metabolism?)
 - By contrast, the genetic potential of oxidative glucose degradion was associated with low dieldrin dissipation. Rhizobiales bacteria (N-fixing rhizobia) contained the biggest abundance of this pathway potential from Picrust2. 
-- The network analysis further showed that there are unique associations between bacteria and fungi in a high-loss soil environment and as a group they were driven by humus content. 
+- The network analysis further showed that there were unique associations between bacteria and fungi in a high-loss soil environment and as a group they were driven by humus content. 
+- Overall, from the results we speculate that soil function and diversity need to be conditioned to complex carbon sources to gain a more versatile metabolism and a greater capacity for degradation of xenobiotic organics.
 
 
   
@@ -2333,7 +2333,7 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL06April.csv", row.names = FALSE)
 ```
 
-```{r networkmodulesandunique, fig.cap = "Network of cross-domain co-occurrences (fungi (F) and bacteria (B) together) using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
+```{r networkmodulesandunique, fig.cap = "Network of cross-domain co-occurrences (fungi (F) and bacteria (B) together) using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to analysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
 knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL2.png"))
 ```
 
@@ -2634,13 +2634,13 @@ ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
 
 ## Sparse partial least squares regression
 ```{r kable1, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
-kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
+kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples (n = 33). Soil variables included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
 ```
 
 <br/>
 
 ```{r kable2, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
-kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
+kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples (n = 18). Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
 ```
 
 <br/>
