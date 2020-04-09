@@ -41,7 +41,7 @@ Note:
 
 # Summary of results  
 - The results show that carbon quality was related to functional diversity and associated to dieldrin dissipation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and concurrently greater humus content.
-- Some groups of bacteria in the order of Actinobacteria, Acidobacteriales and Solirubrobacteriales which had the highest abundances of these carbohydrate and alcohol degradation pathways, were also more likely to be present in samples with high dieldrin dissipation. Four other taxonomic clades belonging to Chloroflexi, Planctomycetes, Bacteroidetes and Geobacter sp. were also associated with high dieldrin dissipation and curiously the pathway of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for all of these clades (Link to metacyc pathway [here](https://metacyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-3781)). (More literature reading needed here, relating to efficiency of metabolism?)
+- Some groups of bacteria in the order of Actinomycetales, Acidobacteriales and Solirubrobacteriales which had the highest abundances of these carbohydrate and alcohol degradation pathways, were also more likely to be present in samples with high dieldrin dissipation. Four other taxonomic clades belonging to Chloroflexi, Planctomycetes, Bacteroidetes and Geobacter sp. were also associated with high dieldrin dissipation and curiously the pathway of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for all of these clades (Link to metacyc pathway [here](https://metacyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-3781)). (More literature reading needed here, relating to efficiency of metabolism?)
 - By contrast, the genetic potential of oxidative glucose degradion was associated with low dieldrin dissipation. Rhizobiales bacteria (N-fixing rhizobia) contained the biggest abundance of this pathway potential from Picrust2. 
 - Beta and phylogenetic diversity were dispersed, and more unique taxa present in high-loss samples indicating that a greater genetic versatility was needed for dieldrin degradation. 
 - The network analysis further showed that there were unique associations between bacteria and fungi in a high-loss soil environment and as a group they were driven by humus content. 
@@ -2884,8 +2884,54 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 ggarrange(p1, p2, labels = "auto")
 ```
 
-
 <br/>
+
+```{r Vdeseq2, echo=FALSE, fig.width=10, message=FALSE, warning=FALSE, include = FALSE, eval = FALSE, cache=TRUE}
+require(DESeq2)
+#Soil1
+#deseq2 test DAY 14
+physeqF.flt
+#tax_table(physeqF.flt)[, "Genus"] <- str_replace_all(tax_table(physeqB.flt)[, "Genus"], "D_5__", "")
+#tax_table(physeqF.flt)[, "Family"] <- str_replace_all(tax_table(physeqB.flt)[, "Family"], "D_4__", "")
+physeqtest <- tax_glom(physeqF.flt, "Genus")
+physeqtest <- tax_glom(physeqF.flt, "Order")
+Soil <-  sample_data(physeqtest)$Soil
+physeqtest <- prune_samples(sample_data(physeqtest)$Farm != "C", physeqtest)
+physeqtest  = filter_taxa(physeqtest  , function(x) sum(x > 0) > (0.20*length(x)), TRUE) #minimum presense in x% 
+
+#sample_sums(physeqtest)
+#deseq2
+#http://bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-mixture-models.html
+Soildds = phyloseq_to_deseq2(physeqtest, ~ Soil)
+# calculate geometric means prior to estimate size factors
+#gm_mean = function(x, na.rm=TRUE){
+#  exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+#}
+#geoMeans = apply(counts(Soildds), 1, gm_mean)
+#Soildds = estimateSizeFactors(Soildds, geoMeans = geoMeans)
+#Soildds = DESeq(Soildds, fitType="local")
+Soildds = DESeq(Soildds, test="Wald", fitType="parametric")  #default
+#Note: The default multiple-inference correction is Benjamini-Hochberg, and occurs within the DESeq function.
+res = results(Soildds)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.01
+sigtab = res[(res$padj < alpha), ]
+sigtab1 = cbind(as(sigtab, "data.frame"), as(tax_table(physeqtest)[rownames(sigtab), ], "matrix"))
+
+#barplot
+#barplot
+barplot.rel   <- phyloseq::transform_sample_counts(physeqtest, function(x) x / sum(x) )
+subs.mlt <- psmelt(barplot.rel)
+subs <- subs.mlt %>% filter(Order %in% sigtab1$Order)
+subs <- subs.mlt %>% filter(Family %in% sigtab1$Family)
+subs <- subs.mlt %>% filter(Genus %in% sigtab1$Genus)
+subs <- subs.mlt %>% filter(Genus %in% c("g__Geminibasidium"))
+#subs <- subs.mlt %>% filter(Family %in% sigtab$Family)
+
+subs   %>% ggbarplot(data = ., x = "Order", y = "Abundance", add = "mean_se", fill = "Soil", width = 0.5, xlab = "", position = position_dodge(0.7), scales = "free") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#kable(wilcoxotest %>% filter(Genus != "") %>% filter(Genus != "D_5__metagenome"),booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
 
 
 # References
