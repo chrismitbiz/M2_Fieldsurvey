@@ -40,11 +40,10 @@ Note:
 
 # Summary of results  
 - Overall, from the results we speculate that soil function and diversity need to be conditioned to complex carbon sources and a versatile metabolism for soils to gain a greater capacity for degradation of xenobiotic organics.
-- The results show that carbon quality was related to functional diversity and associated to dieldrin dissipation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and concurrently greater humus content. 
-- Beta and phylogenetic diversity were dispersed, and more unique taxa present in high-loss samples indicating that a greater genetic versatility is needed for dieldrin degradation.
-- Some groups of bacteria in the order of Acidobacteriales and Solirubrobacteriales which carry the predicted carbohydrate and alcohol degradation genes were also more likely to be present in high-loss’ samples. 
-- The presence of five other taxonomic groups (Actinobacteria, Chloroflexi, Planctomycetes, Bacteroidetes and *Geobacter sp.*) was associated with high dieldrin loss and curiously for all of them the genetic potential of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for these taxons (Link to metacyc pathway [here](https://metacyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-3781)). (More literature reading needed here, relating to efficiency of metabolism?)
-- By contrast, the genetic potential of oxidative glucose degradion was associated with low dieldrin dissipation. Rhizobiales bacteria (N-fixing rhizobia) contained the biggest abundance of this pathway potential from Picrust2.  
+- The results show that carbon quality was related to functional diversity and associated to dieldrin dissipation. For example, genetic potentials of lactose, galactose, fucose, rhamnose and glycole degradation predicted high dieldrin dissipation and concurrently greater humus content.
+- Beta and phylogenetic diversity were dispersed, and more unique taxa present in high-loss samples indicating that a greater genetic versatility was needed for dieldrin degradation. 
+- Some groups of bacteria in the order of Actinobacteria, Acidobacteriales and Solirubrobacteriales which had the highest abundances of the identified carbohydrate and alcohol degradation pathway potentials were also more likely to be present in samples with high dieldrin dissipation. Four other taxonomic clades belonging to Chloroflexi, Planctomycetes, Bacteroidetes and Geobacter sp. were also associated with high dieldrin dissipation and curiously the pathway of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for all of these clades (Link to metacyc pathway [here](https://metacyc.org/META/NEW-IMAGE?type=PATHWAY&object=PWY-3781)). (More literature reading needed here, relating to efficiency of metabolism?)
+- By contrast, the genetic potential of oxidative glucose degradion was associated with low dieldrin dissipation. Rhizobiales bacteria (N-fixing rhizobia) contained the biggest abundance of this pathway potential from Picrust2. 
 - The network analysis further showed that there are unique associations between bacteria and fungi in a high-loss soil environment and as a group they were driven by humus content. 
 
 
@@ -509,7 +508,6 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
   kable_styling(latex_options="scale_down")
 ```
 
-<br/>
 
 # Materials and Methods
 ## Site, soil description and dieldrin and total carbon measurements
@@ -550,7 +548,7 @@ To test whether the presence of some bacterial clades was more likely associated
   
 The analysis was done across both soils (n = 33) and then separately on each soil type (Kurosol n=18 and Chromosol n=15). Any unidentified phyla and phyla with low prevalence were removed. Remaining ASVs filtered to a minimum of 25 reads per ASV and converted to presence/absence, which was modelled as the response variable with dieldrin loss (%) as numeric predictors. Phylofactor partitioned the phylogeny along edges with different log-odds of presence using generalized linear models (default mixed algorithm) with binomial distributions. The identified clades were then mapped onto the phylogenetic tree and their ASV counts and abundances compared to different levels of dieldrin loss. 
 
-## Network Analysis of bacterial and fungal co-correlation
+## Network analysis of bacterial and fungal co-correlation
 To investigate differences in community interactions of unique bacteria and fungi in the Kurosol and the Chromosol we created co-correlation networks using sparse inverse covariance estimation for ecological association inference (Speci-easi) [@Kurtz2015a] with glasso estimations. Bacterial and fungal abundances were co-correlated for each soil separately using the default pipeline settings with stability-based model selection [@Liu2010c] and a threshold of 0.05, nlambda of 40 and a lambda minimum ratio of 0.02. The edges were processed in gephi [@Bastian2009] and nodes of taxa that were unique in samples with above median dieldrin losses were visualised.  Furthermore, the average path lengths were calculated [@Brandes2001b] and keystone taxa highlighted. 
 
 Modularity was calculated [@Blondel2008a] and strongly interacting bacteria and fungi (modules) identified. To investigate ecological preferences of these groups of taxa the standardised relative abundances (z-score) of each module was computed and correlated to organic matter fractions (spearman). 
@@ -960,7 +958,7 @@ p4 <- p.ccaB +
   show.legend = FALSE)
 ```
 
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and included 2878 bacterial and 718 fungal ASVs. Abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15)", fig.width=10, fig.asp= 1.1, message=FALSE, warning=FALSE, results=FALSE}
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the proportions of resistant organic carbon (ROC), humus (HUM) and particulate organic carbon (POC) as constraining variables. ASVs were filtered and included 2878 bacterial and 718 fungal ASVs. Abundances were transformed to Aitchison distances prior to analysis. Symbols represent samples and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol n = 18, Chromosol n = 15).", fig.width=10, fig.asp= 1.1, message=FALSE, warning=FALSE, results=FALSE}
 
 #KUROSOL
 #BACTERIA
@@ -1337,7 +1335,7 @@ Microbial richness and diversity was greater in samples with high long-term diel
 ## Metabolic potential
   
 Note: The following pathways were the top contributors to variation in PLS-DA (across both soils) and therefore key predictors for dielrin loss (dieldrin loss in four factors)
-```{r plsdakurNOTINCLUDE, fig.cap = "Kurosol: Potentials of metabolic pathways which were predicted to be different between samples with low and high dieldrin loss (%) by partial least squares discriminant anaylysis (PLS-DA).  Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown.", message=FALSE, warning=FALSE, echo= FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE, include= FALSE, eval=FALSE}
+```{r plsdakurNOTINCLUDE, message=FALSE, warning=FALSE, echo= FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE, include= FALSE, eval=FALSE}
 
 ps_clr <- microbiome::transform(physeq.pw, "compositional")
 physeq.pw.melt.comp <- psmelt(ps_clr)
@@ -1350,7 +1348,7 @@ p1
 #In the Chromosol these pathways were also present but mean potential of these pathways was similar between low and high-loss samples.  
 ```
 
-```{r plsdakurTCratioNOINCLUDE, fig.cap = "Kurosol: The same graph as before but here the metabolic potentials are shown relative to total carbon (the ratio of pathway abundance and total carbon). This demonstrates the effect of normalising the genetic potential to the total carbon and energy sources in both soils.", message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE,include= FALSE, eval=FALSE}
+```{r plsdakurTCratioNOINCLUDE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE,include= FALSE, eval=FALSE}
 
 x <- as.data.frame(t(otu_table(physeq.pw))) 
 #normalisation
@@ -1596,7 +1594,9 @@ simMat.flt.all <- simMat %>% data.frame() %>% column_to_rownames("pathway") %>% 
 
 ```
 
-```{r splskurosol, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for all samples and for  Kurosol samples only. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and hydrogen (H). The pathway potentials and ROC, HUM and POC were clr transformed before analysis.", message=FALSE, warning=FALSE, echo=FALSE, out.width="49%", out.height="40%", fig.show='hold', cache = TRUE}
+```{r splskurosol, fig.cap = "Ward clustered heatmap of similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) for pathway potentials (rows) and soil variables (columns) for all samples and for  Kurosol samples only. Soil variables included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and hydrogen (H). The pathway potentials and ROC, HUM and POC were clr transformed before analysis.", message=FALSE, warning=FALSE, echo=FALSE,cache = TRUE, fig.width=9, fig.asp= 1}
+
+#out.width="49%", out.height="40%", fig.show='hold'
 
 #Kurosol
 physeq.pw.flt <- prune_samples(sample_data(physeq.pw)$Soil == "Kurosol", physeq.pw)
@@ -1635,8 +1635,8 @@ pve <- nrow(test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>%
 test2 <- test %>% dplyr::select(pathway, Dloss.dim1,Dloss.dim2 ) %>% filter(Dloss.dim1 != 0 | Dloss.dim2 != 0 ) %>% arrange(desc(Dloss.dim1)) %>% filter(Dloss.dim1 >= 0.0002 | Dloss.dim1 <= -0.0004)
 #print(paste("There were", round(pve,2), "% pathways with positive regression coefficients in the Kurosol"))
 
-knitr::include_graphics(c("./mixomics_all.png","./mixomics_kurosol1.png")  )
-
+knitr::include_graphics(c("./mixomics_kurosol1.png")  )
+#c("./mixomics_all.png")
 #print the correlation coordinates
 bisect = pw.spls$variates$X[, 1:2] + pw.spls$variates$Y[, 1:2]
 cord.X = cor(pw.spls$X, bisect, use = "pairwise")
@@ -2021,7 +2021,7 @@ Figure \@ref(fig:trees) highlights that although the phylogenetic composition of
   
 Moreover, generalised linear models (glm) in the R package 'phylofactor' indicated that there were phylogentic clades that had a significantly higher chance to be found in 'high-loss' samples (shown as polygons on phylogenetic tree in figure  \@ref(fig:trees)a).  
   
-For example clades of Acidobacteria, Actinobacteria, Bacteriodetes, Chloroflexi, Planctomycetes and *Geobacter sp.* were more likely to found in samples with high dieldrin losses than could be explained by chance alone (Fig. \@ref(fig:trees)b). All of these clades contained more and more different ASVs in 'high-loss' samples (**MakeTable**).
+For example, clades of Acidobacteria, Actinobacteria, Bacteriodetes, Chloroflexi, Planctomycetes and *Geobacter sp.* were more likely to found in samples with high dieldrin losses than could be explained by chance alone (Fig. \@ref(fig:trees)b). All of these clades contained more and more different ASVs in 'high-loss' samples (**MakeTable**).
 
 <br/>
 
@@ -2332,7 +2332,7 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL06April.csv", row.names = FALSE)
 ```
 
-```{r networkmodulesandunique, fig.cap = "Network of cross-domain co-occurances (fungi (F) and bacteria (B) together) using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
+```{r networkmodulesandunique, fig.cap = "Network of cross-domain co-occurrences (fungi (F) and bacteria (B) together) using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to anaysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
 knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL2.png"))
 ```
 
@@ -2474,6 +2474,8 @@ require(flextable)
 #flextable(metadata2[c(1:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")])
 ```
 
+<br/>
+
 ## Alpha diversity
 ```{r alphadloss, fig.cap = "Alpha diversity of bacteria, fungi and the enzyme metagenome as predicted with Picrust2. Diversity indices were calculated from rarefied abundanced of filtered amplicon sequence variants (ASVs) or enzyme abundances. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
@@ -2529,6 +2531,8 @@ pppp
 
 ```
 
+<br/>
+
 ## Diversity per unit dieldrin
 ```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio of bacteria (a), fungi (b) and the enzyme metagenome as predicted from Picrust2 (c) per unit dieldrin (µg g^-1^). Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
@@ -2548,6 +2552,8 @@ x = dev.off()
 p
 
 ```
+
+<br/>
 
 ## Phylogenetic diversity of bacteria
 ```{r phylodiv,  fig.cap= "Faith phylogenetic diversity (Faith PD) index (a) and principle coordinate analysis (PCoA) with unweighted unifrac distances (b). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", echo=FALSE, fig.width=7, fig.asp=0.4, message=FALSE, warning=FALSE, results=FALSE}
@@ -2569,6 +2575,8 @@ meta.df <- data.frame(sample_data(physeqB))
 leveneTest(PD ~ Dloss_fct2, data = meta.df)
 
 ```
+
+<br/>
 
 ## Comparison of chlorinated and aromatic compound degradation potentials
 ```{r xenobgraphs, fig.cap = "Comparison of one chlorinated and 39 aromatic compound degradation potentials predicted to be present in all samples excluding outliers (n = 33). Chlorosalicylate was the only chlorinated compound degradation potential identified with the Metacyc database. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.45, cache = TRUE}
@@ -2621,15 +2629,20 @@ ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
 # "2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
 ```
 
-## Sparse partial least squares regression
+<br/>
 
+## Sparse partial least squares regression
 ```{r kable1, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
 kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
 ```
 
+<br/>
+
 ```{r kable2, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
 kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples. Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
 ```
+
+<br/>
 
 ```{r plsdatableall, message=FALSE, warning=FALSE, echo=FALSE, include = FALSE, cache = TRUE}
 kable(test1,  digits = 3, col.names = c("Pathway", "Dim1", "Dim2"), caption = "Top regression coefficients for dieldrin of sPLS analysis across both soils (n=33). Values are the predicted effect of metabolic pathway potentials on dieldrin concentrations (table not formated)")
@@ -2667,7 +2680,7 @@ kable(simMat.flt, booktabs = T, digits = 2, col.names = c("Pathway", "HUM", "ROC
 
 <br/>
 
-## Phylogenetic clades that were associated to dieldrin loss (THIS WILL BECOME A TABLE)
+## Phylogenetic clades that were associated to dieldrin loss (The following will become a table)
   
 Note: The following graphs are filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments. Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
 
