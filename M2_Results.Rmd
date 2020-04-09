@@ -32,8 +32,9 @@ knit: (function(input_file, encoding) {
 
 Note:   
   
-- Graphs and tables are intended to be informational only and are not 'publication quality'. Typos and errors definitely included.
-- Abbreviations (TOC etc) not yet checked.
+- Typos and errors not checked 
+- Tables still not done (mostly)
+- Abbreviations (TOC etc) not yet checked
 - Go [here](https://metacyc.org/pwy-search.shtml) to search for metacyc pathways
 - Go [here](https://mixomicsteam.github.io/Bookdown/index.html) to see mixOmics bookdown vignette
   
