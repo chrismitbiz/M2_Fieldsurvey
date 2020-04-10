@@ -88,8 +88,7 @@ library(magick)
 library(picante)
 ```
 
-<<<<<<< HEAD
-test
+
 
 Note: Graphs are intended to be informational only and are not 'publication quality'. Typos and errors definitely included.  
   
@@ -122,10 +121,8 @@ Quality of soil organic matter is associated with the phylogenetic and metabolic
 Note: This section gives an overview of metadata and the data of bacterial and fungal amplicon sequence variants (ASVs) used as basis for all analyses. It not intendet for publication but may be supplementary.
   
 ## Metadata
-```{r metadata, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, cache = TRUE}
-=======
+
 ```{r metadata, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE, cache = TRUE}
->>>>>>> edd0d947fd5012b25028ce02147136ac427f19f2
 metadata<-read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/metadata.tsv") #requires tidyverse
 metadata2 <- metadata[c(2:37),]
 # Converting columns to numeric using "tidyverse"
