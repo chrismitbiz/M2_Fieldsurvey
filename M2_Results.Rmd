@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -24,6 +24,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+  
 ---
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -60,7 +61,7 @@ library(picante)
 #library(flextable)
 ```
 
-
+test
 
 Note: Graphs are intended to be informational only and are not 'publication quality'. Typos and errors definitely included.  
   
