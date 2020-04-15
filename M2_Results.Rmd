@@ -1002,7 +1002,7 @@ p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") +
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+rownames(arrowmat) <- c("HUM", "POC", "ROC")
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1075,7 +1075,7 @@ p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaF, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+rownames(arrowmat) <- c("HUM", "POC", "ROC")
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1128,7 +1128,7 @@ p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", s
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+rownames(arrowmat) <- c("HUM", "POC", "ROC")
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1175,7 +1175,7 @@ p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", s
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaF, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+rownames(arrowmat) <- c("HUM", "POC", "ROC")
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1252,7 +1252,7 @@ p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss") +
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+rownames(arrowmat) <- c("HUM", "POC", "ROC")
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1305,7 +1305,7 @@ p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", s
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM (%)", "POC (%)", "ROC (%)")
+rownames(arrowmat) <- c("HUM", "POC", "ROC")
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1357,9 +1357,9 @@ We compared the composition of the most common bacteria and fungi as well as gen
   
 The community composition was different between 'low-loss' and 'high-loss' groups in the Kurosol (<72 % and >=72 % dieldrin loss) and in the Chromosol (<=43 % and >43 % dieldrin loss) (Fig. \@ref(fig:pcoa)). These compositional differences between groups was significant in the Kurosol (Permanova *p* < 0.001) and only marginally significant in the Chromosol (Permanova *p* = 0.05 bacteria, *p* = 0.16 fungi).  
 
-We further did RDA, to explore how ROC, HUM and POC were associated with microbial community compostion and dieldrin. Only in the Kurosol did carbon fractions significantly associate with the composition of bacteria, the enzyme metagenome and fungi (Fig. \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant for the Kurosol (*p* < 0.001) but not for the Chromosol (*p* > 0.05). The variation of carbon fractions in the Kurosol therefore explained 29.5 and 29.4 % of the compositional variation of bacteria and fungi respectively (RDA1 and RDA2 combined), while no effect on the microbial composition in the Chromosol could be detected.  
+Only in the Kurosol did the soil carbon fractions significantly associate with the composition of bacteria, the enzyme metagenome and fungi (Fig. \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant for the Kurosol (*p* < 0.001) but not for the Chromosol (*p* > 0.05). 
   
-Subsequent null-model comparisons to each ROC, HUM and ROC individually indicated that HUM was most important for the community composition, followed by ROC. In the Kurosol, there was some grouping of samples in which the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM (Fig. \@ref(fig:rda)). 
+Subsequent null-model comparisons to each ROC, HUM and ROC individually indicated that HUM was marginally more important than ROC for bacterial community and functional composition. For fungal community composition ROC was marginally more important (**MAKETABLE**). POC was least important. In the Kurosol, there was some grouping of samples in which the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM (Fig. \@ref(fig:rda)). 
   
 Microbial richness and diversity was greater in samples with high long-term dieldrin losses (Fig. S\@ref(fig:alphadloss)a, b and c). The Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity per-unit-dieldrin (diversity µg g^-2^ dieldrin) compared to the Chromosol (Fig. S\@ref(fig:alphaperD17)). Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment, including the functional diversity based on the enzyme metagenome.  
   
