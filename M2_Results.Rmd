@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -25,7 +25,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
+
 ---
 
 
@@ -1320,12 +1320,11 @@ print(paste("After filtering the analysis included", ntaxa(psKbac),",", ntaxa(ps
 ```{r tablerdakurosol, message=FALSE, warning=FALSE, echo=FALSE}
 #Table
 testrdadf <- rbind(testrdabacteria, testrdafungi, testrdaenzymes)
-testrdadf <- testrdadf %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "HUM.clr", "HUM",`C-Fraction`) ) %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "ROC.clr", "ROC",`C-Fraction`) ) %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "POC.clr", "POC",`C-Fraction`) )
+testrdadf <- testrdadf %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "HUM.clr", "HUM",`C-Fraction`) ) %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "ROC.clr", "ROC",`C-Fraction`) ) %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "POC.clr", "POC",`C-Fraction`) ) %>% rename(p = Pr..F.)
 
 
-kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results of separate ANOVA like permutation tests for each constraining variable using 999 permutation of a pseudoF statistic.", digits = 2) %>%
-  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>% 
-  pack_rows("Bacteria", start_row = 1, end_row = 4) %>%pack_rows("Fungi", 5, 8) %>% pack_rows("Enzyme-encoding genes", 9, 12)
+
+kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results of separate ANOVA like permutation tests for each constraining variable using 999 permutation of a pseudoF statistic.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Bacteria", start_row = 1, end_row = 4) %>% pack_rows("Fungi", 5, 8) %>% pack_rows("Enzyme-encoding genes", 9, 12) 
 ```
   
 <br/>
@@ -1334,9 +1333,7 @@ We compared the composition of the most common bacteria and fungi as well as gen
   
 The community composition was different between 'low-loss' and 'high-loss' groups in the Kurosol (<72 % and >=72 % dieldrin loss) and in the Chromosol (<=43 % and >43 % dieldrin loss) (Fig. \@ref(fig:pcoa)). These compositional differences between groups was significant in the Kurosol (Permanova *p* < 0.001) and only marginally significant in the Chromosol (Permanova *p* = 0.05 bacteria, *p* = 0.16 fungi).  
 
-Only in the Kurosol did the soil carbon fractions significantly associate with the composition of bacteria, the enzyme metagenome and fungi (Fig. \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant for the Kurosol (*p* < 0.001) but not for the Chromosol (*p* > 0.05). 
-  
-Subsequent null-model comparisons to each ROC, HUM and ROC individually indicated that HUM was marginally more important than ROC for bacterial community and functional composition. For fungal community composition ROC was marginally more important (**MAKETABLE**). POC was least important. In the Kurosol, there was some grouping of samples in which the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM (Fig. \@ref(fig:rda)). 
+Only in the Kurosol did the soil carbon fractions significantly associate with the composition of bacteria, the enzyme metagenome and fungi (Fig. \@ref(fig:rda)). Permutation tests for the joint effect of ROC, HUM and POC were significant for the Kurosol (*p* < 0.001) but not for the Chromosol (*p* > 0.05). Individual significance tests for ROC, HUM and POC in the model indicated that HUM was most important for bacterial, fungal and functional composition and dieldrin dissipation (Table 1). POC was least important. In the Kurosol, there was some grouping of samples in which the composition of bacteria and fungi associated with ROC which coincided with the lowest long-term dieldrin loss (%). On the other hand, the highest dieldrin loss (%) was observed in samples where the community composition associated with HUM (Fig. \@ref(fig:rda)). 
   
 Microbial richness and diversity was greater in samples with high long-term dieldrin losses (Fig. S\@ref(fig:alphadloss)a, b and c). The Kurosol, which contained less organic matter and dieldrin, had significantly higher diversity per-unit-dieldrin (diversity µg g^-2^ dieldrin) compared to the Chromosol (Fig. S\@ref(fig:alphaperD17)). Hence, there was greater diversity for each molecule of dieldrin in the high-loss environment, including the functional diversity based on the enzyme metagenome.  
   
@@ -1390,7 +1387,7 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "fre
 p1
 ```
 
-```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials (Pathway abundances per g soil carbon) which were top contributors to variation in partial least squares discriminant anaylysis (PLS-DA) across both soils (n = 33) and therefore key predictors for dielrin loss (%). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=14, fig.asp = 0.8, cache = TRUE}
+```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials (Pathway abundances per g soil carbon) which were top contributors to variation in partial least squares discriminant anaylysis (PLS-DA) across both soils (n = 33) and therefore key predictors for dielrin loss (%). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE}
 require(mixOmics)
 TSS.divide = function(x){
  x/sum(x)
@@ -1449,7 +1446,6 @@ splsda.dloss2 <- splsda(x, y, ncomp = ncomp, keepX = select.keepX, scale = FALSE
 #auc.dloss = auroc(splsda.dloss2, roc.comp = 2)
 
 #do another performence test 
-# for reproducibility, only when the `cpus' argument is not used
 #splsda.dloss2.perf <- perf(splsda.dloss2, validation = "Mfold", folds = 5, dist = 'max.dist', nrepeat = 50, progressBar = TRUE, cpus = 2) 
 # perf.srbct  # lists the different outputs
 #splsda.dloss2.perf$error.rate
@@ -1535,9 +1531,30 @@ selection <- splsda_compvec %>% filter(value.var >= 0.3 | value.var <= -0.27)
 #c("3-phenylpropanoate degradation")
 #c("aerobic respiration I (cytochrome c)") (PWY-3781)
 #selection$name
-physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway potentials (Abundance soilC-1)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons) +
-ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)'))
-#dev.off()
+#physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway potentials (Abundance soilC-1)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons) + ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)'))
+
+physeq.pw.melt2.sel <- physeq.pw.melt2  %>% filter(OTU %in% selection$name)
+physeq.pw.melt2.sel$CLASS1 <- factor(physeq.pw.melt2.sel$CLASS1, levels =  c("Carbohydrate Degradation", "Alcohol Degradation","Carboxylate Degradation","Amine and Polyamine Degradation","Inorganic Nutrient Metabolism","Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis","Generation of Precursor Metabolite and Energy") )
+
+p1 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carbohydrate Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+p2 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Alcohol Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)'))+ scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+p3 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carboxylate Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+p4 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Amine and Polyamine Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+p5 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Inorganic Nutrient Metabolism") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+p6 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+p7 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Generation of Precursor Metabolite and Energy") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+
+g1 <- ggarrange(p3, p4,p6, p7, legend = "none", ncol = 1, align = "v", heights = c(1.7,1.7, 1,1))
+g2 <- ggarrange(p1,p2, p5, legend = "none", ncol = 1, nrow = 3, align = "v", heights = c(3,1,1))
+
+ggarrange(g2, g1, common.legend = TRUE, legend = "top", ncol = 2, widths = c(1,0.9))
+
 #table with most associated pathways 
 #selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
 #kable(splsda_compvec %>% filter(name %in% selection$name) %>% arrange(value.var), booktab = TRUE ) %>% kable_styling(latex_options="scale_down")
