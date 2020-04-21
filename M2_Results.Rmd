@@ -1387,7 +1387,7 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "fre
 p1
 ```
 
-```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials (Pathway abundances per g soil carbon) which were top contributors to variation in partial least squares discriminant anaylysis (PLS-DA) across both soils (n = 33) and therefore key predictors for dielrin loss (%). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE}
+```{r plsdaratiocomp1to3, fig.cap = "Pathway potentials (Pathway abundances per g soil carbon) which were top contributors to variation in partial least squares discriminant anaylysis (PLS-DA) across both soils (n = 33) and therefore key predictors for dielrin loss (%). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=15, fig.asp = 0.7, cache = TRUE}
 require(mixOmics)
 TSS.divide = function(x){
  x/sum(x)
@@ -1536,7 +1536,8 @@ selection <- splsda_compvec %>% filter(value.var >= 0.3 | value.var <= -0.27)
 physeq.pw.melt2.sel <- physeq.pw.melt2  %>% filter(OTU %in% selection$name)
 physeq.pw.melt2.sel$CLASS1 <- factor(physeq.pw.melt2.sel$CLASS1, levels =  c("Carbohydrate Degradation", "Alcohol Degradation","Carboxylate Degradation","Amine and Polyamine Degradation","Inorganic Nutrient Metabolism","Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis","Generation of Precursor Metabolite and Energy") )
 
-p1 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carbohydrate Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+p1 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carbohydrate Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)") 
+
 
 p2 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Alcohol Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)'))+ scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
 
@@ -1546,14 +1547,14 @@ p4 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == 
 
 p5 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Inorganic Nutrient Metabolism") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
 
-p6 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
+p6 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1",panel.labs.font = list(size = 8),  fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
 
 p7 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Generation of Precursor Metabolite and Energy") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")
 
-g1 <- ggarrange(p3, p4,p6, p7, legend = "none", ncol = 1, align = "v", heights = c(1.7,1.7, 1,1))
+g1 <- ggarrange(p3, p4,p6, p7, legend = "right", common.legend = TRUE, ncol = 1, align = "v", heights = c(1.7,1.7, 1,1))
 g2 <- ggarrange(p1,p2, p5, legend = "none", ncol = 1, nrow = 3, align = "v", heights = c(3,1,1))
 
-ggarrange(g2, g1, common.legend = TRUE, legend = "top", ncol = 2, widths = c(1,0.9))
+ggarrange(g2, g1, common.legend = TRUE, legend = "right", ncol = 2, widths = c(1,1))
 
 #table with most associated pathways 
 #selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
