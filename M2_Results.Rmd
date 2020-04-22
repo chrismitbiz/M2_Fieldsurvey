@@ -16,9 +16,6 @@ editor_options:
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
-nocite: |
-  @Baldock2013
-  @Karp2002a
   #always_allow_html: true
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
@@ -2821,7 +2818,7 @@ kable(simMat.flt, booktabs = T, digits = 2, col.names = c("Pathway", "HUM", "ROC
 ## Phylogenetic groups that were associated to dieldrin loss
 Note: The following tables show filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments (phylofactor mixed algorithm). Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
 
-```{r pfmixall, eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r pfmixall, eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=6, fig.asp = 1.25, cache = TRUE }
 require(metagMisc)
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
@@ -2870,15 +2867,18 @@ pf.list <- rbind(pf.list1, pf.list2, pf.list3, pf.list4, pf.list5)
 
 
 #for mean differences by dieldrin loss in each soil
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample,Soil, Dloss_fct2, Abundance)  %>% summarise(ASVs = sum(Abundance)) %>% 
-ggbarplot(., x = "Dloss_fct2", y = "ASVs", facet.by = "Phylum", fill = "Order", ylab = "Number of ASVs", xlab = "Dieldrin loss", width = 0.5, scales = "free", ncol = 1, legend = "right") 
+#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+#p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample,Soil, Dloss_fct2, Abundance)  %>% summarise(ASVs = sum(Abundance)) %>% 
+#ggbarplot(., x = "Dloss_fct2", y = "ASVs", facet.by = "Phylum", fill = "Order", ylab = "Number of ASVs", xlab = "Dieldrin loss", width = 0.5, scales = "free", ncol = 1, legend = "right") 
 
 
-p2 <- physeqB.melt.comp  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% 
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soil", ylab = "Total counts", xlab = "Dieldrin loss", scales = "free", ncol = 1, legend = "right") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)  
+#p2 <- physeqB.melt.comp  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% 
+#ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soil", ylab = "Total counts", xlab = "Dieldrin loss", scales = "free", ncol = 1, legend = "right") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)  
 
-ggarrange(p1, p2, labels = "auto")
+#ggarrange(p1, p2, labels = "auto")
+
+
+scatter_all <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample, Dloss)  %>% summarise(ASVs = sum(Abundance)) %>% ggscatter(., x = "Dloss", y = "ASVs", facet.by = "Phylum", ylab = "Frequency of ASVs", xlab = "Dieldrin loss (%)", ncol = 2, legend = "right", add = "reg.line", conf.int = TRUE) + stat_cor(method = "spearman", label.x = 3, label.y = 30)
 ```
 
 ```{r tablephylo, message=FALSE, warning=FALSE, echo=FALSE}
@@ -2952,7 +2952,7 @@ p1[13,"Phylum"] <- "Planctomycetes Total"
 
 
 options(knitr.kable.NA = '')
-p1_all <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples (Chromosol & Kurosol) with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+p1_all <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples (Chromosol & Kurosol) with high dieldrin loss than could be explained by chance (n = 33). Numbers represent the frequency of occurance.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria (29 member Monophyletic clade)", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria (18 member Monophyletic clade)", 3, 4) %>% pack_rows("Bacteroidetes (17 member Monophyletic clade)", 5, 9) %>% pack_rows("Chloroflexi (6 member Monophyletic clade)", 10, 12) %>% pack_rows("Planctomycetes (17 member Monophyletic clade)", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
 #Mean abundances
 #p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
@@ -2981,7 +2981,7 @@ p1_all <- kable(p1,  format = "html", caption = "Table with taxonomic groups whi
 
 ```
 
-```{r pfmixKU, eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r pfmixKU, eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=6, fig.asp = 1.25, cache = TRUE }
 require(metagMisc)
 
 #physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) 
@@ -3043,15 +3043,17 @@ pf.list5 <- taxadfpf %>% filter(OTU %in% pf.otus5)
 pf.list <- rbind(pf.list1, pf.list2, pf.list3, pf.list4, pf.list5)
 
 #for mean differences by dieldrin loss in each soil, pa and abundances for comparison
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample,Soil, Dloss_fct2, Abundance)  %>% summarise(ASVs = sum(Abundance)) %>% 
-ggbarplot(., x = "Dloss_fct2", y = "ASVs", facet.by = "Phylum", fill = "Order", ylab = "Number of ASVs", xlab = "Dieldrin loss", width = 0.5, scales = "free", ncol = 1, legend = "right") 
+#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+#p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample,Soil, Dloss_fct2, Abundance)  %>% summarise(ASVs = sum(Abundance)) %>% 
+#ggbarplot(., x = "Dloss_fct2", y = "ASVs", facet.by = "Phylum", fill = "Order", ylab = "Number of ASVs", xlab = "Dieldrin loss", width = 0.5, scales = "free", ncol = 1, legend = "right") 
 
 
-p2 <- physeqB.melt.comp  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% 
-ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soil", ylab = "Total counts", xlab = "Dieldrin loss", scales = "free", ncol = 1, legend = "right") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  
+#p2 <- physeqB.melt.comp  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% 
+#ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soil", ylab = "Total counts", xlab = "Dieldrin loss", scales = "free", ncol = 1, legend = "right") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  
 
-ggarrange(p1, p2, labels = "auto")
+#ggarrange(p1, p2, labels = "auto")
+
+scatter_kur <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample, Dloss)  %>% summarise(ASVs = sum(Abundance)) %>% ggscatter(., x = "Dloss", y = "ASVs", facet.by = "Phylum", ylab = "Frequency of ASVs", xlab = "Dieldrin loss (%)", ncol = 2, legend = "right", add = "reg.line", conf.int = TRUE, scales = "free") + stat_cor(method = "spearman", label.x = 3, label.y = 30)
 ```
 
 ```{r tablephylokurosol, message=FALSE, warning=FALSE, echo=FALSE}
@@ -3117,7 +3119,7 @@ p1[12,"Phylum"] <- "Chloroflexi Total"
 p1[18,"Phylum"] <- "Firmicutes Total"
 p1[22,"Phylum"] <- "Proteobacteria Total"
 options(knitr.kable.NA = '')
-p1_kuro <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+p1_kuro <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil (n = 18). Chromosol frequencies are included in table for completeness", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria (589 member Monophyletic clade)", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes (55 member Monophyletic clade)", 7, 11) %>% pack_rows("Chloroflexi (27 member Monophyletic clade)", 12, 17) %>% pack_rows("Firmicutes (44 member Monophyletic clade)", 18, 21) %>% pack_rows("Proteobacteria (24 member Monophyletic clade)", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
 phylomodellistkabel
 p1_all
@@ -3181,6 +3183,15 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 
 ggarrange(p1, p2, labels = "auto")
 ```
+
+```{r scatter_all, fig.cap="Scatterplot of ASV frequencies of taxonomic groups identified by phylofactor",  eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=6, fig.asp = 1.25, cache = TRUE}
+scatter_all
+```
+
+```{r scatter_kur, fig.cap="Scatterplot of ASV frequencies of taxonomic groups identified by phylofactor for Kurosol samples",  eval=TRUE, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=6, fig.asp = 1.25, cache = TRUE}
+scatter_kur
+```
+
 
 <br/>
 
