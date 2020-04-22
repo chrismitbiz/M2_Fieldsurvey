@@ -3102,7 +3102,7 @@ phylomodellist <- rbind(testall, testKuro)
 phylomodellist <- phylomodellist[, c("Phylum", "Predictor", "n", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group", "Soil")]
 
 options(knitr.kable.NA = '')
-phylomodellistkabel <- kable(phylomodellist %>% dplyr::select(-Predictor, -Soil),  format = "html", caption = "Phylofactor model output with dieldrin loss as numeric predictor for the presence of aggregated taxonomic groups.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>% pack_rows("Chromosol & Kurosol", 1, 5) %>% pack_rows("Kurosol", 6, 10)
+phylomodellistkabel <- kable(phylomodellist %>% dplyr::select(-Predictor, -Soil),  format = "html", caption = "Phylofactor model coefficient and F statistic with dieldrin loss as numeric predictor for the presence of aggregated taxonomic groups.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>% pack_rows("Chromosol & Kurosol", 1, 5) %>% pack_rows("Kurosol", 6, 10)
 
 
 #filter from the phylofactor list from previous chunk
