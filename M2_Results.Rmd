@@ -2842,9 +2842,6 @@ ps_trans <- phyloseq_standardize_otu_abundance(physeq.B.flt, method = "pa")
 physeqB.melt.pa <- psmelt(ps_trans)
 physeqB.melt.pa <- physeqB.melt.pa %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
 
-#load the phylofactor model object (run beforehand) large file >500MB
-pf_gpf_mix_33spls_Dloss_alpha0.2 <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_33spls_Dloss_alpha0.2")
-
 #extracting ASV ids from phylofactor object for plotting
 #s <- summary(pf_gpf_mix_33spls_Dloss_alpha0.2, taxadfpf, factor=1)
 #pf.otus1 <- s$species.list[[1]]
@@ -2886,13 +2883,55 @@ ggarrange(p1, p2, labels = "auto")
 
 ```{r tablephylo, message=FALSE, warning=FALSE, echo=FALSE}
 require(metagMisc)
+
+#load the phylofactor model object (run beforehand) large file >500MB
+pf_gpf_mix_33spls_Dloss_alpha0.2 <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_33spls_Dloss_alpha0.2")
+
+test1 <- summary(aov(pf_gpf_mix_33spls_Dloss_alpha0.2$models[[1]]))
+test1 <- as.data.frame(test1[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals")) 
+test1 <- test1 %>% rownames_to_column("Predictor") %>% mutate(Phylofactor = "1", Phylum ="Chloroflexi", Group = "6 member Monophyletic clade") %>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_33spls_Dloss_alpha0.2$models[[1]]
+test1$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test1 <- test1[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test2 <- summary(aov(pf_gpf_mix_33spls_Dloss_alpha0.2$models[[2]]))
+test2 <- as.data.frame(test2[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test2 <- test2 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "2", Phylum ="Planctomycetes", Group = "17 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_33spls_Dloss_alpha0.2$models[[2]]
+test2$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test2 <- test2[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test3 <- summary(aov(pf_gpf_mix_33spls_Dloss_alpha0.2$models[[3]]))
+test3 <- as.data.frame(test3[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test3 <- test3 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "3", Phylum ="Actinobacteria", Group = "18 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_33spls_Dloss_alpha0.2$models[[3]]
+test3$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test3 <- test3[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test4 <- summary(aov(pf_gpf_mix_33spls_Dloss_alpha0.2$models[[4]]))
+test4 <- as.data.frame(test4[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test4 <- test4 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "4", Phylum ="Acidobacteria", Group = "29 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_33spls_Dloss_alpha0.2$models[[4]]
+test4$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test4 <- test4[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test5 <- summary(aov(pf_gpf_mix_33spls_Dloss_alpha0.2$models[[5]]))
+test5 <- as.data.frame(test5[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test5 <- test5 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "5", Phylum ="Bacteroidetes", Group = "17 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_33spls_Dloss_alpha0.2$models[[5]]
+test5$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test5 <- test5[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+testall <- rbind(test1,test2, test3, test4, test5)
+testall <- testall %>% mutate(Soil = "Chromosol & Kurosol", n = "33")
+
+
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least 11 reads
 physeq.B.flt <- subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
 physeq.B.flt = phyloseq::subset_taxa(physeq.B.flt, !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
-physeqB.melt.comp <- psmelt(physeq.B.flt)
 
 #filter from the phylofactor list from previous chunk
 p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
@@ -2910,8 +2949,10 @@ p1[3,"Phylum"] <- "Actinobacteria Total"
 p1[5,"Phylum"] <- "Bacteroidetes Total"
 p1[10,"Phylum"] <- "Chloroflexi Total"
 p1[13,"Phylum"] <- "Planctomycetes Total"
+
+
 options(knitr.kable.NA = '')
-kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of presence.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+p1_all <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples (Chromosol & Kurosol) with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
 #Mean abundances
 #p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
@@ -3015,6 +3056,53 @@ ggarrange(p1, p2, labels = "auto")
 
 ```{r tablephylokurosol, message=FALSE, warning=FALSE, echo=FALSE}
 require(metagMisc)
+#load the phylofactor model object (run beforehand) large file >500MB
+pf_gpf_mix_Kurosol10factorsDloss <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_kurosol_Dloss_alpha0.2")
+
+test1 <- summary(aov(pf_gpf_mix_Kurosol10factorsDloss$models[[1]]))
+test1 <- as.data.frame(test1[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals")) 
+test1 <- test1 %>% rownames_to_column("Predictor") %>% mutate(Phylofactor = "1", Phylum ="Bacteroidetes", Group = "55 member Monophyletic clade") %>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_Kurosol10factorsDloss$models[[1]]
+test1$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test1 <- test1[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test2 <- summary(aov(pf_gpf_mix_Kurosol10factorsDloss$models[[2]]))
+test2 <- as.data.frame(test2[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test2 <- test2 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "2", Phylum ="Firmicutes", Group = "44 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_Kurosol10factorsDloss$models[[2]]
+test2$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test2 <- test2[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test3 <- summary(aov(pf_gpf_mix_Kurosol10factorsDloss$models[[3]]))
+test3 <- as.data.frame(test3[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test3 <- test3 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "3", Phylum ="Actinobacteria", Group = "589 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_Kurosol10factorsDloss$models[[3]]
+test3$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test3 <- test3[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test4 <- summary(aov(pf_gpf_mix_Kurosol10factorsDloss$models[[4]]))
+test4 <- as.data.frame(test4[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test4 <- test4 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "4", Phylum ="Proteobacteria", Group = "24 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_Kurosol10factorsDloss$models[[4]]
+test4$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test4 <- test4[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+test5 <- summary(aov(pf_gpf_mix_Kurosol10factorsDloss$models[[5]]))
+test5 <- as.data.frame(test5[[1]], row.names = c("phylo", "Dloss", "phylo:Dloss", "Residuals"))
+test5 <- test5 %>% rownames_to_column("Predictor")  %>% mutate(Phylofactor = "5", Phylum ="Chloroflexi", Group = "27 member Monophyletic clade")%>% dplyr::select(-`Sum Sq`, -`Mean Sq`) %>% filter(Predictor == "Dloss")
+mod <- pf_gpf_mix_Kurosol10factorsDloss$models[[5]]
+test5$Coeffcient <- mod[["coefficients"]][["Dloss"]]
+test5 <- test5[, c("Phylum", "Predictor", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group")]
+
+testKuro <- rbind(test1,test2, test3, test4, test5)
+testKuro <- testKuro %>% mutate(Soil = "Kurosol", n = "18")
+phylomodellist <- rbind(testall, testKuro)
+phylomodellist <- phylomodellist[, c("Phylum", "Predictor", "n", "Coeffcient","Df", "F value", "Pr(>F)", "Phylofactor","Group", "Soil")]
+
+options(knitr.kable.NA = '')
+phylomodellistkabel <- kable(phylomodellist %>% dplyr::select(-Predictor, -Soil),  format = "html", caption = "Phylofactor model output with dieldrin loss as numeric predictor for the presence of aggregated taxonomic groups.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>% pack_rows("Chromosol & Kurosol", 1, 5) %>% pack_rows("Kurosol", 6, 10)
+
+
 #filter from the phylofactor list from previous chunk
 p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order, Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
 p1.1 <- p1 %>% group_by(Phylum, Dloss_fct2) %>% summarise(ASVs = sum(ASVs)) 
@@ -3029,34 +3117,11 @@ p1[12,"Phylum"] <- "Chloroflexi Total"
 p1[18,"Phylum"] <- "Firmicutes Total"
 p1[22,"Phylum"] <- "Proteobacteria Total"
 options(knitr.kable.NA = '')
-kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of presence. Here only samples in the Kurosol were analysed to identify taxa-associations to dieldrin loss specific to the this soil.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+p1_kuro <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
-#Mean abundances
-#p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
-#std <- function(x) sd(x)/sqrt(length(x))
-#p2 <- p2 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
-#p2 <- p2 %>% as.matrix %>% as.data.frame() 
-#p2 <- p2 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = c(Abun., se) )
-#p2.1 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Dloss_fct2) 
-#p2.1 <-p2.1 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
-#p2.1 <- p2.1 %>% as.matrix %>% as.data.frame() 
-#remove "p__"...
-#p2 <- p2 %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
-#p2.1 <- p2.1 %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))
-#p2.1 <- p2.1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = c(Abun., se) )
-#p2 <-  dplyr::bind_rows(p2, p2.1) %>% arrange(Phylum, !is.na(Order), `Abun._>=72%`)
-#p2[1,"Phylum"] <- "Actinobacteria Total"
-#p2[7,"Phylum"] <- "Bacteroidetes Total"
-#p2[12,"Phylum"] <- "Chloroflexi Total"
-#p2[18,"Phylum"] <- "Firmicutes Total"
-#p2[22,"Phylum"] <- "Proteobacteria Total"
-#p2[,c(4:11)] <-  p2[,c(4:11)]  %>% mutate_if(is.character, as.numeric)
-#p2 <- p2 %>% dplyr::rename(`Abun.1` = `Abun._<=43%`, `Abun.2` = `Abun._>43%`, 
-#                           `Abun.3` = `Abun._<72%`, `Abun.4` =  `Abun._>=72%` , 
-#                           `se1` = `se_<=43%`, `se2` = `se_>43%`,`se3` = `se_<72%`,`se4` = `se_>=72%`)
-#p2 <- p2[,c("Phylum", "Class", "Order", "Abun.1", "se1", "Abun.2", "se2", "Abun.3","se3", "Abun.4","se4" )]
-
-#kable(p2, format = "html", caption = "Mean abundances of taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Only samples in the Kurosol were analysed to identify Kurosol specific taxa", digits = 1) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%  add_header_above(c(" " = 3,"<=43%" = 2,">43%" = 2,"<72%" = 2,">=72%" = 2))  %>%  add_header_above(c(" " = 3,"Chromosol" = 4,"Kurosol" = 4 ))
+phylomodellistkabel
+p1_all
+p1_kuro
 
 ```
 
