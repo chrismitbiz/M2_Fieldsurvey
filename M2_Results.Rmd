@@ -2911,7 +2911,7 @@ p1[5,"Phylum"] <- "Bacteroidetes Total"
 p1[10,"Phylum"] <- "Chloroflexi Total"
 p1[13,"Phylum"] <- "Planctomycetes Total"
 options(knitr.kable.NA = '')
-kable(p1,  format = "html", caption = "Number of ASVs in taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance (n = 33)", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of presence.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
 #Mean abundances
 #p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
@@ -3015,7 +3015,6 @@ ggarrange(p1, p2, labels = "auto")
 
 ```{r tablephylokurosol, message=FALSE, warning=FALSE, echo=FALSE}
 require(metagMisc)
-
 #filter from the phylofactor list from previous chunk
 p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order, Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
 p1.1 <- p1 %>% group_by(Phylum, Dloss_fct2) %>% summarise(ASVs = sum(ASVs)) 
@@ -3030,7 +3029,7 @@ p1[12,"Phylum"] <- "Chloroflexi Total"
 p1[18,"Phylum"] <- "Firmicutes Total"
 p1[22,"Phylum"] <- "Proteobacteria Total"
 options(knitr.kable.NA = '')
-kable(p1,  format = "html", caption = "Number of ASVs in taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Here only samples in the Kurosol were analysed to identify taxa-associations to dieldrin loss specific to the this soil.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of presence. Here only samples in the Kurosol were analysed to identify taxa-associations to dieldrin loss specific to the this soil.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
 #Mean abundances
 #p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
