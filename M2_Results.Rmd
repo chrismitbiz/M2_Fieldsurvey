@@ -1323,7 +1323,7 @@ testrdadf <- rbind(testrdabacteria, testrdafungi, testrdaenzymes)
 testrdadf <- testrdadf %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "HUM.clr", "HUM",`C-Fraction`) ) %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "ROC.clr", "ROC",`C-Fraction`) ) %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "POC.clr", "POC",`C-Fraction`) ) %>% rename(p = Pr..F.)
 
 
-
+options(knitr.kable.NA = '')
 kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results of separate ANOVA like permutation tests for each constraining variable using 999 permutation of a pseudoF statistic.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Bacteria", start_row = 1, end_row = 4) %>% pack_rows("Fungi", 5, 8) %>% pack_rows("Enzyme-encoding genes", 9, 12) 
 ```
   
@@ -1549,7 +1549,7 @@ p5 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == 
 
 p6 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis")
 p6$CLASS1 <- factor(p6$CLASS1, levels = c("Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis"))
-p6 <- p6 %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", panel.labs.font = list(size = 8),  fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs = list(CLASS1 = c("Vitamin Biosynthesis")) ) + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=10))
+p6 <- p6 %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1",  fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs = list(CLASS1 = c("Vitamin Biosynthesis")) ) + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=10))
 
 p7 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Generation of Precursor Metabolite and Energy") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2,) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=10))
 
@@ -2615,7 +2615,7 @@ require(flextable)
 <br/>
 
 ## Alpha diversity
-```{r alphadloss, fig.cap = "Alpha diversity of bacteria, fungi and the enzyme metagenome as predicted with Picrust2. Diversity indices were calculated from rarefied abundanced of filtered amplicon sequence variants (ASVs) or enzyme abundances. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
+```{r alphadloss, fig.cap = "Alpha diversity of bacteria, fungi and the enzyme metagenome as predicted with Picrust2. Diversity indices were calculated from rarefied abundanced of filtered amplicon sequence variants (ASVs) or enzyme abundances. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 #p1 <- data.frame(sample_data(physeqB)) %>% melt(., measure.var =c("Observed", "Shannon", "pielou_ev"))  %>%
@@ -2672,7 +2672,7 @@ pppp
 <br/>
 
 ## Diversity per unit dieldrin
-```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio of bacteria (a), fungi (b) and the enzyme metagenome as predicted from Picrust2 (c) per unit dieldrin (µg g^-1^). Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
+```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio of bacteria (a), fungi (b) and the enzyme metagenome as predicted from Picrust2 (c) per unit dieldrin (µg g^-1^). Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 
 p1 <- as.data.frame(sample_data(physeqB)) %>% melt(., measure.var = c("shannon_D17"))  %>%
@@ -2818,13 +2818,10 @@ kable(simMat.flt, booktabs = T, digits = 2, col.names = c("Pathway", "HUM", "ROC
 
 <br/>
 
-## Phylogenetic clades that were associated to dieldrin loss (The following will become a table)
-  
-Note: The following graphs are filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments. Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
+## Phylogenetic groups that were associated to dieldrin loss
+Note: The following tables show filtered ASVs of clades that were identified to be more or less likely to be present in high dieldrin-loss environments (phylofactor mixed algorithm). Phylofactor modelled the aggregated presence/absences (not abundances) along edges of a phylogenetic tree.
 
-#### Phylofactors identified across both soils (convert to table)
-"Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
-```{r pfmixall, eval=TRUE, include=TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r pfmixall, eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
 require(metagMisc)
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
@@ -2839,9 +2836,11 @@ taxadfpf <- taxadf  %>% rownames_to_column("OTU")
 #ps_clr <- microbiome::transform(physeq.B.flt, "compositional")
 #physeqB.melt.comp <- psmelt(ps_clr)
 physeqB.melt.comp <- psmelt(physeq.B.flt)
+physeqB.melt.comp <- physeqB.melt.comp %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
 # for plotting Presence-absences (0/1)
 ps_trans <- phyloseq_standardize_otu_abundance(physeq.B.flt, method = "pa")
 physeqB.melt.pa <- psmelt(ps_trans)
+physeqB.melt.pa <- physeqB.melt.pa %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
 
 #load the phylofactor model object (run beforehand) large file >500MB
 pf_gpf_mix_33spls_Dloss_alpha0.2 <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_33spls_Dloss_alpha0.2")
@@ -2885,9 +2884,63 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 ggarrange(p1, p2, labels = "auto")
 ```
 
-#### Phylofactors identified in Kurosol samples (convert to table)
-"Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
-```{r pfmixKU, eval=TRUE, include=TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
+```{r tablephylo, message=FALSE, warning=FALSE, echo=FALSE}
+require(metagMisc)
+physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least 11 reads
+physeq.B.flt <- subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
+physeq.B.flt = phyloseq::subset_taxa(physeq.B.flt, !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
+physeqB.melt.comp <- psmelt(physeq.B.flt)
+
+#filter from the phylofactor list from previous chunk
+p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
+#remove "p__"...
+#p1 <- p1 %>% as.matrix %>% as.data.frame()
+#p1 <- p1 %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
+#p1$ASVs <- as.numeric(p1$ASVs)
+p1.1 <- p1 %>% group_by(Phylum, Dloss_fct2) %>% summarise(ASVs = sum(ASVs)) 
+p1.1 <- p1.1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
+p1.1 <- p1.1[,c("Phylum", "<=43%", ">43%", "<72%", ">=72%")]
+p1 <- p1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
+p1 <-  dplyr::bind_rows(p1, p1.1) %>% arrange(Phylum, !is.na(Order), `>=72%`)
+p1[1,"Phylum"] <- "Acidobacteria Total"
+p1[3,"Phylum"] <- "Actinobacteria Total"
+p1[5,"Phylum"] <- "Bacteroidetes Total"
+p1[10,"Phylum"] <- "Chloroflexi Total"
+p1[13,"Phylum"] <- "Planctomycetes Total"
+options(knitr.kable.NA = '')
+kable(p1,  format = "html", caption = "Number of ASVs in taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance (n = 33)", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+
+#Mean abundances
+#p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
+#std <- function(x) sd(x)/sqrt(length(x))
+#p2 <- p2 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
+#p2 <- p2 %>% as.matrix %>% as.data.frame() 
+#p2 <- p2 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = c(Abun., se) )
+#p2.1 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Dloss_fct2) 
+#p2.1 <-p2.1 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
+#p2.1 <- p2.1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = c(Abun., se) )
+#p2 <-  dplyr::bind_rows(p2, p2.1) %>% arrange(Phylum, !is.na(Order), `Abun._>=72%`)
+#p2[1,"Phylum"] <- "Acidobacteria Total"
+#p2[3,"Phylum"] <- "Actinobacteria Total"
+#p2[5,"Phylum"] <- "Bacteroidetes Total"
+#p2[10,"Phylum"] <- "Chloroflexi Total"
+#p2[13,"Phylum"] <- "Planctomycetes Total"
+#p2[,c(4:11)] <-  p2[,c(4:11)]  %>% mutate_if(is.character, as.numeric)
+#p2 <- p2 %>% dplyr::rename(`Abun.1` = `Abun._<=43%`, `Abun.2` = `Abun._>43%`, 
+#                           `Abun.3` = `Abun._<72%`, `Abun.4` =  `Abun._>=72%` , 
+#                           `se1` = `se_<=43%`, `se2` = `se_>43%`,`se3` = `se_<72%`,`se4` = `se_>=72%`)
+
+#p2 <- p2[,c("Phylum", "Class", "Order", "Abun.1", "se1", "Abun.2", "se2", "Abun.3","se3", "Abun.4","se4" )]
+#options(knitr.kable.NA = '')
+
+#kable(p2, format = "html", caption = "Mean abundances of taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance (n = 33)", digits = 1) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11) %>%  pack_rows("Acidobacteria", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria", 3, 4) %>% pack_rows("Bacteroidetes", 5, 9) %>% pack_rows("Chloroflexi ", 10, 12) %>% pack_rows("Planctomycetes ", 13, 14) %>%  add_header_above(c(" " = 3,"<=43%" = 2,">43%" = 2,"<72%" = 2,">=72%" = 2))  %>%  add_header_above(c(" " = 3,"Chromosol" = 4,"Kurosol" = 4 ))
+
+```
+
+```{r pfmixKU, eval=TRUE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE }
 require(metagMisc)
 
 #physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) 
@@ -2960,11 +3013,55 @@ ggboxplot(., x = "Dloss_fct2", y = "Abundance", facet.by = "Phylum", fill = "Soi
 ggarrange(p1, p2, labels = "auto")
 ```
 
-<br/>
+```{r tablephylokurosol, message=FALSE, warning=FALSE, echo=FALSE}
+require(metagMisc)
 
-#### Phylofactors identified in Chromosol samples only (convert to table)
-"Result of phylofactor (mixed algorithm) on kurosol (n = 18). Selection of ASVs that had a higher chance to be present in a high loss sample than the remainder of ASVs."
-```{r pfmixCH, eval=TRUE, include=TRUE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE }
+#filter from the phylofactor list from previous chunk
+p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order, Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
+p1.1 <- p1 %>% group_by(Phylum, Dloss_fct2) %>% summarise(ASVs = sum(ASVs)) 
+p1.1 <- p1.1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
+p1 <- p1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
+p1 <- p1[,c("Phylum","Class", "Order", "<=43%", ">43%", "<72%", ">=72%")]
+p1.1 <- p1.1[,c("Phylum", "<=43%", ">43%", "<72%", ">=72%")]
+p1 <-  dplyr::bind_rows(p1, p1.1) %>% arrange(Phylum, !is.na(Order), `>=72%`)
+p1[1,"Phylum"] <- "Actinobacteria Total"
+p1[7,"Phylum"] <- "Bacteroidetes Total"
+p1[12,"Phylum"] <- "Chloroflexi Total"
+p1[18,"Phylum"] <- "Firmicutes Total"
+p1[22,"Phylum"] <- "Proteobacteria Total"
+options(knitr.kable.NA = '')
+kable(p1,  format = "html", caption = "Number of ASVs in taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Here only samples in the Kurosol were analysed to identify taxa-associations to dieldrin loss specific to the this soil.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+
+#Mean abundances
+#p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
+#std <- function(x) sd(x)/sqrt(length(x))
+#p2 <- p2 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
+#p2 <- p2 %>% as.matrix %>% as.data.frame() 
+#p2 <- p2 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = c(Abun., se) )
+#p2.1 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Dloss_fct2) 
+#p2.1 <-p2.1 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
+#p2.1 <- p2.1 %>% as.matrix %>% as.data.frame() 
+#remove "p__"...
+#p2 <- p2 %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
+#p2.1 <- p2.1 %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))
+#p2.1 <- p2.1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = c(Abun., se) )
+#p2 <-  dplyr::bind_rows(p2, p2.1) %>% arrange(Phylum, !is.na(Order), `Abun._>=72%`)
+#p2[1,"Phylum"] <- "Actinobacteria Total"
+#p2[7,"Phylum"] <- "Bacteroidetes Total"
+#p2[12,"Phylum"] <- "Chloroflexi Total"
+#p2[18,"Phylum"] <- "Firmicutes Total"
+#p2[22,"Phylum"] <- "Proteobacteria Total"
+#p2[,c(4:11)] <-  p2[,c(4:11)]  %>% mutate_if(is.character, as.numeric)
+#p2 <- p2 %>% dplyr::rename(`Abun.1` = `Abun._<=43%`, `Abun.2` = `Abun._>43%`, 
+#                           `Abun.3` = `Abun._<72%`, `Abun.4` =  `Abun._>=72%` , 
+#                           `se1` = `se_<=43%`, `se2` = `se_>43%`,`se3` = `se_<72%`,`se4` = `se_>=72%`)
+#p2 <- p2[,c("Phylum", "Class", "Order", "Abun.1", "se1", "Abun.2", "se2", "Abun.3","se3", "Abun.4","se4" )]
+
+#kable(p2, format = "html", caption = "Mean abundances of taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Only samples in the Kurosol were analysed to identify Kurosol specific taxa", digits = 1) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11) %>%  pack_rows("Actinobacteria", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes", 7, 11) %>% pack_rows("Chloroflexi", 12, 17) %>% pack_rows("Firmicutes", 18, 21) %>% pack_rows("Proteobacteria", 22, 23) %>%  add_header_above(c(" " = 3,"<=43%" = 2,">43%" = 2,"<72%" = 2,">=72%" = 2))  %>%  add_header_above(c(" " = 3,"Chromosol" = 4,"Kurosol" = 4 ))
+
+```
+
+```{r pfmixCH, eval=FALSE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE }
 require(metagMisc)
 
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
