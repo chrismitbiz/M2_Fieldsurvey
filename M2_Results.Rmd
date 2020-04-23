@@ -16,13 +16,12 @@ editor_options:
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
-always_allow_html: true
+#always_allow_html: true
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-
 ---
 
 
@@ -510,7 +509,7 @@ Quality of soil organic matter is associated with the phylogenetic and metabolic
 
 
 # Results
-## Carbon quality
+## Relationship of soil carbon quality to dieldrin loss
 ```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
 
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
@@ -565,7 +564,7 @@ Overall the two soils contained a different carbon quantity and quality. The Kur
 
 <br/>
 
-## Compositional analysis
+## Compositional associations to dieldrin loss and soil carbon fractions
 ```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for compositions of bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33). ASVs were filterered to those present in at least 25% of samples and included 1407 and 322 bacterial and fungal taxa respectively and 2091 enzyme encoding genes. Permanova results based on Bray-Curtis dissimilarities are shown. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) and dieldrin concentrations respectively. The shape of symbols indicates sample grouping into four factors where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively).", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=FALSE}
 
 
@@ -1322,6 +1321,10 @@ testrdadf <- testrdadf %>% mutate(`C-Fraction` = ifelse(`C-Fraction` == "HUM.clr
 
 options(knitr.kable.NA = '')
 kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results of separate ANOVA like permutation tests for each constraining variable using 999 permutation of a pseudoF statistic.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Bacteria", start_row = 1, end_row = 4) %>% pack_rows("Fungi", 5, 8) %>% pack_rows("Enzyme-encoding genes", 9, 12) 
+
+#word
+#kable(testrdadf %>% dplyr::select(-Group), caption = "Results of separate ANOVA like permutation tests for each constraining variable using 999 permutation of a pseudoF statistic.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Bacteria", start_row = 1, end_row = 4) %>% pack_rows("Fungi", 5, 8) %>% pack_rows("Enzyme-encoding genes", 9, 12)  
+
 ```
   
 <br/>
@@ -1336,7 +1339,7 @@ Microbial richness and diversity was greater in samples with high long-term diel
   
 <br/>
 
-## Metabolic potential
+## Metacyc pathway potentials associated with dieldrin dissipation
   
 Note: The following pathways were the top contributors to variation in PLS-DA (across both soils) and therefore key predictors for dielrin loss (dieldrin loss in four factors)
 ```{r plsdakurNOTINCLUDE, message=FALSE, warning=FALSE, echo= FALSE, fig.width=8, fig.asp = 0.45, cache = TRUE, include= FALSE, eval=FALSE}
@@ -1795,7 +1798,7 @@ The genetic potential for degradation of the chlorinated xenobiotic chlorosalicy
   
 <br/>
 
-## Phylofactor analysis
+## Associations of taxonomic groups with dieldrin dissipation
 ```{r treesnotinclude, fig.cap = "Comparison of bacterial phylogeny present in the Kurosol and the Chromosol (a). Tips represent individual ASVs and their colours indicate phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. Clades and associated ASV abundances are further shown (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=12, fig.asp = 0.75, cache = TRUE }
 library(ggtree)
 library(ggnewscale)
@@ -1803,7 +1806,7 @@ library(ggnewscale)
 #https://ucdavis-bioinformatics-training.github.io/2017-September-Microbial-Community-Analysis-Workshop/friday/MCA_Workshop_R/phyloseq.html
 ```
 
-```{r trees, fig.cap = "Soil comparison of phylogeny of all ASVs present (a). Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. ASV abundances of the same clades are shown on the right (b). Here samples were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filted to those with a minimum of 10 reads.", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width= 11.5, fig.asp = 1.6, cache = TRUE }
+```{r trees_supplement, fig.cap = "Soil comparison of phylogeny of all ASVs present. Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance.", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width= 11.5, fig.asp = 0.75, cache = TRUE, include = FALSE}
 
 # To annotate tree with significant clades I used phylofactor mixed algorithm with presence absence of ASVs as response variable to dieldrin loss. In other words i am modelling the effect of the soil environment of a low or high dieldrin-loss on clades in the bacterial phylogeny. 
 #https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf
@@ -2064,20 +2067,25 @@ df <- as.data.frame(t(otu_table(physeq.subset)))
 p1 <- gheatmap(p, df, low = "white",offset=0.1, colnames=FALSE, legend_title="Abundance",width=0.2) + 
   scale_x_ggtree() + theme(axis.text.x = element_text(size=8) ) #+ theme(legend.position = "none") #step 2 tick
 
-p3 <- ggarrange(p1.1, p2.2, ncol = 2, common.legend = TRUE, legend = "top")
+p3_phylotree <- ggarrange(p1.1, p2.2, ncol = 2, common.legend = TRUE, legend = "top")
 
-p4 <- ggarrange(p3, p1, nrow = 2, labels = "auto", legend = "top")
+#p4 <- ggarrange(p3, p1, nrow = 2, labels = "auto", legend = "top")
 #ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/Figures/phylotrees_comparison_uniquetaxainhighloss.pdf",height=8, width=15, units='in', dpi=600)
-p4
+#p4
 
 #pf_gpf_mix_Kurosol10factorsDloss <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_kurosol_Dloss_alpha0.2" )
 #print("Model of factor 1")
 #pf_gpf_mix_Kurosol10factorsDloss$models[[1]]
 ```
 
+
+```{r  taxagroupssignificant, fig.cap = "Phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance. Abundances were grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Prior to analysis ASVs were filtered to those with a minimum of 10 reads.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=11.5, fig.asp = 0.75, cache = TRUE }
+p1
+```
+
 <br/>
 
-The phylogenetic composition of bacterial taxa present in the Kurosol and the Chromosol was similar(Fig. \@ref(fig:trees)). Although, the Kurosol contained more unique ASVs in high-loss samples, implying a greater phylogenetic versatility in samples with greater dieldrin degradation. A greater phylogenetic dispersion was also apparent from the Faith PD diversity index (Fig. S\@ref(fig:phylodiv)a). 
+The phylogenetic composition of bacterial taxa present in the Kurosol and the Chromosol was similar (Fig. \@ref(fig:trees)). Although, the Kurosol contained more unique ASVs in high-loss samples, implying a greater phylogenetic versatility in samples with greater dieldrin degradation. A greater phylogenetic dispersion was also apparent from the Faith PD diversity index (Fig. S\@ref(fig:phylodiv)a). 
   
 Moreover, generalised linear models (glm) in the R package 'phylofactor' indicated that there were phylogentic clades that had a significantly higher chance to be found in 'high-loss' samples (shown as polygons on phylogenetic tree in figure  \@ref(fig:trees)a). Clades of Acidobacteria, Actinobacteria, Bacteriodetes, Chloroflexi, Planctomycetes and *Geobacter sp.* were more likely to found in samples with high dieldrin losses than could be explained by chance alone (Fig. \@ref(fig:trees)b). All of these clades contained more and more different ASVs in 'high-loss' samples (Table S5 and S6).
 
@@ -2085,7 +2093,7 @@ Moreover, generalised linear models (glm) in the R package 'phylofactor' indicat
 
 
 
-## Network analysis
+## Humus-preferring cluster of co-occurring bacteria and fungi which associated with dieldrin dissipation
 ```{r glassoallnodes , fig.cap = "", include = FALSE, eval = FALSE,  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8}
 
 #https://github.com/zdk123/SpiecEasi
@@ -2390,12 +2398,12 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL06April.csv", row.names = FALSE)
 ```
 
-```{r networkmodulesandunique, fig.cap = "Co-occurance network of fungi (F) and bacteria (B) in the Kurosol and the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality.  Prior to analysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol). **Left**: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both; **Middle**: Darkgrey = Bacteria, Red = Fungi; **Right**: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="30%", out.height="20%", fig.show='hold'}
+```{r networkmodulesandunique, fig.cap = "Co-occurrence network of fungi (F) and bacteria (B) in the Kurosol and the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality.  Prior to analysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol). **Left**: Nodes highlight ASVs which were uniquely present in samples with below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively); **Middle**: Nodes are shown as either bacteria (darkgrey) or fungi (Red); **Right**: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="30%", out.height="20%", fig.show='hold'}
 knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL3.png","./glassonetwork_modules_atlas_COLOURBYKINGDOM_CHROMOSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL3.png"))
 ```
 
 
-```{r glassomodulecor, fig.cap = "Scatterplot of Humus content and normalised abundances of the combined taxa in module zero and four from the network analysis of the Kurosol.",  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 1, include=TRUE, cache = TRUE }
+```{r glassomodulecor, fig.cap = "Scatterplot of humus content and normalised abundances of the combined taxa in module zero and four from the network analysis of the Kurosol.",  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 1, include=TRUE, cache = TRUE }
 #create correlations of z-scores of the ASVs in each module to identify ecological preferences of each module
 
 #filtering
@@ -2862,7 +2870,7 @@ pppp
 
 <br/>
 
-## Diversity per unit dieldrin
+## Diversity per µg dieldrin
 ```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio of bacteria (a), fungi (b) and the enzyme metagenome as predicted from Picrust2 (c) per unit dieldrin (µg g^-1^). Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 fontsize <- 10
@@ -2894,6 +2902,12 @@ p
 <br/>
 
 ## Phylogenetic diversity of bacteria
+```{r p3_phylotree, fig.cap = "Soil comparison of phylogeny of all ASVs present. Tips represent individual ASVs and their colours indicate their phylum membership. Unique ASVs are shown in the outer ring where red indicates if ASVs are unique to a high-loss a 'high-loss' environment (High-loss = above median dieldrin loss (%)). Three outlier samples were removed prior to analysis (Kurosol n = 18, Chromosol n = 15). Polygons highlight phylogenetic clades with a higher chance of presence in high-loss samples than could be explained by chance.", message=FALSE, warning=FALSE, echo=FALSE, results = FALSE, fig.width= 11.5, fig.asp = 0.75, cache = TRUE }
+
+p3_phylotree 
+
+```
+
 ```{r phylodiv,  fig.cap= "Faith phylogenetic diversity (Faith PD) index (a) and principle coordinate analysis (PCoA) with unweighted unifrac distances (b). Samples are grouped by long-term dielrin loss (%) where the loss is either below or above the median loss in each soil type. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown.", echo=FALSE, fig.width=7, fig.asp=0.4, message=FALSE, warning=FALSE, results=FALSE}
 
 p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free", shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(110)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(115)) + theme_bw() + theme(legend.position="none")  
@@ -2979,12 +2993,20 @@ ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
 ## Sparse partial least squares regression
 ```{r kable1, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
 kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), format = "html", caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples (n = 33). Soil variables included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)") %>%  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
+#word
+#kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples (n = 33). Soil variables included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)") %>%  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
 ```
 
 <br/>
 
 ```{r kable2, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
 kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), format = "html", caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples (n = 18). Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)") %>%  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
+#word
+#kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples (n = 18). Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)") %>%  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
 ```
 
 <br/>
@@ -3164,6 +3186,12 @@ p1[13,"Phylum"] <- "Planctomycetes Total"
 options(knitr.kable.NA = '')
 p1_all <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples (Chromosol & Kurosol) with high dieldrin loss than could be explained by chance (n = 33). Numbers represent the frequency of occurance.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria (29 member Monophyletic clade)", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria (18 member Monophyletic clade)", 3, 4) %>% pack_rows("Bacteroidetes (17 member Monophyletic clade)", 5, 9) %>% pack_rows("Chloroflexi (6 member Monophyletic clade)", 10, 12) %>% pack_rows("Planctomycetes (17 member Monophyletic clade)", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
+#word
+#p1_all <- kable(p1, caption = "Table with taxonomic groups which had a higher chance to be present in samples (Chromosol & Kurosol) with high dieldrin loss than could be explained by chance (n = 33). Numbers represent the frequency of occurance.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Acidobacteria (29 member Monophyletic clade)", start_row = 1, end_row = 2) %>% pack_rows("Actinobacteria (18 member Monophyletic clade)", 3, 4) %>% pack_rows("Bacteroidetes (17 member Monophyletic clade)", 5, 9) %>% pack_rows("Chloroflexi (6 member Monophyletic clade)", 10, 12) %>% pack_rows("Planctomycetes (17 member Monophyletic clade)", 13, 14)  %>%  add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+
+
+
+
 #Mean abundances
 #p2 <- physeqB.melt.comp %>% dplyr::filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0)  %>% dplyr::group_by(Phylum, Class, Order, Dloss_fct2) 
 #std <- function(x) sd(x)/sqrt(length(x))
@@ -3314,6 +3342,9 @@ phylomodellist <- phylomodellist[, c("Phylum", "Predictor", "n", "Coeffcient","D
 options(knitr.kable.NA = '')
 phylomodellistkabel <- kable(phylomodellist %>% dplyr::select(-Predictor, -Soil),  format = "html", caption = "Phylofactor model coefficient and F statistic with dieldrin loss as numeric predictor for the presence of aggregated taxonomic groups.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>% pack_rows("Chromosol & Kurosol", 1, 5) %>% pack_rows("Kurosol", 6, 10)
 
+#word
+#phylomodellistkabel <- kable(phylomodellist %>% dplyr::select(-Predictor, -Soil), caption = "Phylofactor model coefficient and F statistic with dieldrin loss as numeric predictor for the presence of aggregated taxonomic groups.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>% pack_rows("Chromosol & Kurosol", 1, 5) %>% pack_rows("Kurosol", 6, 10)
+
 
 #filter from the phylofactor list from previous chunk
 p1ku <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order, Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
@@ -3328,8 +3359,12 @@ p1ku[7,"Phylum"] <- "Bacteroidetes Total"
 p1ku[12,"Phylum"] <- "Chloroflexi Total"
 p1ku[18,"Phylum"] <- "Firmicutes Total"
 p1ku[22,"Phylum"] <- "Proteobacteria Total"
+
 options(knitr.kable.NA = '')
 p1ku <- kable(p1ku,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil (n = 18). Chromosol frequencies are included in table for completeness", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria (589 member Monophyletic clade)", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes (55 member Monophyletic clade)", 7, 11) %>% pack_rows("Chloroflexi (27 member Monophyletic clade)", 12, 17) %>% pack_rows("Firmicutes (44 member Monophyletic clade)", 18, 21) %>% pack_rows("Proteobacteria (24 member Monophyletic clade)", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+
+#word
+#p1ku <- kable(p1ku,  caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil (n = 18). Chromosol frequencies are included in table for completeness", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria (589 member Monophyletic clade)", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes (55 member Monophyletic clade)", 7, 11) %>% pack_rows("Chloroflexi (27 member Monophyletic clade)", 12, 17) %>% pack_rows("Firmicutes (44 member Monophyletic clade)", 18, 21) %>% pack_rows("Proteobacteria (24 member Monophyletic clade)", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
 ```
 
