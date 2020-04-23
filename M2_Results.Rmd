@@ -16,7 +16,7 @@ editor_options:
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
-  #always_allow_html: true
+always_allow_html: true
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
@@ -1789,10 +1789,9 @@ test_vec <- rbind(test1, test2, test3) %>%
 
 <br/>
   
-Among 410 Metacyc pathways included in sPLS regression and sPLS-DA the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for high dieldrin dissipation across both soils (**Table x**, Fig. \@ref(fig:plsdaratiocomp1to3) and \@ref(fig:splskurosol)). In the Kurosol lactose and galactose degradation was most strongly associated to more dieldrin loss as well as higher Humus content (**Table x**, Fig. \@ref(fig:splskurosol)). On the other hand, oxidative glucose degradation (Fig. \@ref(fig:plsdaratiocomp1to3)) was associated with samples of low dieldrin dissipation.  
+Among 410 Metacyc pathways included in sPLS regression and sPLS-DA the genetic potentials for fucose, rhamnose and glycol degradation was most predictive for high dieldrin dissipation across both soils (Table S2, Fig. \@ref(fig:plsdaratiocomp1to3)). In the Kurosol lactose and galactose degradation was most strongly associated to more dieldrin loss as well as higher Humus content (Table S3, Fig. \@ref(fig:splskurosol)). On the other hand, oxidative glucose degradation (Fig. \@ref(fig:plsdaratiocomp1to3)) was associated with samples of low dieldrin dissipation.  
   
-    
-Chlorosalicylate degradation was the only genetic potential found that was related to xenobiotic chlorinated compound degradation and these metabolic potentials were significantly greater in samples with high dieldrin loss (Fig. S\@ref(fig:xenobgraphs)). Furthermore, the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses (Fig. S\@ref(fig:xenobgraphs)).  
+The genetic potential for degradation of the chlorinated xenobiotic chlorosalicylate was significantly greater in samples with high dieldrin loss (Fig. S\@ref(fig:xenobgraphs)). Furthermore, the mean metabolic potential of aromatic compound degradation was greater in the Kurosol and greatest in the samples with highest dieldrin losses (Fig. S\@ref(fig:xenobgraphs)).  
   
 <br/>
 
@@ -2080,7 +2079,7 @@ p4
 
 The phylogenetic composition of bacterial taxa present in the Kurosol and the Chromosol was similar(Fig. \@ref(fig:trees)). Although, the Kurosol contained more unique ASVs in high-loss samples, implying a greater phylogenetic versatility in samples with greater dieldrin degradation. A greater phylogenetic dispersion was also apparent from the Faith PD diversity index (Fig. S\@ref(fig:phylodiv)a). 
   
-Moreover, generalised linear models (glm) in the R package 'phylofactor' indicated that there were phylogentic clades that had a significantly higher chance to be found in 'high-loss' samples (shown as polygons on phylogenetic tree in figure  \@ref(fig:trees)a). Clades of Acidobacteria, Actinobacteria, Bacteriodetes, Chloroflexi, Planctomycetes and *Geobacter sp.* were more likely to found in samples with high dieldrin losses than could be explained by chance alone (Fig. \@ref(fig:trees)b). All of these clades contained more and more different ASVs in 'high-loss' samples (**MakeTable**).
+Moreover, generalised linear models (glm) in the R package 'phylofactor' indicated that there were phylogentic clades that had a significantly higher chance to be found in 'high-loss' samples (shown as polygons on phylogenetic tree in figure  \@ref(fig:trees)a). Clades of Acidobacteria, Actinobacteria, Bacteriodetes, Chloroflexi, Planctomycetes and *Geobacter sp.* were more likely to found in samples with high dieldrin losses than could be explained by chance alone (Fig. \@ref(fig:trees)b). All of these clades contained more and more different ASVs in 'high-loss' samples (Table S5 and S6).
 
 <br/>
 
@@ -2301,8 +2300,8 @@ uniqueK_bac <- count(modules %>% filter(modularity_class == 4) %>% filter(presen
 print(paste("Module 0 consisted of ", round((bac$n),0),"% bacteria and ",round((fun$n),0),"% fungi and contained", round((uniqueK$n),0), "% of unique ASVs in the 'high-loss' and ", round((uniqueC$n),0), "% of unique ASVs in the 'low-loss'. And of those ASVs that were unique in the 'low-loss samples'" , round((uniqueK_bac$n),0),"% were fungi"))
 ```
 
-```{r networkKUROSOLmodules, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="47%", out.height="20%", fig.show='hold'}
-knitr::include_graphics(c("./glassonetwork_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL2.png","./glassonetwork_modules_atlas_COLOURBYMODULES_KUROSOL.png") )
+```{r networkKUROSOLmodules, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="30%", out.height="20%", fig.show='hold'}
+knitr::include_graphics(c("./glassonetwork_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL3.png","./glassonetwork_modules_atlas_COLOURBYKINGDOM_Kurosol.png", "./glassonetwork_modules_atlas_COLOURBYMODULES_KUROSOL2.png") )
 ```
 
 ### Chromosol
@@ -2391,20 +2390,33 @@ Z <- Z %>% mutate(Kingdom = recode_factor(Kingdom, !!!level_key))
 write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_CHROMOSOL06April.csv", row.names = FALSE)
 ```
 
-```{r networkmodulesandunique, fig.cap = "Co-occurance network of fungi (F) and bacteria (B) in the Kurosol and the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to analysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
-knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL2.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL2.png"))
+```{r networkmodulesandunique, fig.cap = "Co-occurance network of fungi (F) and bacteria (B) in the Kurosol and the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality.  Prior to analysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol). **Left**: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both; **Middle**: Darkgrey = Bacteria, Red = Fungi; **Right**: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="30%", out.height="20%", fig.show='hold'}
+knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL3.png","./glassonetwork_modules_atlas_COLOURBYKINGDOM_CHROMOSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL3.png"))
 ```
 
 
-```{r glassomodulecor, fig.cap = "Scatterplot of Humus content and normalised abundances of the combined taxa in module zero from the network analysis of the Kurosol.",  message=FALSE, warning=FALSE, echo=FALSE, fig.width=3, fig.asp = 1, include=TRUE, cache = TRUE }
+```{r glassomodulecor, fig.cap = "Scatterplot of Humus content and normalised abundances of the combined taxa in module zero and four from the network analysis of the Kurosol.",  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 1, include=TRUE, cache = TRUE }
 #create correlations of z-scores of the ASVs in each module to identify ecological preferences of each module
 
 #filtering
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB) #soil 
 physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF) #soil
 
+#include the sampleID into the metadata
+splid <- data.frame(`X.SampleID`= rownames(sample_data(physeq.B.flt)))
+meta.df <- data.frame(sample_data(physeq.B.flt))
+meta.df$X.SampleID <- splid$X.SampleID
+physeq.B.flt@sam_data <- sample_data(meta.df)
+splid <- data.frame(`X.SampleID`= rownames(sample_data(physeq.F.flt)))
+meta.df <- data.frame(sample_data(physeq.F.flt))
+meta.df$X.SampleID <- splid$X.SampleID
+physeq.F.flt@sam_data <- sample_data(meta.df)
+
 physeq.B.flt <- prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt) #take out outlier paddock
 physeq.F.flt <- prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt) #take out outlier paddock
+
+#physeq.B.flt <- prune_samples(sample_data(physeq.B.flt)$X.SampleID != "C20", physeq.B.flt) #take out outlier paddock
+#physeq.F.flt <- prune_samples(sample_data(physeq.F.flt)$X.SampleID != "C20", physeq.F.flt) #take out outlier paddock
 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt) 
 physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
@@ -2503,11 +2515,18 @@ module_cor <-  rbind(module0_cor, module1_cor,module2_cor,module3_cor,module4_co
 #module_cor %>% filter(p_table.value <= 0.001)
 
 plot.df <- psmelt(ps_modulesZ)
-plot.df %>% filter(OTU %in% c(0)) %>%  ggscatter(data =., x = "HUM", y = "Abundance", facet.by = "OTU",add = "reg.line", conf.int = TRUE, add.params = list(color = "blue", fill = "lightgray"), ylab = "Abundance module 0 (Z-score)", panel.labs = list(OTU = c("Module zero (Kurosol)")) ) + stat_cor(method = "spearman") + xlab(bquote('Humus (g '*~kg^-1*')'))
+p1 <- plot.df %>% filter(OTU %in% c(0)) %>%  ggscatter(data =., x = "HUM", y = "Abundance", facet.by = "OTU",add = "reg.line", conf.int = TRUE, add.params = list(color = "blue", fill = "lightgray"), ylab = "Abundance module 0 (Z-score)", panel.labs = list(OTU = c("Module zero (Kurosol)")) ) + stat_cor(method = "spearman") + xlab(bquote('Humus (g '*~kg^-1*')'))
 
+p2 <- plot.df %>% filter(OTU %in% c(0)) %>%  ggscatter(data =., x = "Dloss", y = "Abundance", facet.by = "OTU",add = "reg.line", conf.int = TRUE, add.params = list(color = "blue", fill = "lightgray"), ylab = "Abundance module 0 (Z-score)", panel.labs = list(OTU = c("Module zero (Kurosol)")) ) + stat_cor(method = "spearman") + xlab(bquote('Dieldrin loss (%)'))
+  
+p3 <- plot.df %>% filter(OTU %in% c(4)) %>%  ggscatter(data =., x = "HUM", y = "Abundance", facet.by = "OTU",add = "reg.line", conf.int = TRUE, add.params = list(color = "blue", fill = "lightgray"), ylab = "Abundance module 4 (Z-score)", panel.labs = list(OTU = c("Module four (Kurosol)")) ) + stat_cor(method = "spearman") + xlab(bquote('Humus (g '*~kg^-1*')'))
+
+p4 <- plot.df %>% filter(OTU %in% c(4)) %>%  ggscatter(data =., x = "Dloss", y = "Abundance", facet.by = "OTU",add = "reg.line", conf.int = TRUE, add.params = list(color = "blue", fill = "lightgray"), ylab = "Abundance module 4 (Z-score)", panel.labs = list(OTU = c("Module four (Kurosol)")) ) + stat_cor(method = "spearman") + xlab(bquote('Dieldrin loss (%)'))
+
+ggarrange(p1,p2, p3, p4, nrow = 2, ncol = 2)
 ```
 
-```{r, module0&4comparebarplot, message=FALSE, warning=FALSE, echo=FALSE, fig.width=3, fig.asp = 1, include=TRUE, cache = TRUE, include = FALSE, eval = FALSE}
+```{r, module0&4comparebarplot, message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.6, include=TRUE, cache = TRUE, include = FALSE, eval = FALSE}
 modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KurosolInclmodules06April20.csv") 
 modules0 <- modules %>% dplyr::select(Id, modularity_class) %>% rename(OTUID = Id) %>% dplyr::filter(modularity_class == 0)
 modules4 <- modules %>% dplyr::select(Id, modularity_class) %>% rename(OTUID = Id)%>% dplyr::filter(modularity_class == 4)
@@ -2580,6 +2599,168 @@ physeq.subset.mlt <- rbind(physeq.subset0.mlt, physeq.subset4.mlt)
 
 p2 <- physeq.subset.mlt   %>% filter(Kingdom != "k__Archaea")  %>% filter(Sample == "Kurosol") %>%  ggbarplot(x = "Kingdom", y = "Abundance", fill = "Phylum", width = 0.2, title = "Kurosol, Total counts", legend = "right", facet.by = "Module") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = 'top')
+
+```
+
+```{r, tablefungivsbacinmodules, message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.6, include=TRUE, cache = TRUE, include = FALSE, eval = FALSE}
+#Prepping
+#include the sampleID into the metadata
+splid <- data.frame(`X.SampleID`= rownames(sample_data(physeqB)))
+meta.df <- data.frame(sample_data(physeqB))
+meta.df$X.SampleID <- splid$X.SampleID
+physeqB@sam_data <- sample_data(meta.df)
+
+splid <- data.frame(`X.SampleID`= rownames(sample_data(physeqF)))
+meta.df <- data.frame(sample_data(physeqF))
+meta.df$X.SampleID <- splid$X.SampleID
+physeqF@sam_data <- sample_data(meta.df)
+
+#some filtering
+physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) #take out outlier paddock
+
+physeq.F.flt <- prune_samples(sample_data(physeqF)$Farm != "C", physeqF) #take out outlier paddock
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt) 
+physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) != 0, physeq.F.flt)
+physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least x reads
+physeq.F.flt <- prune_taxa(taxa_sums(physeq.F.flt) > 25, physeq.F.flt) #must have at least x reads
+physeq.B.flt = filter_taxa(physeq.B.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (0.25*length(x)), TRUE) #must be present in x percent of samples
+physeq.B.flt.table <- tax_glom(physeq.B.flt, "Phylum")
+physeq.F.flt.table <- tax_glom(physeq.F.flt, "Phylum")
+physeq.B.flt.table  <-  merge_samples(physeq.B.flt.table, "Soil")
+physeq.F.flt.table  <-  merge_samples(physeq.F.flt.table, "Soil")
+#melting and combining bac and fungi
+physeq.B.flt.table <- psmelt(physeq.B.flt.table) %>% dplyr::select(-PD, -SR, -TC_P)
+physeq.F.flt.table <- psmelt(physeq.F.flt.table )
+physeq.flt.table <- rbind(physeq.B.flt.table,physeq.F.flt.table)
+
+modules <- read.csv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/gephi/nodes_KurosolInclmodules06April20.csv") 
+modules0 <- modules %>% dplyr::select(Id, modularity_class) %>% rename(OTUID = Id) %>% dplyr::filter(modularity_class == 0)
+modules4 <- modules %>% dplyr::select(Id, modularity_class) %>% rename(OTUID = Id)%>% dplyr::filter(modularity_class == 4)
+
+physeqB.subset0 <- phyloseq::subset_taxa(physeqB, rownames(tax_table(physeqB)) %in% modules0$OTUID)
+physeqF.subset0 <- phyloseq::subset_taxa(physeqF, rownames(tax_table(physeqF)) %in% modules0$OTUID)
+physeqB.subset0 <- tax_glom(physeqB.subset0, "Phylum")
+physeqF.subset0 <- tax_glom(physeqF.subset0, "Phylum")
+physeqB.subset0  <-  merge_samples(physeqB.subset0, "Soil")
+physeqF.subset0  <-  merge_samples(physeqF.subset0, "Soil")
+
+physeqB.subset4 <- phyloseq::subset_taxa(physeqB, rownames(tax_table(physeqB)) %in% modules4$OTUID)
+physeqF.subset4 <- phyloseq::subset_taxa(physeqF, rownames(tax_table(physeqF)) %in% modules4$OTUID)
+physeqB.subset4 <- tax_glom(physeqB.subset4, "Phylum")
+physeqF.subset4 <- tax_glom(physeqF.subset4, "Phylum")
+physeqB.subset4  <-  merge_samples(physeqB.subset4, "Soil")
+physeqF.subset4  <-  merge_samples(physeqF.subset4, "Soil")
+
+#melting and combining module 0 and 4 (bac and fun)
+physeqB.subset0.mlt <- psmelt(physeqB.subset0) %>% dplyr::select(-PD, -SR, -TC_P)
+physeqF.subset0.mlt <- psmelt(physeqF.subset0)
+physeq.subset0.mlt <-rbind(physeqB.subset0.mlt,physeqF.subset0.mlt)
+physeq.subset0.mlt <- physeq.subset0.mlt %>% mutate(Module = "Module0")
+
+physeqB.subset4.mlt <- psmelt(physeqB.subset4) %>% dplyr::select(-PD, -SR, -TC_P)
+physeqF.subset4.mlt <- psmelt(physeqF.subset4)
+physeq.subset4.mlt <-rbind(physeqB.subset4.mlt,physeqF.subset4.mlt)
+physeq.subset4.mlt <- physeq.subset4.mlt %>% mutate(Module = "Module4")
+physeq.subset.mlt <- rbind(physeq.subset0.mlt, physeq.subset4.mlt)
+
+#Table of abundances
+#all samples (Kurosol, Chromosol)
+tabledf <- data.frame(Bac.Abun. = sum(physeq.flt.table %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(physeq.flt.table %>% dplyr::select(Abundance)) * 100, 
+Fungi.Abun. = sum(physeq.flt.table %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(physeq.flt.table %>% dplyr::select(Abundance)) * 100, Archaea.abun. = sum(physeq.flt.table %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(physeq.flt.table %>% dplyr::select(Abundance)) * 100 )
+
+#Kurosol all
+tabledfKU <- physeq.flt.table  %>% filter(Sample == "Kurosol") 
+tabledfKU <- data.frame(Bac.Abun. = sum(tabledfKU %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfKU %>% dplyr::select(Abundance)) * 100, 
+Fungi.Abun. = sum(tabledfKU %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfKU %>% dplyr::select(Abundance)) * 100,
+Archaea.abun. = sum(tabledfKU %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(tabledfKU %>% dplyr::select(Abundance)) * 100)
+
+#Kurosol Module0
+tabledfKU0 <- physeq.subset.mlt  %>% filter(Sample == "Kurosol")  %>% filter(Module == "Module0") 
+tabledfKU0 <- data.frame(Bac.Abun. = sum(tabledfKU0 %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfKU0 %>% dplyr::select(Abundance)) * 100, 
+Fungi.Abun. = sum(tabledfKU0 %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfKU0 %>% dplyr::select(Abundance)) * 100,
+Archaea.abun. = sum(tabledfKU0 %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(tabledfKU0 %>% dplyr::select(Abundance)) * 100)
+
+#Kurosol Module4
+tabledfKU4 <- physeq.subset.mlt  %>% filter(Sample == "Kurosol")  %>% filter(Module == "Module4") 
+tabledfKU4 <- data.frame(Bac.Abun. = sum(tabledfKU4 %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfKU4 %>% dplyr::select(Abundance)) * 100, 
+Fungi.Abun. = sum(tabledfKU4 %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfKU4 %>% dplyr::select(Abundance)) * 100, Archaea.abun. = 0)
+
+#Chromosol
+tabledfCH <- physeq.flt.table  %>% filter(Sample == "Chromosol")
+tabledfCH <- data.frame(Bac.Abun. = sum(tabledfCH %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfCH %>% dplyr::select(Abundance)) * 100, 
+Fungi.Abun. = sum(tabledfCH %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfCH %>% dplyr::select(Abundance)) * 100, 
+Archaea.abun. = sum(tabledfCH %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(tabledfCH %>% dplyr::select(Abundance)) * 100)
+
+table <- rbind(tabledf, tabledfKU, tabledfKU0,tabledfKU4, tabledfCH)
+rownames(table) <- c("All samples", "Kurosol", "Kurosol, Module 0","Kurosol, Module 4", "Chromosol")
+
+
+
+
+#Table of frequencies
+# for plotting frequencies based on presence-absences (0/1)
+require(metagMisc)
+ps_trans_bac <- phyloseq_standardize_otu_abundance(physeq.B.flt, method = "pa")
+physeqB.melt.pa <- psmelt(ps_trans_bac) %>% dplyr::select(-PD, -SR, -TC_P)
+ps_trans_fun <- phyloseq_standardize_otu_abundance(physeq.F.flt, method = "pa")
+physeqF.melt.pa <- psmelt(ps_trans_fun)
+physeq.flt.table.pa <- rbind(physeqB.melt.pa, physeqF.melt.pa)
+
+
+physeqB.subset0 <- phyloseq::subset_taxa(ps_trans_bac, rownames(tax_table(ps_trans_bac)) %in% modules0$OTUID)
+physeqB.subset0 <- psmelt(physeqB.subset0)  %>% dplyr::select(-PD, -SR, -TC_P)
+physeqF.subset0 <- phyloseq::subset_taxa(ps_trans_fun, rownames(tax_table(ps_trans_fun)) %in% modules0$OTUID)
+physeqF.subset0 <- psmelt(physeqF.subset0)
+physeq.subset0.mlt <-rbind(physeqB.subset0, physeqF.subset0)
+physeq.subset0.mlt <- physeq.subset0.mlt %>% mutate(Module = "Module0")
+
+physeqB.subset4 <- phyloseq::subset_taxa(ps_trans_bac, rownames(tax_table(ps_trans_bac)) %in% modules4$OTUID)
+physeqB.subset4 <- psmelt(physeqB.subset4)  %>% dplyr::select(-PD, -SR, -TC_P)
+physeqF.subset4 <- phyloseq::subset_taxa(ps_trans_fun, rownames(tax_table(ps_trans_fun)) %in% modules4$OTUID)
+physeqF.subset4 <- psmelt(physeqF.subset4)
+physeq.subset4.mlt <-rbind(physeqB.subset4, physeqF.subset4)
+physeq.subset4.mlt <- physeq.subset4.mlt %>% mutate(Module = "Module4")
+physeq.subset.mlt <- rbind(physeq.subset0.mlt,physeq.subset4.mlt)
+
+physeq.subset.mlt  %>% group_by(Kingdom)  %>% summarise(ASVs = sum(Abundance)) 
+
+#all samples (Kurosol, Chromosol)
+tabledf <- data.frame(Bac.freq = sum(physeq.flt.table.pa %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(physeq.flt.table.pa %>% dplyr::select(Abundance)) * 100, 
+Fungi.freq = sum(physeq.flt.table.pa %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(physeq.flt.table.pa %>% dplyr::select(Abundance)) * 100, Archaea.freq = sum(physeq.flt.table.pa %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(physeq.flt.table.pa %>% dplyr::select(Abundance)) * 100 )
+
+#Kurosol all
+tabledfKU <- physeq.flt.table.pa  %>% filter(Soil == "Kurosol") 
+tabledfKU <- data.frame(Bac.freq = sum(tabledfKU %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfKU %>% dplyr::select(Abundance)) * 100, 
+Fungi.freq = sum(tabledfKU %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfKU %>% dplyr::select(Abundance)) * 100,
+Archaea.freq = sum(tabledfKU %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(tabledfKU %>% dplyr::select(Abundance)) * 100)
+
+#Kurosol Module0
+tabledfKU0 <- physeq.subset.mlt  %>% filter(Soil == "Kurosol")  %>% filter(Module == "Module0")
+tabledfKU0 <- data.frame(Bac.freq = sum(tabledfKU0 %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfKU0 %>% dplyr::select(Abundance)) * 100, 
+Fungi.freq = sum(tabledfKU0 %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfKU0 %>% dplyr::select(Abundance)) * 100,
+Archaea.freq = sum(tabledfKU0 %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(tabledfKU0 %>% dplyr::select(Abundance)) * 100)
+
+#Kurosol Module4
+tabledfKU4 <- physeq.subset.mlt  %>% filter(Soil == "Kurosol")  %>% filter(Module == "Module4")
+tabledfKU4 <- data.frame(Bac.freq = sum(tabledfKU4 %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfKU4 %>% dplyr::select(Abundance)) * 100, 
+Fungi.freq = sum(tabledfKU4 %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfKU4 %>% dplyr::select(Abundance)) * 100, Archaea.freq = 0)
+
+#Chromosol
+tabledfCH <- physeq.flt.table.pa  %>% filter(Soil == "Chromosol")
+tabledfCH <- data.frame(Bac.freq = sum(tabledfCH %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(tabledfCH %>% dplyr::select(Abundance)) * 100, 
+Fungi.freq = sum(tabledfCH %>% filter(Kingdom == "k__Fungi") %>% dplyr::select(Abundance)) / sum(tabledfCH %>% dplyr::select(Abundance)) * 100, 
+Archaea.freq = sum(tabledfCH %>% filter(Kingdom == "k__Archaea") %>% dplyr::select(Abundance)) / sum(tabledfCH %>% dplyr::select(Abundance)) * 100)
+
+table2 <- rbind(tabledf, tabledfKU, tabledfKU0,tabledfKU4, tabledfCH)
+rownames(table2) <- c("All samples", "Kurosol", "Kurosol, Module 0","Kurosol, Module 4", "Chromosol")
+table <- table %>% rownames_to_column("Samples")
+table2 <- table2 %>% rownames_to_column("Samples")
+tableprint <- table %>% left_join(table2)
+
+
+kable(tableprint,  format = "html", caption = "Relative abundances and frequencies of bacteria and fungi", digits = 0 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c("condensed"), font_size = 11 ) %>%  pack_rows("All samples", start_row = 1, end_row = 1) %>% pack_rows("Kurosol samples", 2, 4) %>% pack_rows("Chromosol", 5, 5) %>%  add_header_above(c(" " = 1,"Abundances (%)" = 3,"ASV frequencies (%)" = 3 ))
+
 ```
 
 
@@ -2852,7 +3033,7 @@ require(metagMisc)
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least 11 reads
-physeq.B.flt <- subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
+physeq.B.flt <- phyloseq::subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
 physeq.B.flt = phyloseq::subset_taxa(physeq.B.flt, !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 taxadf <- as.data.frame(tax_table(physeq.B.flt)@.Data)
@@ -2958,7 +3139,7 @@ testall <- testall %>% mutate(Soil = "Chromosol & Kurosol", n = "33")
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least 11 reads
-physeq.B.flt <- subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
+physeq.B.flt <- phyloseq::subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
 physeq.B.flt = phyloseq::subset_taxa(physeq.B.flt, !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 
@@ -3019,7 +3200,7 @@ require(metagMisc)
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least x reads
-physeq.B.flt <- subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
+physeq.B.flt <- phyloseq::subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
 physeq.B.flt = phyloseq::subset_taxa(physeq.B.flt, !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 taxadf <- as.data.frame(tax_table(physeq.B.flt)@.Data)
@@ -3085,7 +3266,7 @@ pf.list <- rbind(pf.list1, pf.list2, pf.list3, pf.list4, pf.list5)
 scatter_kur <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order,Sample, Dloss)  %>% summarise(ASVs = sum(Abundance)) %>% ggscatter(., x = "Dloss", y = "ASVs", facet.by = "Phylum", ylab = "Frequency of ASVs", xlab = "Dieldrin loss (%)", ncol = 2, legend = "right", add = "reg.line", conf.int = TRUE, scales = "free") + stat_cor(method = "spearman", label.x = 3, label.y = 30)
 ```
 
-```{r tablephylokurosol, message=FALSE, warning=FALSE, echo=FALSE}
+```{r tablephylokurosol, message=FALSE, warning=FALSE, echo=FALSE, cache=TRUE}
 require(metagMisc)
 #load the phylofactor model object (run beforehand) large file >500MB
 pf_gpf_mix_Kurosol10factorsDloss <- readRDS("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/phylofactorization/2020_0320_pf_gpf_mix_kurosol_Dloss_alpha0.2")
@@ -3135,25 +3316,33 @@ phylomodellistkabel <- kable(phylomodellist %>% dplyr::select(-Predictor, -Soil)
 
 
 #filter from the phylofactor list from previous chunk
-p1 <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order, Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
-p1.1 <- p1 %>% group_by(Phylum, Dloss_fct2) %>% summarise(ASVs = sum(ASVs)) 
+p1ku <- physeqB.melt.pa  %>% filter(OTU %in% pf.list$OTU) %>% filter(Abundance > 0) %>% group_by(Phylum, Class, Order, Dloss_fct2)  %>% summarise(ASVs = sum(Abundance)) 
+p1.1 <- p1ku %>% group_by(Phylum, Dloss_fct2) %>% summarise(ASVs = sum(ASVs)) 
 p1.1 <- p1.1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
-p1 <- p1 %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
-p1 <- p1[,c("Phylum","Class", "Order", "<=43%", ">43%", "<72%", ">=72%")]
+p1ku <- p1ku %>%  tidyr::pivot_wider(names_from = Dloss_fct2, values_from = ASVs)
+p1ku <- p1ku[,c("Phylum","Class", "Order", "<=43%", ">43%", "<72%", ">=72%")]
 p1.1 <- p1.1[,c("Phylum", "<=43%", ">43%", "<72%", ">=72%")]
-p1 <-  dplyr::bind_rows(p1, p1.1) %>% arrange(Phylum, !is.na(Order), `>=72%`)
-p1[1,"Phylum"] <- "Actinobacteria Total"
-p1[7,"Phylum"] <- "Bacteroidetes Total"
-p1[12,"Phylum"] <- "Chloroflexi Total"
-p1[18,"Phylum"] <- "Firmicutes Total"
-p1[22,"Phylum"] <- "Proteobacteria Total"
+p1ku <-  dplyr::bind_rows(p1ku, p1.1) %>% arrange(Phylum, !is.na(Order), `>=72%`)
+p1ku[1,"Phylum"] <- "Actinobacteria Total"
+p1ku[7,"Phylum"] <- "Bacteroidetes Total"
+p1ku[12,"Phylum"] <- "Chloroflexi Total"
+p1ku[18,"Phylum"] <- "Firmicutes Total"
+p1ku[22,"Phylum"] <- "Proteobacteria Total"
 options(knitr.kable.NA = '')
-p1_kuro <- kable(p1,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil (n = 18). Chromosol frequencies are included in table for completeness", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria (589 member Monophyletic clade)", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes (55 member Monophyletic clade)", 7, 11) %>% pack_rows("Chloroflexi (27 member Monophyletic clade)", 12, 17) %>% pack_rows("Firmicutes (44 member Monophyletic clade)", 18, 21) %>% pack_rows("Proteobacteria (24 member Monophyletic clade)", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
+p1ku <- kable(p1ku,  format = "html", caption = "Table with taxonomic groups which had a higher chance to be present in samples with high dieldrin loss than could be explained by chance. Numbers represent the frequency of occurance. Here only samples in the Kurosol were included to estimate taxa-associations to dieldrin loss specific to this soil (n = 18). Chromosol frequencies are included in table for completeness", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Actinobacteria (589 member Monophyletic clade)", start_row = 1, end_row = 6) %>% pack_rows("Bacteroidetes (55 member Monophyletic clade)", 7, 11) %>% pack_rows("Chloroflexi (27 member Monophyletic clade)", 12, 17) %>% pack_rows("Firmicutes (44 member Monophyletic clade)", 18, 21) %>% pack_rows("Proteobacteria (24 member Monophyletic clade)", 22, 23) %>%   add_header_above(c(" " = 3,"Chromosol" = 2,"Kurosol" = 2 ))
 
+```
+
+```{r phylomodellistkabel, message=FALSE, warning=FALSE, echo=FALSE}
 phylomodellistkabel
-p1_all
-p1_kuro
+```
 
+```{r p1_all, message=FALSE, warning=FALSE, echo=FALSE}
+p1_all
+```
+
+```{r p1ku, message=FALSE, warning=FALSE, echo=FALSE}
+p1ku
 ```
 
 ```{r pfmixCH, eval=FALSE, include=FALSE, message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 0.5, cache = TRUE }
@@ -3162,7 +3351,7 @@ require(metagMisc)
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Farm != "C", physeqB) 
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) > 25, physeq.B.flt) #must have at least 11 reads
-physeq.B.flt <- subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
+physeq.B.flt <- phyloseq::subset_taxa(physeq.B.flt, !is.na(Phylum) & !Phylum %in% c("", " p__")) 
 physeq.B.flt = phyloseq::subset_taxa(physeq.B.flt, !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
 physeq.B.flt <- prune_taxa(taxa_sums(physeq.B.flt) != 0, physeq.B.flt)
 taxadf <- as.data.frame(tax_table(physeq.B.flt)@.Data)
