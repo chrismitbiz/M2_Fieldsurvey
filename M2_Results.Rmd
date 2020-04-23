@@ -2302,7 +2302,7 @@ print(paste("Module 0 consisted of ", round((bac$n),0),"% bacteria and ",round((
 ```
 
 ```{r networkKUROSOLmodules, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE, out.width="47%", out.height="20%", fig.show='hold'}
-knitr::include_graphics(c("./glassonetwork_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_KUROSOL.png") )
+knitr::include_graphics(c("./glassonetwork_modules_atlas_COLOURBYUNIQUEASVs_KUROSOL2.png","./glassonetwork_modules_atlas_COLOURBYMODULES_KUROSOL.png") )
 ```
 
 ### Chromosol
@@ -2392,7 +2392,7 @@ write.csv(Z, "~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_
 ```
 
 ```{r networkmodulesandunique, fig.cap = "Co-occurance network of fungi (F) and bacteria (B) in the Kurosol and the Chromosol using the SpiecEasi package (glasso) and modified in gephi. Edge lengths are proportional to distance between nodes (Force Atlas). Size of nodes indicate Betweenness Centrality. Left: Red = ASVs unique to the high-loss samples, blue = ASVs unique to low-loss samples, grey = ASVs present in both. Right: Nodes are coloured by modules that cluster together more than can be explained by chance (gephi modularity). Prior to analysis, ASVs were filtered to those that are present in at least 25% of samples with n = 18 (Kurosol) and n = 15 (Chromosol).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=15, fig.asp = 1, cache = TRUE , out.width="47%", out.height="20%", fig.show='hold'}
-knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL2.png"))
+knitr::include_graphics(c("./glassonetwork_modules_atlas_UNIQUEASVs_CHROMSOL2.png","./glassonetwork_modules_atlas_COLOURBYMODULES_CHROMOSOL2.png"))
 ```
 
 
@@ -2601,15 +2601,27 @@ Josh Vido, Helen Hayden, Matt Kitching, Gene Drendle, Steven Batinovic, Steve Pe
 <br/>
 
 # Supplementary Material
-## Sample data
-```{r sampledata, echo = FALSE, message=FALSE, warning=FALSE,}
-kable(metadata2[c(1:6,33:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")], caption = "Sample data (unformated and incomplete)", digits = 2)
+```{r sampledata, echo = FALSE, message=FALSE, warning=FALSE, include = FALSE}
+tabledf <- metadata2[c(1:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")]
+spl_sums <- sample_sums(physeqB.flt) %>% as.data.frame()
+spl_sums <-  spl_sums %>% dplyr::rename(`Reads Bacteria` = 1)
+spl_sums <- spl_sums %>% add_row(`Reads Bacteria` = NA, .before = 20)
+rownames(spl_sums)[20] <- "C20"
+ASVsBacteria <- data.frame(sample_data(physeqB)) %>% dplyr::select(Observed) 
+ASVsBacteria  <-  ASVsBacteria %>% dplyr::rename(`ASVsBacteria` = Observed)
+ASVsBacteria <- ASVsBacteria %>% add_row(ASVsBacteria = NA, .before = 20)
+rownames(ASVsBacteria)[20] <- "C20"
+tabledf <- data.frame(tabledf, spl_sums, ASVsBacteria)
+spl_sums <- sample_sums(physeqF.flt) %>% as.data.frame()
+spl_sums <-  spl_sums %>% dplyr::rename(`Reads Fungi` = 1)
+tabledf <- data.frame(tabledf, spl_sums)
+tabledf$ASVsFungi <- sample_data(physeqF)$Observed
 
-require(flextable)
+kable(tabledf, caption = "Raw sample data", digits = 2, format = "html") %>%  kable_styling(full_width = F, position = "left", bootstrap_options = c("condensed"), font_size = 9)
+
+#require(flextable)
 #flextable(metadata2[c(1:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")])
 ```
-
-<br/>
 
 ## Alpha diversity
 ```{r alphadloss, fig.cap = "Alpha diversity of bacteria, fungi and the enzyme metagenome as predicted with Picrust2. Diversity indices were calculated from rarefied abundanced of filtered amplicon sequence variants (ASVs) or enzyme abundances. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
@@ -2625,28 +2637,29 @@ my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 #  stat_compare_means( method = "kruskal",label = "p.signif")
 
 
-p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2300)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(2500)) + theme_bw() 
+p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2300)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(2500)) + theme_bw() + scale_fill_grey()
 
-p2 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(7.25)) + theme_bw() 
+p2 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(7.25)) + theme_bw() + scale_fill_grey()
 
-p3 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(525)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + theme_bw() 
+p3 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(525)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + theme_bw() + scale_fill_grey()
 
-p4 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.94)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.95)) + theme_bw() 
+p4 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.94)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.95)) + theme_bw() + scale_fill_grey()
 
-p5 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(520)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(560)) + theme_bw()
+p5 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", add = c("jitter"), scales = "free",fill = "Soil", ylab = "ASV count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(520)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(560)) + theme_bw()+ scale_fill_grey()
 
-p6 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(5.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6)) + theme_bw() 
+p6 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(5.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6)) + theme_bw() + scale_fill_grey()
 
-p7 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(89)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(100)) + theme_bw() 
+p7 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(89)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(100)) + theme_bw() + scale_fill_grey()
 
-p8 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.85)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.9)) + theme_bw() 
+p8 <- data.frame(sample_data(physeqF)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.85)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.9)) + theme_bw() + scale_fill_grey()
 
-p9 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", fill = "Soil", add = "jitter", ylab = "Enzyme count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2120)) + stat_compare_means(method = "kruskal",label = "p.signif", label.y = c(2150)) + theme_bw()
-p10 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(6.76)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6.77)) + theme_bw() 
+p9 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Observed", fill = "Soil", add = "jitter", ylab = "Enzyme count", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(2120)) + stat_compare_means(method = "kruskal",label = "p.signif", label.y = c(2150)) + theme_bw()+ scale_fill_grey()
 
-p11 <-  data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(558)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(570)) + theme_bw() 
+p10 <- data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "Shannon", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Shannon index", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(6.76)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(6.77)) + theme_bw() + scale_fill_grey()
 
-p12 <-  data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.890)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.8925)) + theme_bw() 
+p11 <-  data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "InvSimpson", add = c("jitter"), scales = "free",fill = "Soil", ylab = "Simpson index", xlab = "Dieldrin loss") + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(558)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(570)) + theme_bw() + scale_fill_grey()
+
+p12 <-  data.frame(sample_data(physeqE)) %>% ggboxplot(., x = "Dloss_fct2", y = "pielou_ev", add = c("jitter"), scales = "free",fill = "Soil", ylab ="Pielou evenness", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(0.890)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.8925)) + theme_bw() + scale_fill_grey()
 
 
 pdf(NULL)
@@ -2657,7 +2670,7 @@ pp <- ggarrange(p5, p6, p7,p8, nrow = 1, common.legend = TRUE)
 pp <- annotate_figure(pp, fig.lab  = "    Fungi",fig.lab.pos	= "top.left",fig.lab.size = 14)
 
 ppp <- ggarrange(p9, p10, p11,p12, nrow = 1, common.legend = TRUE) 
-ppp <- annotate_figure(ppp, fig.lab  = "    Enzyme potential",fig.lab.pos	= "top.left",fig.lab.size = 14)
+ppp <- annotate_figure(ppp, fig.lab  = "    Enzyme encoding genes",fig.lab.pos	= "top.left",fig.lab.size = 14)
 
 pppp <- ggarrange(p,pp,ppp, nrow = 3, common.legend = TRUE, labels = "auto")
 x = dev.off()
@@ -2671,18 +2684,27 @@ pppp
 ## Diversity per unit dieldrin
 ```{r alphaperD17, fig.cap = "Shannon:dieldrin ratio of bacteria (a), fungi (b) and the enzyme metagenome as predicted from Picrust2 (c) per unit dieldrin (µg g^-1^). Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.4}
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+fontsize <- 10
 
 p1 <- as.data.frame(sample_data(physeqB)) %>% melt(., measure.var = c("shannon_D17"))  %>%
-ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), facet.by = "variable", scales = "free", fill = "Soil", ylab = "Shannon:dieldrin ratio", xlab = "Dieldrin loss", panel.labs= list(variable = c("shannon:dieldrin (bacteria)" ))) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif")
+ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", fill = "Soil", xlab = "Dieldrin loss" ) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle(expression(paste("Bacteria") )) +  theme(plot.title = element_text(size = fontsize)) + ylab(bquote('Shannon diversity (µg '*~g^-1*'dieldrin)')) 
+#panel.labs= list(variable = c("shannon:dieldrin (bacteria)" )
 
 p2 <- as.data.frame(sample_data(physeqF)) %>% melt(., measure.var = c("shannon_D17"))  %>%
-ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), facet.by = "variable", scales = "free", xlab = "Dieldrin loss", ylab = "", fill= "Soil",panel.labs= list(variable = c("shannon:dieldrin (fungi)" ))) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif")
+ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", xlab = "Dieldrin loss", ylab = "", fill= "Soil") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle("Chlorosalicylate degradation") + scale_fill_grey() + ggtitle(expression(paste("Fungi") ))+  theme(plot.title = element_text(size = fontsize)) 
+
+#panel.labs= list(variable = c("shannon:dieldrin (fungi)")
 
 p3 <- as.data.frame(sample_data(physeqE)) %>% melt(., measure.var = c("shannon_D17"))  %>%
-ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), facet.by = "variable", scales = "free", xlab = "Dieldrin loss", ylab = "", fill = "Soil",panel.labs= list(variable = c("shannon:dieldrin (enzymes)" ))) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif")
+ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", xlab = "Dieldrin loss", ylab = "", fill = "Soil",) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle(expression(paste("Enzyme encoding genes") )) + 
+    theme(plot.title = element_text(size = fontsize))
+
+#panel.labs= list(variable = c("shannon:dieldrin (enzymes)" ))
 pdf(NULL)
 p <- ggarrange(p1,p2,p3, nrow = 1, labels = "auto", common.legend = TRUE)
 #p <-  annotate_figure(p, fig.lab  = "Shannon:dieldrin ratio",fig.lab.pos	= "top.left",fig.lab.size = 14)
+
+
 x = dev.off()
 p
 
@@ -2695,8 +2717,11 @@ p
 
 p1 <- data.frame(sample_data(physeqB)) %>% ggboxplot(., x = "Dloss_fct2", y = "PD", add = c("jitter"), scales = "free", shape = "Dloss_fct2", ylab = "Faith PD", xlab = "Dieldrin loss" ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(110)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(115)) + theme_bw() + theme(legend.position="none")  
 
+colourlow <- "gray90"
+colourhigh <- "black"
+
 p2 <- ord_pcoa <- phyloseq::ordinate(rare_Bac, "PCoA", "unifrac",weighted=FALSE)
-p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") +  scale_colour_gradient(low = "cadetblue1", high = "navy" ) + guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1) + labs(shape = "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
+p.pcoa2 <- phyloseq::plot_ordination(rare_Bac, ord_pcoa , color = "Dloss", shape = "Dloss_fct2") +  scale_colour_gradient(low = colourlow, high = colourhigh ) + guides(alpha = F) + annotate(geom = 'text', label = "unweighted unifrac", x = -0.15, y = -Inf, hjust = -0.05, vjust = -1) + labs(shape = "Dieldrin loss (%)", color = "Dieldrin loss (%)") 
 
 pdf(NULL)
 gg <- ggarrange(p1, p.pcoa2, ncol = 2, widths = c(0.30,0.5), labels = "auto")
@@ -2715,6 +2740,9 @@ leveneTest(PD ~ Dloss_fct2, data = meta.df)
 
 ## Comparison of chlorinated and aromatic compound degradation potentials
 ```{r xenobgraphs, fig.cap = "Comparison of one chlorinated and 39 aromatic compound degradation potentials predicted to be present in all samples excluding outliers (n = 33). Chlorosalicylate was the only chlorinated compound degradation potential identified with the Metacyc database. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.45, cache = TRUE}
+
+fontsize = 10
+
 physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
 #physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE)
 #replace pw numbers with common name
@@ -2741,12 +2769,13 @@ physeq.pw_TCratio <-phyloseq(otu_table(
 ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
 
 physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
+
+# figure          
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-# figure                
-p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")
+p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey() + ggtitle("Chlorosalicylate degradation") +  theme(plot.title = element_text(size = fontsize))
 
 #All aromatic compound degradation pathways
-p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")
+p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey()  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize))
 
 #p3 <- physeq.pw.melt.TCratio %>% filter(str_detect(tolower(COMMON.NAME), pattern = "superpathway of methylglyoxal degradation")) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 
@@ -2768,13 +2797,13 @@ ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
 
 ## Sparse partial least squares regression
 ```{r kable1, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
-kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples (n = 33). Soil variables included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
+kable(simMat.flt.all, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), format = "html", caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of all samples (n = 33). Soil variables included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)") %>%  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 ```
 
 <br/>
 
 ```{r kable2, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }
-kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples (n = 18). Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)")
+kable(simMat.flt, col.names = c("Pathway", "HUM", "ROC", "POC","Dloss", "C:N"), format = "html", caption = "Top similarity scores obtained from sparse partial least squares analysis in regression mode (R package mixOmics) of Kurosol samples (n = 18). Soil variabels included the long-term dieldrin loss (%) (Dloss) and concentrations of resistant organic carbon (ROC), humic carbon (HUM), particulate organic carbon (POC) and carbon-to-nitrogen ratio (C:N)  (table not formated)") %>%  kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 ```
 
 <br/>
