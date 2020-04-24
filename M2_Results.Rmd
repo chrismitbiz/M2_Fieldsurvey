@@ -506,64 +506,11 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
 
 
 # Hypothesis
-Quality of soil organic matter is associated with the phylogenetic and metabolic capacity of soils to degrade persistent organic pollutants - dieldrin.
+We hypothesised that quality of soil organic matter is associated with the phylogenetic and metabolic capability of soils to degrade dieldrin.
 
 
 # Results
-## Relationship of soil carbon quality to dieldrin loss
-```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
 
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-#data.frame(sample_data(physeqB)) %>% reshape2::melt(., measure.var = c("D1517", "TC","TC_D17","CN","HC", "ROC.pct", "HUM.pct", "POC.pct"))  %>%
-#  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scales = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("Dieldrin (µg/g)", "Total Carbon (TC)", "TC:Dieldrin ratio", "C:N ratio", "H:C ratio", "ROC (%)", "HUM (%)", "POC (%)"))) + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
-#  stat_compare_means( method = "kruskal",label = "p.signif")
-test <- data.frame(sample_data(physeqB))
-p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "D1517", add = c("mean_se"), scales = "free",fill = "Soil" , xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.7)) + theme_bw() + ylab(bquote('Dieldrin (µg '*~g^-1*')')) + scale_fill_grey(start = 0.35, end = 0.9) #ylab(bquote('Dieldrin ('*mu~ ~g^-1~*')')) 
-
-p2 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC", add = c("mean_se"), scales = "free",fill = "Soil", xlab = "Dieldrin loss",position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif",label.y = c(75)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(80)) + theme_bw() + ylab(bquote('Total Carbon (g '*~kg^-1*')'))+ scale_fill_grey(start = 0.35, end = 0.9)
-
-p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_D17", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "TC:Dieldrin ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(490)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(525)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
-
-p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "CN", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:N ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(15.6)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(17)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
-
-p5 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "HC", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "H:C ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(0.4)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.45)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
-
-p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "ROC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(40)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
-
-p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "HUM (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60)+ scale_fill_grey(start = 0.35, end = 0.9)
-
-p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "POC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
-
-p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9)
-
-pdf(NULL)
-p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.legend = TRUE)
-x = dev.off()
-p 
-
-correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
-r_matrix=correlation_matrix$r
-r_matrix[row(r_matrix)>col(r_matrix)]=0
-diag(r_matrix)=0
-p_matrix=correlation_matrix$p
-p_matrix[row(p_matrix)>col(p_matrix)]=1
-diag(p_matrix)=1
-r_table=melt(r_matrix)
-p_table=melt(p_matrix)
-cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
-cortable <- data.frame(Variable1 = cortable$r_table.Var1, 
-           Variable2 = cortable$r_table.Var2,
-           Rcoefficients = cortable$r_table.value,
-           pvalue_corrected = cortable$p_table.value)
-cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
-
-#kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
-```
-  
-  
-Overall the two soils contained a different carbon quantity and quality. The Kurosol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC) (Fig. \@ref(fig:carbonquality)). On the other hand, the organic matter composition of the Kurosol was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). A higher dieldrin loss in the Kurosol was associated with more humus and higher proportion of POC. Furthermore, greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). Correlation analysis further highlighted that greater dieldrin losses were correlated to low C:N, low ROC and a high POC.
-
-<br/>
 
 ## Compositional associations to dieldrin loss and soil carbon fractions
 ```{r pcoa, echo= FALSE,  fig.cap="Ordinations of Aitchison distances were compared for compositions of bacteria, its enzyme metagenome as predicted by Picrust2 and fungi (n = 33). ASVs were filterered to those present in at least 25% of samples and included 1407 and 322 bacterial and fungal taxa respectively and 2091 enzyme encoding genes. Permanova results based on Bray-Curtis dissimilarities are shown. Symbols represent samples and their proximity to each other indicates compositional similarity. The colour and size of symbols indicate the long-term dieldrin loss (%) and dieldrin concentrations respectively. The shape of symbols indicates sample grouping into four factors where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively).", fig.width=9, fig.asp= 0.4, message=FALSE, warning=FALSE, results=FALSE}
@@ -1329,6 +1276,7 @@ kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results 
 ```
   
 <br/>
+Overall the two soils contained a different carbon quantity and quality. The Kurosol, the soil with greater long-term dieldrin losses, contained significantly less total carbon (TC) (Fig. S\@ref(fig:carbonquality)). On the other hand, the organic matter composition of the Kurosol was composed of more humus (HUM) and particulate organic carbon (POC) relative to the resistant organic carbon (ROC). A higher dieldrin loss in the Kurosol was associated with more humus and higher proportion of POC. Furthermore, greater long-term dieldrin losses coincided with a low carbon-to-nitrogen ratio (C:N) and a high hydrogen-to-carbon ratio (H:C). 
   
 We compared the composition of the most common bacteria and fungi as well as gene abundances predicted from bacterial ASVs with Picrust2 (Fig. \@ref(fig:pcoa)). It only included taxa and genes that were commonly found in both soils (175 bacterial taxa, 65 fungal taxa and 1988 enzyme encoding genes). Compared to Chromosol, the Kurosol contained a different microbial composition with greater community and genetic dispersion (betadisp *p* < 0.05 with soil type as grouping variable). 
   
@@ -2820,6 +2768,59 @@ kable(tabledf, caption = "Raw sample data", digits = 2, format = "html") %>%  ka
 #require(flextable)
 #flextable(metadata2[c(1:36),c("Soil","Paddock", "Farm", "Dloss", "D1517", "ROC", "HUM", "POC", "CN", "HC")])
 ```
+
+## Relationship of soil carbon quality to dieldrin loss
+```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin loss. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Predictions of resistant organic carbon (ROC), humic carbon (HUM) and particulate organic carbon (POC) are shown as percentages to total organic carbon. Significance of global Kruskal-Wallis tests (topleft) and Wilcoxon tests (above each group) for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=8, fig.asp = 0.85}
+
+my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+#data.frame(sample_data(physeqB)) %>% reshape2::melt(., measure.var = c("D1517", "TC","TC_D17","CN","HC", "ROC.pct", "HUM.pct", "POC.pct"))  %>%
+#  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scales = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("Dieldrin (µg/g)", "Total Carbon (TC)", "TC:Dieldrin ratio", "C:N ratio", "H:C ratio", "ROC (%)", "HUM (%)", "POC (%)"))) + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
+#  stat_compare_means( method = "kruskal",label = "p.signif")
+test <- data.frame(sample_data(physeqB))
+p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "D1517", add = c("mean_se"), scales = "free",fill = "Soil" , xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.7)) + theme_bw() + ylab(bquote('Dieldrin (µg '*~g^-1*')')) + scale_fill_grey(start = 0.35, end = 0.9) #ylab(bquote('Dieldrin ('*mu~ ~g^-1~*')')) 
+
+p2 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC", add = c("mean_se"), scales = "free",fill = "Soil", xlab = "Dieldrin loss",position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif",label.y = c(75)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(80)) + theme_bw() + ylab(bquote('Total Carbon (g '*~kg^-1*')'))+ scale_fill_grey(start = 0.35, end = 0.9)
+
+p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_D17", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "TC:Dieldrin ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(490)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(525)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
+
+p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "CN", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:N ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(15.6)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(17)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
+
+p5 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "HC", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "H:C ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(0.4)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.45)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
+
+p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "ROC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(40)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
+
+p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "HUM (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60)+ scale_fill_grey(start = 0.35, end = 0.9)
+
+p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "POC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
+
+p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9)
+
+pdf(NULL)
+p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.legend = TRUE)
+x = dev.off()
+p 
+
+correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
+r_matrix=correlation_matrix$r
+r_matrix[row(r_matrix)>col(r_matrix)]=0
+diag(r_matrix)=0
+p_matrix=correlation_matrix$p
+p_matrix[row(p_matrix)>col(p_matrix)]=1
+diag(p_matrix)=1
+r_table=melt(r_matrix)
+p_table=melt(p_matrix)
+cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
+cortable <- data.frame(Variable1 = cortable$r_table.Var1, 
+           Variable2 = cortable$r_table.Var2,
+           Rcoefficients = cortable$r_table.value,
+           pvalue_corrected = cortable$p_table.value)
+cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
+
+#kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
+```
+  
+  
+
 
 ## Alpha diversity
 ```{r alphadloss, fig.cap = "Alpha diversity of bacteria, fungi and the enzyme metagenome as predicted with Picrust2. Diversity indices were calculated from rarefied abundanced of filtered amplicon sequence variants (ASVs) or enzyme abundances. Samples are grouped into four factors by long-term dielrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol respectively). Significance of global Kruskal-Wallis tests and Wilcoxon tests for each soil type are shown (* <=0.05, ** <= 0.01, *** <= 0.001, **** <= 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 0.75}
