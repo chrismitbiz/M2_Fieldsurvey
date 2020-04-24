@@ -2885,16 +2885,16 @@ my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
 fontsize <- 10
 
 p1 <- as.data.frame(sample_data(physeqB)) %>% melt(., measure.var = c("shannon_D17"))  %>%
-ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", fill = "Soil", xlab = "Dieldrin loss" ) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle(expression(paste("Bacteria") )) +  theme(plot.title = element_text(size = fontsize)) + ylab(bquote('Shannon diversity (µg '*~g^-1*'dieldrin)')) 
+ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", fill = "Soil", xlab = "Dieldrin loss" ) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle(expression(paste("Bacteria") )) +  theme(plot.title = element_text(size = fontsize)) + ylab(bquote('Shannon diversity (µg '*~g^-1*'dieldrin)')) 
 #panel.labs= list(variable = c("shannon:dieldrin (bacteria)" )
 
 p2 <- as.data.frame(sample_data(physeqF)) %>% melt(., measure.var = c("shannon_D17"))  %>%
-ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", xlab = "Dieldrin loss", ylab = "", fill= "Soil") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle("Chlorosalicylate degradation") + scale_fill_grey() + ggtitle(expression(paste("Fungi") ))+  theme(plot.title = element_text(size = fontsize)) 
+ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", xlab = "Dieldrin loss", ylab = "", fill= "Soil") + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle("Chlorosalicylate degradation")  + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle(expression(paste("Fungi") ))+  theme(plot.title = element_text(size = fontsize)) 
 
 #panel.labs= list(variable = c("shannon:dieldrin (fungi)")
 
 p3 <- as.data.frame(sample_data(physeqE)) %>% melt(., measure.var = c("shannon_D17"))  %>%
-ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", xlab = "Dieldrin loss", ylab = "", fill = "Soil",) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif") + scale_fill_grey() + ggtitle(expression(paste("Enzyme encoding genes") )) + 
+ggboxplot(., x = "Dloss_fct2", y = "value", add = c("jitter"), scales = "free", xlab = "Dieldrin loss", ylab = "", fill = "Soil",) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons, label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle(expression(paste("Enzyme encoding genes") )) + 
     theme(plot.title = element_text(size = fontsize))
 
 #panel.labs= list(variable = c("shannon:dieldrin (enzymes)" ))
@@ -2976,10 +2976,10 @@ physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
 
 # figure          
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey() + ggtitle("Chlorosalicylate degradation") +  theme(plot.title = element_text(size = fontsize))
+p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate degradation") +  theme(plot.title = element_text(size = fontsize))
 
 #All aromatic compound degradation pathways
-p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey()  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize))
+p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize))
 
 #p3 <- physeq.pw.melt.TCratio %>% filter(str_detect(tolower(COMMON.NAME), pattern = "superpathway of methylglyoxal degradation")) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
 
