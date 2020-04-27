@@ -1,6 +1,6 @@
 ---
-title: "PreDRAFT: A preliminary field survey indicated that soil carbon quality is a driver for the microbial trait of soils to biodegrade persistent organic pollutants"
-subtitle: "Associations of organic matter quality and microbial and metabolic diversity to long term dieldrin loss"
+title: "DRAFT: A preliminary field survey indicated that total dieldrin dissipation in surface soils since 1988 was associated with soil carbon quality and metabolic diversity"
+subtitle: "Associations of soil carbon quality and phylogenetic and metabolic diversity to long-term dieldrin loss"
 output: 
  bookdown::html_document2:
   fig_caption: yes
@@ -36,16 +36,13 @@ Note:
   
 # Summary of results  
 
-- A humus-preferring cluster of bacteria and fungi that also associated with dieldrin dissipation was found in the Kurosol. This indicated that there were unique associations between bacteria and fungi in a high-loss soil environment that were driven by complex carbon sources. Bacteria were dominant in this cluster. 
+- Soil carbon quality was associated with the microbial and functional diversity and simultaneously with total dieldrin dissipation since 1988. Humus most strongly influenced the community composition, although this was true only for the Kurosol (The soil with significantly greater dieldrin losses). 
 
-- The results showed that soil carbon quality was associated with the microbial and functional diversity and concurrently with dieldrin dissipation since 1988. Humus most strongly influenced the community composition, although this was true only for the Kurosol (The soil with significantly greater dieldrin losses compared to the Chromosol). 
+- The abundances of functional pathway potentials of lactose, galactose, fucose, rhamnose and glycol degradation predicted high dieldrin dissipation and concurrently greater humus content. 
 
-- The abundances of functional pathway potentials of lactose, galactose, fucose, rhamnose and glycol degradation predicted high dieldrin dissipation and concurrently greater humus content. Bacteria in the order Actinomycetales, Acidobacteriales and Solirubrobacteriales were predicted to have the highest functional potentials of these carbohydrate and alcohol degradation pathways. Groups in these bacteria were also more likely to be present in samples with high dieldrin dissipation than could be explained by chance.
+- There were unique interactions between bacteria and fungi in the Kurosol, which together were driven by humus content and associated to dieldrin loss. Some bacterial taxa in this group were significantly more likely to be present in samples with high dieldrin dissipation and their abundances contributed largely to the potentials of lactose, galactose, fucose and rhamnose degradation.    
 
-- The presence of four other taxonomic groups belonging to Chloroflexi, Planctomycetes, Bacteroidetes and Geobacter sp. were also associated with high dieldrin dissipation and curiously the functional pathway of aerobic respiration involving cytochrome c was highest in the Picrust2 predictions for all of these clades.  
-
-- By contrast, the genetic potential of oxidative glucose degradation was associated with low dieldrin dissipation.
-
+- Important bacteria included Actinobacteria in the order Solirubrobacterales, Planctomycetes in the order Gemmatales, Chloroflexi in the order of WCHB1-50 and Bacteroidetes in the order Bacteroidales and Geobacter sp.. Of the fungal taxa, the order Hypocreales was important, including the genera Fusarium, Thelonectria, Trichoderma, Myxocephala and Monocillium.  
 
 
 ```{r load-packages, include=TRUE, echo=FALSE,warning=FALSE, message=FALSE}
@@ -2231,6 +2228,8 @@ physeq.subset4.mlt <-rbind(physeqB.subset4.mlt,physeqF.subset4.mlt)
 physeq.subset4.mlt <- physeq.subset4.mlt %>% mutate(Module = "Module4")
 physeq.subset.mlt <- rbind(physeq.subset0.mlt, physeq.subset4.mlt)
 
+
+
 #Table of abundances
 #all samples (Kurosol, Chromosol)
 tabledf <- data.frame(Bac.Abun. = sum(physeq.flt.table %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(physeq.flt.table %>% dplyr::select(Abundance)) * 100, 
@@ -2290,7 +2289,8 @@ physeq.subset4.mlt <-rbind(physeqB.subset4, physeqF.subset4)
 physeq.subset4.mlt <- physeq.subset4.mlt %>% mutate(Module = "Module4")
 physeq.subset.mlt <- rbind(physeq.subset0.mlt,physeq.subset4.mlt)
 
-physeq.subset.mlt  %>% group_by(Kingdom)  %>% summarise(ASVs = sum(Abundance)) 
+
+#physeq.subset.mlt  %>% group_by(Kingdom)  %>% summarise(ASVs = sum(Abundance)) 
 
 #all samples (Kurosol, Chromosol)
 tabledf <- data.frame(Bac.freq = sum(physeq.flt.table.pa %>% filter(Kingdom == "k__Bacteria") %>% dplyr::select(Abundance)) / sum(physeq.flt.table.pa %>% dplyr::select(Abundance)) * 100, 
@@ -2325,8 +2325,21 @@ table <- table %>% rownames_to_column("Samples")
 table2 <- table2 %>% rownames_to_column("Samples")
 tableprint <- table %>% left_join(table2)
 
-
 kable(tableprint,  format = "html", caption = "Relative abundances and frequencies of bacteria and fungi", digits = 1 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c("condensed"), font_size = 11 ) %>%  pack_rows("All samples", start_row = 1, end_row = 1) %>% pack_rows("Kurosol samples", 2, 4) %>% pack_rows("Chromosol", 5, 5) %>%  add_header_above(c(" " = 1,"Abundances (%)" = 3,"ASV frequencies (%)" = 3 ))
+
+```
+
+```{r, tableordersmodulezeroandfour, message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.6, include=TRUE, cache = TRUE, include = FALSE, eval = FALSE}
+#this is  used in the results sections without table or figure. 
+
+#all samples (Kurosol, Chromosol) as provided from previous chunk
+tableordersinmodulesbysoil <-  physeq.flt.table.pa %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c('p__' = ""))) %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = ""))) %>%  mutate(Class = str_replace_all(Class, pattern = c('c__' = ""))) %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = ""))) %>%  mutate(Order = str_replace_all(Order, pattern = c('o__' = ""))) %>%  mutate(Kingdom = str_replace_all(Kingdom, pattern = c(' k__' = ""))) %>%  mutate(Kingdom = str_replace_all(Kingdom, pattern = c('k__' = ""))) %>% group_by(Soil,Kingdom, Phylum, Class, Order) %>% summarise(ASVs = sum(Abundance)) %>% arrange(desc(ASVs)) %>%  tidyr::pivot_wider(names_from = Soil, values_from = ASVs)
+tableordersinmodulesbysoil <- tableordersinmodulesbysoil  %>% mutate(timesdif = round(Kurosol  / Chromosol,1)) %>% arrange(desc(timesdif))
+
+#Table of frequencies of module zero and four provided from last code of previous chunk
+tableordersinmodules <- physeq.subset.mlt  %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c('p__' = ""))) %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = ""))) %>%  mutate(Class = str_replace_all(Class, pattern = c('c__' = ""))) %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = ""))) %>%  mutate(Order = str_replace_all(Order, pattern = c('o__' = ""))) %>%  mutate(Kingdom = str_replace_all(Kingdom, pattern = c(' k__' = ""))) %>%  mutate(Kingdom = str_replace_all(Kingdom, pattern = c('k__' = ""))) %>% filter(Soil == "Kurosol") %>% group_by(Module, Kingdom, Phylum, Class, Order,Family, Genus) %>% summarise(ASVs = sum(Abundance)) %>%  tidyr::pivot_wider(names_from = Module, values_from = ASVs) %>% arrange(desc(Module0)) 
+
+tableordersinmodules <- tableordersinmodules %>% mutate(timesdif = round(Module0  / Module4,1)) %>% arrange(desc(timesdif))
 
 ```
 
