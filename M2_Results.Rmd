@@ -957,7 +957,7 @@ pve <- nrow(test %>% dplyr::select(pathway, Dieldrin.loss.dim1,Dieldrin.loss.dim
   filter(Dieldrin.loss.dim1 > 0 | Dieldrin.loss.dim2 > 0 ) ) /  nrow(test) * 100
 
 test2 <- test %>% dplyr::select(pathway, Dieldrin.loss.dim1,Dieldrin.loss.dim2 ) %>% filter(Dieldrin.loss.dim1 != 0 | Dieldrin.loss.dim2 != 0 ) %>% arrange(desc(Dieldrin.loss.dim1)) %>% filter(Dieldrin.loss.dim1 >= 0.0002 | Dieldrin.loss.dim1 <= -0.0004)
-print(paste("There were", round(pve,2), "% pathways with positive regression coefficients in the Kurosol"))
+#print(paste("There were", round(pve,2), "% pathways with positive regression coefficients in the Kurosol"))
 
 knitr::include_graphics(c("./mixomics_kurosol2.png")  )
 #c("./mixomics_all.png")
