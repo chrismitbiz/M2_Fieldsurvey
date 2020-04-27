@@ -29,7 +29,6 @@ knit: (function(input_file, encoding) {
 Note:   
   
 - Typos and errors not checked 
-- Tables still not done (mostly)
 - Abbreviations (TOC etc) not yet checked
 - Go [here](https://metacyc.org/pwy-search.shtml) to search for metacyc pathways
 - Go [here](https://mixomicsteam.github.io/Bookdown/index.html) to see mixOmics bookdown vignette
