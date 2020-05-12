@@ -1,0 +1,79 @@
+---
+title: "Quick ordination comparisons using clr-transformed abundances"
+output: 
+ bookdown::html_document2:
+   toc: yes
+   fig_caption: yes
+   number_sections: false
+ bookdown::word_document2:
+    reference_docx: "M2_Results_template.docx"
+---
+
+# Load data 
+```{r data, fig.cap="Comparisons of different ordinations.", message=FALSE, fig.width=8, fig.asp=0.9, warning=TRUE}
+library(phyloseq)
+library(qiime2R)
+library(tidyverse)
+library(ggpubr)
+theme_set(theme_bw())  
+
+metadata<-read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/metadata.tsv") #requires tidyverse
+# Converting columns to numeric using "tidyverse"
+metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
+  rownames_to_column("spl")%>%
+  mutate_all(type.convert) %>%
+  mutate_if(is.factor, as.character)%>%
+  column_to_rownames("spl")
+metadata2 <- metadata2 %>% as_tibble() %>% column_to_rownames("#SampleID")
+SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered_gg.qza")
+
+taxonomy <- read_tsv("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/taxonomy_gg.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
+
+taxtable <- taxonomy %>% as_tibble() %>% separate(Taxon, sep=";", c("Kingdom","Phylum","Class","Order","Family","Genus","Species"))  %>% dplyr::select(-Confidence) %>% column_to_rownames("Feature.ID") %>% as.matrix() 
+
+tree <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/insertion-tree_gg.qza")
+
+physeqB <- phyloseq(
+  otu_table(SVs$data, taxa_are_rows = T), 
+  phy_tree(tree$data), 
+  tax_table(taxtable), 
+  sample_data(metadata2) )
+physeq.B.flt  <-   prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
+#PERCENT FILTERVALUE FOR ALL RDAs
+pcnt <- 0.25
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
+```
+
+# Clr transform and ordinations
+```{r ordinations, echo=TRUE, fig.cap="Comparisons of different ordinations.", message=FALSE, fig.width=8, fig.asp=0.9, warning=TRUE}
+
+#CLR transform 
+ps_clr <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
+otu_table(ps_clr)[1:3,1:3]
+
+
+# ordinations using different distances via phyloseq
+ord_clr <- phyloseq::ordinate(ps_clr, "RDA", distance = "unifrac", weighted=FALSE) #using any difference here gives the same result.
+ord_clr2 <- phyloseq::ordinate(ps_clr, "RDA", distance = "bray")
+ord_clr3 <- phyloseq::ordinate(ps_clr, "PCoA", distance = "unifrac")
+ord_clr4 <- phyloseq::ordinate(ps_clr, "NMDS", distance = "bray")
+```
+
+# Plot ordinations
+```{r plotordinations, echo=TRUE, fig.cap="Comparisons of different ordinations.", message=FALSE, fig.width=8, fig.asp=0.9, warning=TRUE}
+# plot oprdinations
+p1 <- phyloseq::plot_ordination(ps_clr, ord_clr  , color = "Dloss", title = "PCA, unw. unifrac (clr)")
+p2 <- phyloseq::plot_ordination(ps_clr, ord_clr2 , color = "Dloss", title = "PCA, Bray Curtis (clr)") 
+p3 <- phyloseq::plot_ordination(ps_clr, ord_clr3, color = "Dloss", title = "PCoA, Bray Curtis (clr)")
+p4 <- phyloseq::plot_ordination(ps_clr, ord_clr4, color = "Dloss", title = "NMDS, Bray Curtis (clr)")
+ggarrange(p1, p2, p3, p4)
+```
+
+# Generate different distance matrices 
+```{r distances, message=FALSE, echo=TRUE, warning=TRUE}
+#Generate distance matrix 
+clr_dist_matrix <- phyloseq::distance(ps_clr, method = "euclidean") 
+clr_dist_matrix2 <- phyloseq::distance(ps_clr, method = "unifrac")
+
+```
+

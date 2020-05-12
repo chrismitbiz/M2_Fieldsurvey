@@ -24,21 +24,16 @@ knit: (function(input_file, encoding) {
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 ---
 
-
-Note:   
-  
-- Typos and errors not checked 
-- Abbreviations (TOC etc) not yet checked
 - Go [here](https://metacyc.org/pwy-search.shtml) to search for metacyc pathways
 - Go [here](https://mixomicsteam.github.io/Bookdown/index.html) to see mixOmics bookdown vignette
   
 # Summary of results  
 
-- Soil carbon quality was associated with the microbial and functional diversity and simultaneously with total dieldrin dissipation since 1988. Humus most strongly influenced the community composition, although this was true only for the Kurosol (The soil with significantly greater dieldrin losses). 
+- Soil carbon composition was associated with the microbial and functional diversity and simultaneously with total dieldrin dissipation since 1988. HumicC most strongly influenced the community composition, although this was true only for the Kurosol (The soil with significantly greater dieldrin losses).  
 
-- The abundances of functional pathway potentials of lactose, galactose, fucose, rhamnose and glycol degradation predicted high dieldrin dissipation and concurrently greater humus content. 
+- The abundances of functional pathway potentials of lactose, galactose, fucose, rhamnose and glycol degradation predicted high dieldrin dissipation and concurrently greater humicC and particulateC content.  
 
-- There were unique interactions between bacteria and fungi in the Kurosol, which together were driven by humus content and associated to dieldrin loss. Some bacterial taxa in this group were significantly more likely to be present in samples with high dieldrin dissipation and their abundances contributed largely to the potentials of lactose, galactose, fucose and rhamnose degradation.    
+- There were unique interactions between bacteria and fungi in the Kurosol, which together were associated with humicC and linked to dieldrin loss. Some bacterial taxa in this group were significantly more likely to be present in samples with high dieldrin dissipation and their abundances contributed largely to the potentials of lactose, galactose, fucose and rhamnose degradation.    
 
 - Important bacteria included Actinobacteria in the order Solirubrobacterales, Planctomycetes in the order Gemmatales, Chloroflexi in the order of WCHB1-50 and Bacteroidetes in the order Bacteroidales and Geobacter sp.. Of the fungal taxa, the order Hypocreales was important, including the genera Fusarium, Thelonectria, Trichoderma, Myxocephala and Monocillium.  
 
@@ -224,7 +219,7 @@ taxtable <- taxonomy$data %>% as_tibble()%>% dplyr::select(-Confidence) %>% sepa
 physeqF<-phyloseq(
   otu_table(SVs, taxa_are_rows = T), 
   tax_table(as.data.frame(taxtable)  %>% column_to_rownames("Feature.ID") %>% as.matrix()), 
-  sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
+  sample_data(metadata2 ) )
 sample_names(physeqF)
 library(phylosmith)
 physeqF <- set_sample_order(physeqF, sort_on = "Paddock")
@@ -318,7 +313,7 @@ EC_names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Su
 physeqE <-phyloseq(
         otu_table(EC_metagenome, taxa_are_rows = T), 
         tax_table(as.data.frame(EC_names) %>% as.matrix()),
-        sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
+        sample_data(metadata2 ))
 physeqE <- prune_samples(samples = (sample_names(physeqE)!= c("C20")), physeqE)
 physeqE <- prune_taxa(taxa_sums(physeqE) != 0, physeqE)
 
@@ -353,14 +348,14 @@ pw.names <- read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Su
 physeq.pw <- phyloseq(otu_table(
              pathway.pred, taxa_are_rows = T), 
               tax_table(as.data.frame(pw.names) %>% as.matrix()),
-             sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+             sample_data(metadata2 )) 
 physeq.pw
 ```
 
 ```{r associations, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE, include=FALSE, cache=TRUE}
 
 # now for the pathway file
-pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE)
+pathway.assoc <- read_tsv("/Volumes/Backup Plus/ManualFileBackup/Picrust_output/M2_Bacteria/2020_0319_picrust10minfreq2minspls_newrun/picrust2_out_pipeline/pathways_out/path_abun_contrib.tsv", col_names = TRUE) #large file > 1gb
 glycolmetabolism <- pathway.assoc %>% filter(`function` == "GLYCOL-GLYOXDEG-PWY")
 lactogalacto <- pathway.assoc %>% filter(`function` == "LACTOSECAT-PWY")
 Bacillus <- pathway.assoc %>% filter(taxon == "ad4cba5280fb47cbebea01e7031af61c")
@@ -516,7 +511,7 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
 
 
 # Hypothesis
-We hypothesised that quality of soil organic matter is associated with the phylogenetic and metabolic capability of soils to degrade dieldrin.
+We hypothesised that soil organic matter which is composed of more degraded carbon is associated with phylogenetic and metabolic capabilities to degrade chlorinated POPs.
 
 
 # Results
@@ -702,7 +697,7 @@ data.TC.ratio <- data.TC.ratio %>% rownames_to_column("OTUID") %>%
 data.TC.ratio <- data.TC.ratio %>% t
 physeq.pw_data.TC.ratio <-phyloseq(otu_table(
             data.TC.ratio, taxa_are_rows = T), 
-              tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID"))) 
+              tax_table(as.data.frame(pw.names) %>% as.matrix()), sample_data(metadata2) ) 
 taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw_data.TC.ratio)@.Data[,c("COMMON-NAME")]))
 taxa_names(physeq.pw_data.TC.ratio) <- taxtable$COMMON.NAME
 
@@ -753,7 +748,7 @@ g2 <- ggarrange(p1,p2, p5, legend = "none", ncol = 1, nrow = 3, align = "v", hei
 ggarrange(g2, g1, common.legend = TRUE, legend = "right", ncol = 2, widths = c(0.9,1))
 
 
-ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_metacycbarplot.pdf",height=11.2, width=16, units='in', dpi=600)
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_metacycbarplot.pdf",height=11.2, width=16, units='in', dpi=600)
 
 #table with most associated pathways 
 #selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
@@ -910,8 +905,8 @@ cord.Y = cor(pw.spls$Y, bisect, use = "pairwise")
 simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_column("pathway")
 #filter1
 simMat.flt.all <- simMat %>% data.frame() %>% column_to_rownames("pathway") %>% round(2) %>%  rownames_to_column("pathway") %>% 
-  filter(Dloss >= 0.73 |
-           Dloss <= -0.86) %>% 
+  filter(Dloss >= 0.85 |
+           Dloss <= -0.85) %>% 
   arrange(Dloss)
 
 ```
@@ -930,7 +925,7 @@ taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
 #tables for analysis
 x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
 y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "Dloss", "CN")])
-colnames(y) <- c("HUM",  "ROC", "POC", "Dieldrin loss", "C:N")
+colnames(y) <- c("HumicC",  "resistantC", "particulateC", "Dieldrin loss", "C:N")
 
 #y$HC <- log1p(y$HC) #normalise HC only
 #relative data
@@ -973,8 +968,8 @@ simMat = as.matrix(cord.X %*% t(cord.Y)) %>% as.data.frame %>%  rownames_to_colu
 #filter1
 simMat <- simMat %>% dplyr::rename(Dieldrinloss = `Dieldrin loss`)
 simMat.flt <- simMat %>% data.frame() %>% column_to_rownames("pathway") %>% round(2) %>%  rownames_to_column("pathway") %>% 
-  filter(`Dieldrinloss` >= 0.73 |
-           `Dieldrinloss` <= -0.86) %>% 
+  filter(`Dieldrinloss` >= 0.80 |
+           `Dieldrinloss` <= -0.85) %>% 
   arrange(`Dieldrinloss`)
 ```
 
@@ -1010,7 +1005,7 @@ physeq.pw.flt.clr <- microbiome::transform(physeq.pw.flt, "clr")
 taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt.clr)@.Data[,c("COMMON-NAME")]))
 taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
 
-#tables for analysis
+# tables for analysis
 x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
 y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "Dloss", "CN")])
 #y$D1517 <- y$D1517 / 1000 #everything on same units (g/kg) 
@@ -1247,15 +1242,23 @@ p4 <- p.ccaB +
 
 #PERCENT FILTERVALUE FOR ALL RDAs
 pcnt <- 0.25
+#FORMULA FOR ALL RDAs
+form <- formula(~ HUM.clr + POC.clr + ROC.clr)
+#~ Clay_1 + pH + TOC)
+#~ HUM.clr + POC.clr + ROC.clr
+#labels for arrows
+arrowlabel  <- c("HumicC", "particulateC", "resistantC")
+
 
 #KUROSOL
 #BACTERIA
 physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Kurosol", physeqB)
 physeq.B.flt  <-   prune_samples(sample_data(physeq.B.flt)$Farm != "C", physeq.B.flt)
+#physeq.B.flt  <-   prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
 physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
 physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
-ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray", formula = form )
 
 
 #require(vegan)
@@ -1282,12 +1285,12 @@ testrdabacteria <- data.frame(Group = "Bacteria", test) %>% rownames_to_column("
 colourlow <- "gray90"
 colourhigh <- "black"
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") + geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Bacteria, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -4.7, y = 12,label = paste(expression('(F'[3*','*14]~'='~2.6*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") + geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Bacteria, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -4.7, y = 12,label = paste(expression('(F'[3*','*14]~'='~2.6*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM", "POC", "ROC")
+rownames(arrowmat) <- arrowlabel
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1299,8 +1302,8 @@ arrow_map <- aes(xend = 1 * RDA1,
                  color = NULL, 
                  label = labels)
 
-label_map <- aes(x = 3 * RDA1, 
-                 y = 3 * RDA2, 
+label_map <- aes(x = 3.25 * RDA1, 
+                 y = 3.25 * RDA2, 
                  shape = NULL, 
                  color = NULL, 
                  label = labels)
@@ -1326,10 +1329,11 @@ psKbac <- physeq.B.flt
 # FUNGI
 physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Kurosol", physeqF)
 physeq.F.flt  <-   prune_samples(sample_data(physeq.F.flt)$Farm != "C", physeq.F.flt)
+#physeq.B.flt  <-   prune_samples(sample_data(physeqF)$Farm != "C", physeqF)
 physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
-ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = form)
 
 require(vegan)
 test <- anova(ord_ccaF, by = "margin")
@@ -1357,12 +1361,12 @@ testrdafungi <- data.frame(Group = "Fungi", test) %>% rownames_to_column("C-Frac
 
 
 p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
-    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Fungi, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -1.25, y = 8,label = paste(expression('(F'[3*','*14]~'='~2.7*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)  
+    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Fungi, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -1.25, y = 8,label = paste(expression('(F'[3*','*14]~'='~2.7*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)  
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaF, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM", "POC", "ROC")
+rownames(arrowmat) <- arrowlabel
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1374,8 +1378,8 @@ arrow_map <- aes(xend = 1 * RDA1,
                  color = NULL, 
                  label = labels)
 
-label_map <- aes(x = 1.8 * RDA1, 
-                 y = 1.8 * RDA2, 
+label_map <- aes(x = 2.5 * RDA1, 
+                 y = 2.5 * RDA2, 
                  shape = NULL, 
                  color = NULL, 
                  label = labels)
@@ -1406,19 +1410,19 @@ physeq.B.flt <- prune_samples(sample_data(physeqB)$Soil == "Chromosol", physeqB)
 physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
 physeq.B.flt <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
 
-ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaB <- phyloseq::ordinate(physeq.B.flt, "RDA", "bray",formula = form)
 
 require(vegan)
 test <- anova(ord_ccaB, by = "margin")
 testrdabacteriaCH <- data.frame(Group = "Bacteria", test) %>% rownames_to_column("C-Fraction")
 
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ annotate("text", x = -4.5, y = 11,label = paste(expression('(F'[3*','*11]~'='~1.1*', '*italic(p)~'= 0.27)')), parse = TRUE, size = 3) + guides(shape = FALSE)
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ annotate("text", x = -4.5, y = 11,label = paste(expression('(F'[3*','*11]~'='~1.1*', '*italic(p)~'= 0.27)')), parse = TRUE, size = 3) + guides(shape = FALSE)
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM", "POC", "ROC")
+rownames(arrowmat) <- arrowlabel
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1458,7 +1462,7 @@ physeq.F.flt <- prune_samples(sample_data(physeqF)$Soil == "Chromosol", physeqF)
 physeq.F.flt = filter_taxa(physeq.F.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
 physeq.F.flt <-  microbiome::transform(physeq.F.flt, "clr") #clr transform
 
-ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaF <- phyloseq::ordinate(physeq.F.flt, "RDA", "bray",formula = form)
 
 require(vegan)
 test <- anova(ord_ccaF, by = "margin")
@@ -1466,12 +1470,12 @@ testrdafungiCH <- data.frame(Group = "Fungi", test) %>% rownames_to_column("C-Fr
 
 
 #permutest(ord_ccaF)
-p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Fungi, Chromosol") + scale_shape_manual(values = c(17))  + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ annotate("text", x = -3, 6.25,label = paste(expression('(F'[3*','*11]~'='~1.2*', '*italic(p)~'= 0.15)')), parse = TRUE, size = 3) + guides(shape = FALSE)
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Fungi, Chromosol") + scale_shape_manual(values = c(17))  + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ annotate("text", x = -3, 6.25,label = paste(expression('(F'[3*','*11]~'='~1.2*', '*italic(p)~'= 0.15)')), parse = TRUE, size = 3) + guides(shape = FALSE)
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaF, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM", "POC", "ROC")
+rownames(arrowmat) <- arrowlabel
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1508,14 +1512,16 @@ psCfun <- physeq.F.flt
 
 #KUROSOL
 # ENZYME METAGENOME
+
 physeq.E.flt <- prune_samples(sample_data(physeqE)$Soil == "Kurosol", physeqE)
 physeq.E.flt  <-   prune_samples(sample_data(physeq.E.flt)$Farm != "C", physeq.E.flt)
+#physeq.E.flt  <-   prune_samples(sample_data(physeqE)$Farm != "C", physeq.E)
 physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 
 psKEnz <- physeq.E.flt
 
-ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = form)
 
 require(vegan)
 test <- anova(ord_ccaE, by = "margin")
@@ -1546,12 +1552,12 @@ testrdaenzymes <- data.frame(Group = "Enzyme Genes", test)%>% rownames_to_column
 
 
 p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss") +
-    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Enzyme metagenome, Kurosol") + labs(size= "Humus (%)", color = "Dieldrin loss (%)")+ scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -1.8, y = 5.5,label = paste(expression('(F'[3*','*14]~'='~2.9*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)
+    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Enzyme metagenome, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)")+ scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -1.8, y = 5.5,label = paste(expression('(F'[3*','*14]~'='~2.9*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM", "POC", "ROC")
+rownames(arrowmat) <- arrowlabel
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1594,19 +1600,19 @@ physeq.E.flt = filter_taxa(physeq.E.flt, function(x) sum(x > 0) > (pcnt*length(x
 physeq.E.flt <-  microbiome::transform(physeq.E.flt, "clr") #clr transform
 psCEnz <- physeq.E.flt
 
-ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = ~ HUM.clr + POC.clr + ROC.clr)
+ord_ccaE <- phyloseq::ordinate(physeq.E.flt, "RDA", "bray",formula = form)
 
 require(vegan)
 test <- anova(ord_ccaE, by = "margin")
 testrdaenzymesCH <- data.frame(Group = "Enzyme Genes", test)%>% rownames_to_column("C-Fraction")
 
 
-p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Enzyme metagenome, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Humus (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -3, y = 5.5,label = paste(expression('(F'[3*','*11]~'='~0.84*', '*italic(p)~'= 0.81)')), parse = TRUE, size = 3) + guides(shape = FALSE)
+p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Enzyme metagenome, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = -3, y = 5.5,label = paste(expression('(F'[3*','*11]~'='~0.84*', '*italic(p)~'= 0.81)')), parse = TRUE, size = 3) + guides(shape = FALSE)
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
 arrowmat <- data.frame(arrowmat)
-rownames(arrowmat) <- c("HUM", "POC", "ROC")
+rownames(arrowmat) <- arrowlabel
 # Add labels, make a data.frame
 arrowdf <- data.frame(labels = rownames(arrowmat), arrowmat)
 # Define the arrow aesthetic mapping
@@ -1651,6 +1657,7 @@ g4
 psCEnz
 print(paste("After filtering the analysis included", ntaxa(psKbac),",", ntaxa(psKfun),"and", ntaxa(psKEnz), "bacterial, fungal taxa and enzymes respectively in the Kurosol and ", ntaxa(psCbac), ",", ntaxa(psCfun),"and", ntaxa(psCEnz), "in the Chromosol"))
 
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_rda.pdf",height=10, width=10, units='in', dpi=600)
 
 ```
   
@@ -2103,7 +2110,7 @@ kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results 
 ```
  
 
-## Humus-associated cluster of bacteria and fungi 
+## HumicC-associated cluster of bacteria and fungi 
 ```{r glassoallnodes , fig.cap = "", include = FALSE, eval = FALSE,  message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8}
 
 #https://github.com/zdk123/SpiecEasi
@@ -2181,7 +2188,7 @@ Z <- Z  %>% left_join(Z5) %>%  mutate_each(funs(replace(., which(is.na(.)), "pre
 
 ### Kurosol
 ```{r glassoallKURnotinclud , fig.cap = "", include = FALSE, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=5, fig.asp = 0.8, cache = TRUE}
-
+# ?huge for lambda information
 ## spiec easi "glasso" bacteria
 #filter so that file size stays manageable but assuring that there are unique taxa present in both soils. 
 
@@ -3142,11 +3149,11 @@ p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "CN", add = c(
 
 p5 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "HC", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "H:C ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(0.4)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.45)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
 
-p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "ROC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(40)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
+p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "resistantC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(40)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
 
-p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "HUM (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60)+ scale_fill_grey(start = 0.35, end = 0.9)
+p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "humicC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60)+ scale_fill_grey(start = 0.35, end = 0.9)
 
-p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "POC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
+p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "particulateC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
 
 p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9)
 
@@ -3154,6 +3161,9 @@ pdf(NULL)
 p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.legend = TRUE)
 x = dev.off()
 p 
+
+ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_carbonquality.pdf",height=7, width=8, units='in', dpi=600)
+
 
 correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
 r_matrix=correlation_matrix$r

@@ -32,4 +32,33 @@ kable(testrdadf %>% dplyr::select(-Group),  format = "latex", caption = "Results
 #https://github.com/joey711/shiny-phyloseq/blob/master/panels/paneldoc/data.md
 
 
+physeq.B.flt  <-   prune_samples(sample_data(physeqB)$Farm != "C", physeqB)
+physeq.B.flt = filter_taxa(physeq.B.flt, function(x) sum(x > 0) > (pcnt*length(x)), TRUE) #must be present in x percent of samples
+
+#CLR transform 
+ps_clr <-  microbiome::transform(physeq.B.flt, "clr") #clr transform
+
+# ordinations using different distances via phyloseq
+ord_clr <- phyloseq::ordinate(ps_clr, "RDA", distance = "unifrac") #using any difference here gives the same result.
+
+ord_clr2 <- phyloseq::ordinate(physeq.B.flt, "NMDS", distance = "bray")
+
+ord_clr3 <- phyloseq::ordinate(ps_clr, "PCoA", distance = "unifrac")
+
+# 
+p1 <- phyloseq::plot_ordination(ps_clr, ord_clr  , color = "Dloss")
+p2 <- phyloseq::plot_ordination(ps_clr, ord_clr2 , color = "Dloss") 
+p3 <- phyloseq::plot_ordination(ps_clr, ord_clr3, color = "Dloss") 
+ggarrange(p1, p2, p3)
+
+#Generate distance matrix 
+clr_dist_matrix <- phyloseq::distance(physeq.B.flt, method = "euclidean") 
+clr_dist_matrix2 <- phyloseq::distance(physeq.B.flt, method = "unifrac") 
+ 
+#ADONIS test 
+vegan::adonis(clr_dist_matrix ~ phyloseq::sample_data(physeq.B.flt)$Dloss_fct2)
+
+ 
+
+
 ```

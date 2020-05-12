@@ -1,0 +1,124 @@
+---
+title: "JamesCitrate"
+output: 
+ bookdown::html_document2:
+   toc: yes
+   fig_caption: yes
+   number_sections: false
+ bookdown::word_document2:
+    reference_docx: "M2_Results_template.docx"
+---
+
+**Code for all diagnostic plots is taken from the book "An R companion to applied regression", John Fox Sanford Weisberg**
+
+# Loading data
+```{r data, message=FALSE, echo=TRUE, warning=TRUE}
+data <-  read.csv("~/Downloads/Citrate exudation.csv") 
+data$Prate <- factor(data$Prate, levels = c("1","5","50")) # Turn pyruvate into a treatment factor, not a numerical variable. It is more of a treatment level, rather then many different pyruvate concentrations. 
+data$WAT <- factor(data$WAT, levels = c("3","4","5","6") )
+require(plyr)
+data$WAT <- revalue(data$WAT, c("3"="WAT3", "4"="WAT4", "5"="WAT5", "6"="WAT6"))
+
+```
+  
+
+  
+## A quick look at data  
+```{r lineplots, fig.width=7, fig.asp=0.5, echo=TRUE,  message=FALSE, warning=TRUE, fig.cap="A quick look at data using package ggpubr."}
+
+library(ggplot2)
+library(ggpubr)
+library(reshape2)
+data.melt <- melt(data, measure.var = "Citrate")
+
+Lineplt1 <- ggline(data = data.melt, x = "WAT", y = "value", color = "Prate", add = c("mean_se"), ylab = "Citrate concentration")
+
+Lineplt2 <- ggline(data = data.melt, x = "WAT", y = "value", linetype  = "CO2", add = c("mean_se"), ylab = "Citrate concentration")
+
+p <- ggarrange(Lineplt1, Lineplt2, nrow = 1, ncol =2)
+
+p 
+```
+
+It looks to me as if in WAT5 something happened to citrate in samples treated with pyruvate concentration '1' and '5' but mostly under elevated CO<sub>2</sub>. But was there an additional effect of pyruvate? I.e. was there an interaction? I will test that in the model. 
+
+<br/>
+```{r barplots, fig.width=7, fig.asp=0.5, echo=TRUE,  message=FALSE, warning=TRUE, fig.cap="barplot of data from WAT5 only using package ggpubr."}
+library(tidyverse)
+dataWAT5 <- data %>% filter(WAT == "WAT5")
+dataWAT5 <- melt(dataWAT5, measure.var = "Citrate")
+
+barplot <- ggbarplot(data = dataWAT5, x = "Prate", y = "value", fill = "CO2", add = c("mean_se"), position = position_dodge(0.7) , ylab = "Citrate concentration") + ggtitle("Week 5 after treatment")
+barplot
+```
+Looking at the means from WAT5 it seems that the difference between ambient and elevated did not change with different levels of pyruvate.
+
+
+<br/>
+  
+# Model and diagnostic plots
+- I treated all predictors for citrate as factors - including pyruvate. This made more sense to me. 
+- Hence the model is a 'Multiway Anova'
+- Model info on pg 160 - 170++ of book 
+- Diagnostic plots on pg 31 - 36
+
+```{r model0, message=FALSE, echo=TRUE, warning=TRUE, }
+modelcitrate <-  lm(Citrate ~ CO2 * Prate, data = data)
+summary(modelcitrate)
+```
+
+Confirming there was no interaction. 
+
+
+<br/>  
+
+## You can also use this package to print model results directly into a neat table
+```{r table, message=FALSE, echo=TRUE}
+library(sjPlot)
+tab_model(modelcitrate)
+```
+  
+<br/>
+## Histogram and qqplot of residuals
+```{r model1, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Histogram of studentized residuals from regression"}
+require(car)
+hist(rstudent(modelcitrate)) # histogram of studentized residuals from regression
+```
+
+<br/>
+```{r model2, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Quantile comparison of studentized residuals from regression. The broken lines show a bootstrapped pointwise 95% confidence envelope for the points"}
+qqPlot(modelcitrate)  
+```
+
+<br/>
+
+## Testing for influencial samples, i.e. outliers
+```{r model3, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Index plots of Cook's distance and hat values, from the regression", fig.width=7, fig.asp=0.9}
+influenceIndexPlot(modelcitrate , vars = c("Cook", "hat"))
+```
+This looks o.k to me. I learned that Cook's distance > 1 is bad. 
+
+
+<br/>
+```{r model4, message=FALSE, echo=FALSE, warning=TRUE, fig.cap="Component-plus-residdual plots"}
+#crPlots(modelcitrate)
+```
+
+
+<br/>  
+
+## Checking for independance of residuals
+```{r residuals, fig.width= 8, fig.asp=1, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Residual plot"}
+residualPlots(modelcitrate)
+```
+
+```{r model5, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Spread-level plot of studentized residuals from the model"}
+spreadLevelPlot(modelcitrate )
+ncvTest(modelcitrate)
+```
+
+It looks to me as if the residuals are still somewhat dependent on the citrate concentrations. Perhaps the model does not explain the treatments well enough. 
+
+
+
+
