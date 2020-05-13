@@ -3193,15 +3193,16 @@ cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %
 
 ```
   
-```{r carbonquality2, fig.cap = "Comparisons of carbon fractions between Chromosol and Kurosol. Proportions of particulate organic carbon, humic organic carbon and resistant organic carbon are shown by soil (a) and as the percent-difference of the Kurosol to the Chromosol (b).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=6, fig.asp =0.6}
+```{r carbonquality2, fig.cap = "Comparisons of carbon fractions between Chromosol and Kurosol. Proportions of particulate organic carbon, humic organic carbon and resistant organic carbon are shown by soil (a) and as the percent-difference of the Kurosol to the Chromosol (b). The residuals of prediction are denoted as 'UnclassifiedC'.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=6, fig.asp =0.6}
 
-testdf <- data.frame(sample_data(physeqB)) %>% group_by(Soil) %>% summarise(TOCmean = mean(TOC), ROCMean = mean(ROC.pct), HUMMean = mean(HUM.pct), POCMean = mean(POC.pct)) %>% summarise(ParticulateC = POCMean[Soil == "Kurosol"] - POCMean[Soil == "Chromosol"], HumusC = HUMMean[Soil == "Kurosol"] - HUMMean[Soil == "Chromosol"], ResistantC = ROCMean[Soil == "Kurosol"] - ROCMean[Soil == "Chromosol"]) 
+testdf <- data.frame(sample_data(physeqB)) %>% group_by(Soil) %>% summarise(TOCmean = mean(TOC), ROCMean = mean(ROC.pct), HUMMean = mean(HUM.pct), POCMean = mean(POC.pct), UnknownMean = mean(Delta.C.Frac.pct)) %>% summarise(ParticulateC = POCMean[Soil == "Kurosol"] - POCMean[Soil == "Chromosol"], HumicC = HUMMean[Soil == "Kurosol"] - HUMMean[Soil == "Chromosol"], ResistantC = ROCMean[Soil == "Kurosol"] - ROCMean[Soil == "Chromosol"], UnclassifiedC = UnknownMean[Soil == "Kurosol"] - UnknownMean[Soil == "Chromosol"]) 
+
 require(reshape2)
-p10 <- melt(testdf) %>% ggbarplot(., x = "variable", y = "value", fill = "variable", ylab =  "Carbon fraction difference (%)", xlab = "", position = position_dodge(0.7), width = 0.4 )  + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9, labels=c("Particulate-C", "Humic-C", "Resistant-C")) + labs(fill = "Carbon fraction") + annotate("text", x = 3, y = 3 ,label = paste(expression('Kurosol')), parse = TRUE, size = 3)+ annotate("text", x = 1.5, y = -2 ,label = paste(expression('Chromosol')), parse = TRUE, size = 3) + geom_hline(yintercept=0, linetype="dashed", color = "black")
+p10 <- melt(testdf) %>% ggbarplot(., x = "variable", y = "value", fill = "variable", ylab =  "Carbon fraction difference (%)", xlab = "", position = position_dodge(0.7), width = 0.4 )  + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9, labels=c("Particulate-C", "Humic-C", "Resistant-C", "Unclassified-C")) + labs(fill = "Carbon fraction") + annotate("text", x = 3, y = 3 ,label = paste(expression('Kurosol')), parse = TRUE, size = 3)+ annotate("text", x = 1.5, y = -2 ,label = paste(expression('Chromosol')), parse = TRUE, size = 3) + geom_hline(yintercept=0, linetype="dashed", color = "black")
 
-testdf <- melt(sample_data(physeqB), measure.var = c("ROC.pct", "HUM.pct", "POC.pct"))
-testdf$variable <- factor(testdf$variable, level = c("POC.pct", "HUM.pct", "ROC.pct" ))
-p11 <- testdf %>% ggbarplot(., x = "Soil", y = "value", add = c("mean_se"), scales = "free", fill = "variable", ylab =  "Carbon fraction (%)", xlab = "", position = position_dodge(0.7), width = 0.4 )  + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9, labels=c("Particulate-C", "Humic-C", "Resistant-C")) + labs(fill = "Carbon fraction") 
+testdf <- melt(sample_data(physeqB), measure.var = c("ROC.pct", "HUM.pct", "POC.pct","Delta.C.Frac.pct"))
+testdf$variable <- factor(testdf$variable, level = c("POC.pct", "HUM.pct", "ROC.pct","Delta.C.Frac.pct" ))
+p11 <- testdf %>% ggbarplot(., x = "Soil", y = "value", add = c("mean"), scales = "free", fill = "variable", ylab =  "Carbon fraction (%)", xlab = "", width = 0.4 )  + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9, labels=c("Particulate-C", "Humic-C", "Resistant-C", "Unclassified-C")) + labs(fill = "Carbon fraction") 
 
 pdf(NULL)
 gg2 <- ggarrange(p11, p10, common.legend = TRUE, nrow = 1, labels = "auto")
