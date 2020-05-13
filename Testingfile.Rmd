@@ -58,7 +58,8 @@ clr_dist_matrix2 <- phyloseq::distance(physeq.B.flt, method = "unifrac")
 #ADONIS test 
 vegan::adonis(clr_dist_matrix ~ phyloseq::sample_data(physeq.B.flt)$Dloss_fct2)
 
- 
+#filter certain things looking for string patterns
+physeqB.melt.comp %>% filter(str_detect(tolower(Genus), pattern =  "ace"))
 
 
 ```

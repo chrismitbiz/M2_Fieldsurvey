@@ -511,7 +511,7 @@ kable(head(tax_table(physeq.pw)), booktabs=TRUE) %>%
 
 
 # Hypothesis
-We hypothesised that soil organic matter which is composed of more degraded carbon is associated with phylogenetic and metabolic capabilities to degrade chlorinated POPs.
+We hypothesised that soil organic matter which is composed of relatively more degraded carbon has greater metabolic capabilities to degrade chlorinated POPs.
 
 
 # Results
@@ -925,7 +925,7 @@ taxa_names(physeq.pw.flt.clr) <- taxtable$COMMON.NAME
 #tables for analysis
 x <- as.data.frame(t(otu_table(physeq.pw.flt.clr)))
 y <- data.frame(sample_data(physeq.pw.flt)[,c("HUM.clr", "ROC.clr", "POC.clr", "Dloss", "CN")])
-colnames(y) <- c("HumicC",  "resistantC", "particulateC", "Dieldrin loss", "C:N")
+colnames(y) <- c("Humic-C",  "Resistant-C", "Particulate-C", "Dieldrin loss", "C:N")
 
 #y$HC <- log1p(y$HC) #normalise HC only
 #relative data
@@ -939,8 +939,8 @@ pw.spls <- mixOmics::spls(x, y, ncomp=5,  mode = "regression", scale = TRUE, kee
 #abline(h = 0.0975)
 
 #dev.off() 
-#jpeg(filename = "test.jpeg", res = 600, width = 4000, height = 5500)
-#mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(5, 25))
+#jpeg(filename = "test.jpeg", res = 600, width = 4500, height = 5500)
+#mixOmics::cim(pw.spls, comp = 1:2, xlab = "", title = "Kurosol", margins = c(6, 25))
 #dev.off()
 
 #tune.spls <- mixOmics::perf(pw.spls, validation = "Mfold", folds = 10, progressBar = FALSE, nrepeat = 1000)
@@ -1247,7 +1247,7 @@ form <- formula(~ HUM.clr + POC.clr + ROC.clr)
 #~ Clay_1 + pH + TOC)
 #~ HUM.clr + POC.clr + ROC.clr
 #labels for arrows
-arrowlabel  <- c("HumicC", "particulateC", "resistantC")
+arrowlabel  <- c("Humic-C", "Particulate-C", "Resistant-C")
 
 
 #KUROSOL
@@ -1657,7 +1657,7 @@ g4
 psCEnz
 print(paste("After filtering the analysis included", ntaxa(psKbac),",", ntaxa(psKfun),"and", ntaxa(psKEnz), "bacterial, fungal taxa and enzymes respectively in the Kurosol and ", ntaxa(psCbac), ",", ntaxa(psCfun),"and", ntaxa(psCEnz), "in the Chromosol"))
 
-#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_rda.pdf",height=10, width=10, units='in', dpi=600)
+ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_rda.pdf",height=11, width=10.5, units='in', dpi=600)
 
 ```
   
@@ -3149,11 +3149,11 @@ p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "CN", add = c(
 
 p5 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "HC", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "H:C ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(0.4)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.45)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9)
 
-p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "resistantC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(40)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
+p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Resistant-C (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(40)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
 
-p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "humicC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60)+ scale_fill_grey(start = 0.35, end = 0.9)
+p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Humic-C (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60)+ scale_fill_grey(start = 0.35, end = 0.9)
 
-p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "particulateC (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
+p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Particulate-C (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(27)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9)
 
 p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw() + scale_fill_grey(start = 0.35, end = 0.9)
 
@@ -3162,7 +3162,7 @@ p <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, p9, nrow = 3, ncol = 3, common.l
 x = dev.off()
 p 
 
-ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_carbonquality.pdf",height=7, width=8, units='in', dpi=600)
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_carbonquality.pdf",height=7, width=8, units='in', dpi=600)
 
 
 correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
@@ -3182,6 +3182,13 @@ cortable <- data.frame(Variable1 = cortable$r_table.Var1,
 cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
 
 #kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
+
+std <- function(x) sd(x)/sqrt(length(x))
+
+data.frame(sample_data(physeqB)) %>% group_by(Soil) %>% summarise(TOCmean = mean(TOC), ROCMean = mean(ROC.pct), HumMean = mean(HUM.pct), POCMean = mean(POC.pct), ROCstd = std(ROC.pct) ) 
+
+#p2 <- p2 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
+
 ```
   
 ## Community and functional beta diversity
@@ -3503,14 +3510,14 @@ data.TSS_TCratio.phyl <- data.TSS.TC.ratio %>% t
 physeq.pw_TCratio <-phyloseq(otu_table(
             data.TSS_TCratio.phyl, taxa_are_rows = T), 
               tax_table(as.data.frame(pw.names) %>% as.matrix()),
-             sample_data(metadata2 %>% as.data.frame() %>% column_to_rownames("#SampleID")))
+             sample_data(metadata2 ))
 #ps_clr <- microbiome::transform(physeq.pw_TCratio, "clr")
 
 physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
 
 # figure          
 my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
+p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
 
 #All aromatic compound degradation pathways
 p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
@@ -3519,6 +3526,8 @@ p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradatio
 
 
 ggarrange(p1,p2, ncol = 2, widths = c(0.5,0.5), common.legend = TRUE)
+
+ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_xenocomp.pdf",height=4.5, width=8, units='in', dpi=600)
 
 #physeq.pw.melt <- psmelt(physeq.pw)
 # wilcoxon test
@@ -3617,6 +3626,7 @@ physeqB.melt.comp <- physeqB.melt.comp %>%  mutate(Phylum = str_replace_all(Phyl
 ps_trans <- phyloseq_standardize_otu_abundance(physeq.B.flt, method = "pa")
 physeqB.melt.pa <- psmelt(ps_trans)
 physeqB.melt.pa <- physeqB.melt.pa %>%  mutate(Phylum = str_replace_all(Phylum, pattern = c(' p__' = "")))  %>%  mutate(Class = str_replace_all(Class, pattern = c(' c__' = "")))  %>%  mutate(Order = str_replace_all(Order, pattern = c(' o__' = "")))
+
 
 #extracting ASV ids from phylofactor object for plotting
 #s <- summary(pf_gpf_mix_33spls_Dloss_alpha0.2, taxadfpf, factor=1)
