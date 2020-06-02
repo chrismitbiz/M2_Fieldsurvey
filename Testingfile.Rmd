@@ -62,4 +62,12 @@ vegan::adonis(clr_dist_matrix ~ phyloseq::sample_data(physeq.B.flt)$Dloss_fct2)
 physeqB.melt.comp %>% filter(str_detect(tolower(Genus), pattern =  "ace"))
 
 
+df <- physeqB.melt.pa %>%  filter(OTU %in% pf.list$OTU)
+df2 <- df %>% filter(Order == "Sphingobacteriales") %>% dplyr::select(OTU, Sample, Abundance, Class, Order, Family,Genus, Species) %>% filter(Abundance > 0)
+df3 <- unique(df2) %>% filter(Abundance > 0)
+
+df <- physeqB.melt.pa %>%  filter(OTU %in% pf.list$OTU)
+df2 <- df %>% filter(Order == "Clostridiales") %>% dplyr::select(OTU, Sample, Abundance, Class, Order, Family,Genus, Species) %>% filter(Abundance > 0)
+
+
 ```
