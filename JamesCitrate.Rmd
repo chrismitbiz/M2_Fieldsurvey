@@ -7,6 +7,8 @@ output:
    number_sections: false
  bookdown::word_document2:
     reference_docx: "M2_Results_template.docx"
+editor_options: 
+  chunk_output_type: inline
 ---
 
 **Code for all diagnostic plots is taken from the book "An R companion to applied regression", John Fox Sanford Weisberg**
@@ -16,6 +18,7 @@ output:
 data <-  read.csv("~/Downloads/Citrate exudation.csv") 
 data$Prate <- factor(data$Prate, levels = c("1","5","50")) # Turn pyruvate into a treatment factor, not a numerical variable. It is more of a treatment level, rather then many different pyruvate concentrations. 
 data$WAT <- factor(data$WAT, levels = c("3","4","5","6") )
+data$CO2 <- factor(data$CO2, levels = c("Ambient","Elevated") )
 require(plyr)
 data$WAT <- revalue(data$WAT, c("3"="WAT3", "4"="WAT4", "5"="WAT5", "6"="WAT6"))
 
@@ -43,6 +46,7 @@ p
 It looks to me as if in WAT5 something happened to citrate in samples treated with pyruvate concentration '1' and '5' but mostly under elevated CO<sub>2</sub>. But was there an additional effect of pyruvate? I.e. was there an interaction? I will test that in the model. 
 
 <br/>
+
 ```{r barplots, fig.width=7, fig.asp=0.5, echo=TRUE,  message=FALSE, warning=TRUE, fig.cap="barplot of data from WAT5 only using package ggpubr."}
 library(tidyverse)
 dataWAT5 <- data %>% filter(WAT == "WAT5")
@@ -62,15 +66,37 @@ Looking at the means from WAT5 it seems that the difference between ambient and 
 - Model info on pg 160 - 170++ of book 
 - Diagnostic plots on pg 31 - 36
 
+## Using the lm function
 ```{r model0, message=FALSE, echo=TRUE, warning=TRUE, }
 modelcitrate <-  lm(Citrate ~ CO2 * Prate, data = data)
+modelcitrate
 summary(modelcitrate)
+
+## Anova type 1
+anova(modelcitrate)
+
+## Anova type 2
+car::Anova(modelcitrate, type = 2)
+
+## Anova type 3 
+car::Anova(modelcitrate, type = 3)
 ```
 
 Confirming there was no interaction. 
 
+## Using the aov function
+This gives the exact same results as from the lm function
+```{r modelaov, message=FALSE, echo=TRUE, warning=TRUE, }
+modelcitrateaov <-  aov(Citrate ~ CO2 * Prate, data = data)
+summary(modelcitrateaov)
 
-<br/>  
+## Anova type 2
+car::Anova(modelcitrateaov, type = 2)
+
+## Anova type 3 
+car::Anova(modelcitrateaov, type = 3)
+```
+
 
 ## You can also use this package to print model results directly into a neat table
 ```{r table, message=FALSE, echo=TRUE}
@@ -78,11 +104,13 @@ library(sjPlot)
 tab_model(modelcitrate)
 ```
   
-<br/>
+<br/>  
+
 ## Histogram and qqplot of residuals
 ```{r model1, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Histogram of studentized residuals from regression"}
 require(car)
 hist(rstudent(modelcitrate)) # histogram of studentized residuals from regression
+shapiro.test(resid(modelcitrate))
 ```
 
 <br/>
@@ -108,7 +136,7 @@ This looks o.k to me. I learned that Cook's distance > 1 is bad.
 <br/>  
 
 ## Checking for independance of residuals
-```{r residuals, fig.width= 8, fig.asp=1, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Residual plot"}
+```{r residuals, fig.width= 8, fig.asp=0.75, message=FALSE, echo=TRUE, warning=TRUE, fig.cap="Residual plot"}
 residualPlots(modelcitrate)
 ```
 
@@ -120,5 +148,102 @@ ncvTest(modelcitrate)
 It looks to me as if the residuals are still somewhat dependent on the citrate concentrations. Perhaps the model does not explain the treatments well enough. 
 
 
+# Linear mixed effect models  
+- Build beyond optimal model, meaning a model with all possible explanatory variables and as many interactions as possible  
+-  Use AIC or BIC with REML estimation to compare models with the same fixed but different random structures and to derive the best random structure (smallest AIC or BIC value)  
+- Use t or F statistic with REML estimation to find the best fixed structure, except you have a model with nested fixed effects, then apply the ML estimation  
+- I used the Kenward_Roger approximations as recommended by Halekoh and Höjsgaard, 2014, implemented by Anova test = "F" in the car pck  
+- Present the results of the final model with REML estimation
+
+Reference:  
+
+- Zuur, A. F. leno, E. N, Walker, NJ, Saveliev, AA & Smith, G M. 2009: Mixed effects models and extensions in ecology with R.  
+- https://www.westernsydney.edu.au/__data/assets/pdf_file/0004/947740/Rmanual_mixedeffects_20160914.pdf  
+- http://www.bodowinter.com/tutorial/bw_LME_tutorial2.pdf  
+
+```{r lmpackages, cache = TRUE, message=FALSE, echo=TRUE, warning=TRUE }
+library(lme4)
+library(lmerTest)
+library(car)
+library(rafalib)
+library(visreg)
+library(sjPlot)
+library(sciplot)
+library(nlme)
+library(MASS)
+library(ggpubr)
+theme_set(theme_bw())
+```
+
+### Data overview 
+```{r lmegraphs, cache = TRUE,  fig.height=10, fig.asp=1.5, message=FALSE, echo=TRUE, warning=FALSE}
+
+p1.1 <- ggboxplot(data, y = "Citrate", x = "CO2", add = c("jitter"), fill = "CO2")
+p1.2 <- ggplot(data, aes(x=(Citrate))) +  geom_histogram(color="black", fill="black") 
+p2.1 <- ggboxplot(data, y = "Citrate", x = "Prate", add = c("jitter"), fill = "CO2")
+p2.2 <- ggboxplot(data, y = "Citrate", x = "Prate", add = c("jitter"), fill = "gray")
+p3.1  <- ggboxplot(data, y = "Citrate", x = "WAT", add = c("jitter"), fill = "CO2")
+p3.2 <- ggboxplot(data, y = "Citrate", x = "WAT", add = c("jitter"), fill = "gray", shape = "Prate")
+
+ggarrange(p1.1, p1.2, p2.1, p2.2, p3.1, p3.2, nrow = 3, ncol = 2)
+shapiro.test(data$Citrate)
+```
 
 
+### Data overview - Square root transformed
+```{r lmegraphsqrt, echo=TRUE, fig.height=10, message=FALSE, warning=FALSE, cache=TRUE}
+data$Citrate_sqrt <- sqrt(data$Citrate)
+# A quick overview of data
+p1.1 <- ggboxplot(data, y = "Citrate_sqrt", x = "CO2", add = c("jitter"), fill = "CO2")
+p1.2 <- ggplot(data, aes(x=sqrt(Citrate))) +  geom_histogram(color="black", fill="black") 
+p2.1 <- ggboxplot(data, y = "Citrate_sqrt", x = "Prate", add = c("jitter"), fill = "CO2")
+p2.2 <- ggboxplot(data, y = "Citrate_sqrt", x = "Prate", add = c("jitter"), fill = "gray")
+p3.1  <- ggboxplot(data, y = "Citrate_sqrt", x = "WAT", add = c("jitter"), fill = "CO2")
+p3.2 <- ggboxplot(data, y = "Citrate_sqrt", x = "WAT", add = c("jitter"), fill = "gray")
+
+ggarrange(p1.1, p1.2, p2.1, p2.2, p3.1, p3.2, nrow = 3, ncol = 2)
+shapiro.test(sqrt(data$Citrate))
+```
+
+```{r lmegraphs2, cache = TRUE,  fig.width=7, fig.asp=0.75, message=FALSE, echo=TRUE, warning=FALSE}
+ggboxplot(data, y = "Citrate_sqrt", x = "WAT", add = c("jitter"), fill = "CO2", shape = "Prate")
+```
+
+### Checking which random structure is most suitable
+```{r lmerandom, cache = TRUE}
+M <- gls(sqrt(Citrate) ~ CO2 + Prate + CO2:Prate, data = na.omit(data))
+M0 <- lme(sqrt(Citrate)  ~  CO2 + Prate + CO2:Prate  , random =~ 1 | WAT, data = na.omit(data))
+M1 <- lme(sqrt(Citrate)  ~  CO2 + Prate + CO2:Prate  , random =~ 1 | WAT/Rep, data = na.omit(data))
+M2 <- lme(sqrt(Citrate)  ~  CO2 + Prate + CO2:Prate  , random =~ 1 | Rep, data = na.omit(data))
+anova(M, M0, M1, M2)
+```
+Looks like as if the using WAT (M0) as a random factor improves the model
+
+### Next, initial diagnostics of this model
+```{r lmediagnostics, echo=TRUE, fig.height=5, message=FALSE, warning=FALSE, cache = TRUE}
+data.naomit <- na.omit(data)
+
+E <- resid(M0, type = 'normalized') 
+shapiro.test(E)
+
+E <- data.frame(E = E)
+Ehist <- ggplot(E, aes(x=(E))) +  geom_histogram(color="black", fill="black") + ggtitle("Residuals Histogram")
+
+F0 <- fitted(M0)
+df <- data.frame(F0 = F0, E = E, CO2 = data.naomit$CO2, Prate = data.naomit$Prate)
+
+residscatter <- ggscatter(data= df, x = "F0", y = "E", xlab = "Fitted values", ylab = "Residuals") + ggtitle("Residuals distribution")
+
+CO2scatter <- ggboxplot(data= df, x = "CO2", y = "E", xlab = "CO2 fitted values", ylab = "Residuals", add = ("jitter"))
+
+Pratescatter <- ggboxplot(data= df, x = "Prate", y = "E", xlab = "Prate fitted values", ylab = "Residuals", add = ("jitter"))
+
+ggarrange(Ehist, residscatter, CO2scatter, Pratescatter, nrow = 2, ncol = 2)
+```
+
+Looks pretty good. 
+
+### Looking as model summary
+```{r lme, echo=TRUE, fig.height=5, message=FALSE, warning=FALSE, cache = TRUE}
+summary(M0)
+```

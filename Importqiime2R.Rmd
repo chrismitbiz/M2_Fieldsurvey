@@ -10,6 +10,8 @@ output:
     reference_docx: "M2_Results_template.docx"
  bookdown::pdf_document2:
    keep_tex: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Required packages
@@ -22,6 +24,39 @@ library(phyloseq)
 #install.packages("remotes")
 #remotes::install_github("jbisanz/qiime2R")
 ```
+
+
+
+#### Test if number of ASV/ESVs is different between csv download from the barplot visualisation in view.qiime2.org and a direct export of the ASVtable.qza file from qiime
+
+```{r comparison, message=FALSE, warning = FALSE}
+ASVtable <- qiime2R::read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table.qza")
+ASVtable$data[1:5,1:5] # have a quick look of first 5 rows and columns
+nrow(ASVtable$data) # number of ASVs/ESVs 
+knitr::include_graphics(c("./Screen_Shot.png")  ) 
+```
+  
+```{r test}
+knitr::include_graphics(c("./level-7-bars.svg")  ) 
+```
+  
+The number of all (raw) ASVs/ESVs from this direct import of the ASVtable.qza to R was identical to the number of ASVs/ESVs when this raw ASVtable.qza was converted into a ASVtable.qzv and loaded in view.qiime2.org (see Table Summary screenshot). This makes sense.  
+
+However, downloading the csv file on taxonomic level 7 results in **only 1023 ASVs**. See level 7 barplot for reference only.  
+  
+**This confirms Josh's findings**  
+So a taxonomic level 7 must represent a below species level taxonomy. As Josh said, perhaps strain.  
+    
+This means that you can only get the raw ASVs from a direct export! 
+  
+However, if you agglomerate this table from a direct export to any taxonomic level  e.g. with tax_glom(phyloseqobject, "Taxonomiclevel7") I believe that the number of agglomerated ASVs/ESVs is identical to the barplot download. For example, if this table was agglomerated to level 7 I suspect this would results also in 1023 ASVs/ESVs. I dont have time to do that now but please feel welcome to test with your own data. 
+
+
+<br/>
+<br/>
+<br/>
+
+The following is code from last time and not related to the above
 
 # Load qiime data into R  
 
@@ -37,6 +72,7 @@ library(phyloseq)
 # load feature table, change this to your own directory. The loaded file is an object containing the data. It can be accessed by the $ operator
 ASVtable <- qiime2R::read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered_gg.qza")
 ASVtable$data[1:5,1:5] # have a quick looksie of first 5 rows and columns
+nrow(ASVtable$data) # number of ASVs/ESVs
 
 # load taxonomy and remove the 2nd row which is used by qiime only. Rename first column so that is identical to all other files. 
 # Dont worry about warning. This means it has filled empty cells with "NAs"
