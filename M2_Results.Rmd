@@ -116,7 +116,7 @@ metadata2 <- metadata2 %>% as_tibble() %>% column_to_rownames("#SampleID")
 ```{r physeqb, include=FALSE, echo=FALSE, warning=FALSE,message=FALSE, cache=TRUE}
 #SVs <-read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertfilt_min10readsmin2spls.qza")
 
-SVs <- read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered_gg.qza")
+SVs <- qiime2R::read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered_gg.qza")
 
 taxonomy <- read_tsv("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/taxonomy_gg.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
 
@@ -529,7 +529,7 @@ We sampled two agricultural surface soils (0 - 10 cm, n = 36), a Kurosol and a C
   
 Climate data for the paddocks in the northeast (Kurosol) and southeast (Chromosol) of Victoria was obtained from the nearest weather stations from the Bureau of Meteorology (http://www.bom.gov.au/climate/data/, accessed 22.05.2022).  
 
-Dieldrin dissipation since 1988 has shown to be significantly greater in the Kurosol compared to the Chromosol (Kurosol 73 ±1.5 %, Chromosol 42 ±3.4 %) [@Krohn2019]. Both soil types consisted of a similar texture (Clay: 12 ±0.4 and 10 ±0.4  %; Silt: 37 ±0.7 and 31 ±0.8 %; Kurosol and Chromosol, respectively), had the same pH (4.55 ±0.04) and were both in high-rainfall zones with similar annual maximum temperatures (20.9–21.9 ˚C) [@Krohn2019]. Total organic C significantly differed between the two soils (Kurosol 33.3 ±1.05 mg g-1, Chromosol 61.8 ±1.72 mg g-1), and both the carbon-to-nitrogen ratio and the microbial-C-to-total-C ratios strongly correlated with dieldrin dissipation (R2 = 0.89 and R2 = 0.93, respectively) [@Krohn2019].
+Dieldrin dissipation since 1988 has shown to be significantly greater in the Kurosol compared to the Chromosol (Kurosol 73 ±1.5 %, Chromosol 42 ±3.4 %) [@Krohn2019]. Both soil types consisted of a similar texture (Clay: 12 ±0.4 and 10 ±0.4  %; Silt: 37 ±0.7 and 31 ±0.8 %; Kurosol and Chromosol, respectively), had the same pH (4.55 ±0.04) and were both in high-rainfall zones with similar annual maximum temperatures (20.9–21.9 ˚C) [@Krohn2019]. Total organic C significantly differed between the two soils (Kurosol 33.3 ±1.05 mg g-1, Chromosol 61.8 ±1.72 mg g-1), and both the carbon-to-nitrogen ratio and the microbial-C-to-total-C ratios strongly correlated with dieldrin dissipation (R^2^ = 0.89 and R^2^ = 0.93, respectively) [@Krohn2019].
 
 ## Soil organic carbon fractions
 Soil processing and acquisitions of infrared spectra followed the method set out in @Madhavan2017. Briefly, sieved (≤ 2 mm) and air dried soils were finely ground in a ball mill (Retsch MM400, Germany) at 25 rounds per second for 30 seconds. Diffuse reflectance spectra in the mid-and near-infrared (MNIRS) spectra (7800  - 450 cm-1 at 8 cm-1 resolution) were acquired for all samples using a PerkinElmer Frontier FT-NIR-MIR Spectrometer (PerkinElmer Inc., Waltham, MA, USA) equipped with a KBr beam-splitter, a DTGS detector and AutoDiff automated diffuse reflectance accessory (Pike Technologies, Madison, WI, USA). 
@@ -550,7 +550,7 @@ To assess differences in diversity between samples with high and low dieldrin lo
   
 Compositional comparisons of bacteria, enzyme and fungal abundances were made using principle component analysis (PCA) and redundancy analyis (RDA) after converting abundance tables into Aitchison distances [@Aitchison1982a]. To assess the influence of carbon fractions on bacterial and fungal community composition, ROC, HUM and POC were used as constraining variables in RDA and significance of RDA contraints assessed using 999 permutation of a pseudoF statistic in the function permutest of the vegan package [@Oksanen2018; @Legendre2011a]. 
 
-## Enzyme metagenome and Metacyc pathway associations to carbon fractions and dielrin concentrations
+## Enzyme metagenome and Metacyc pathway associations to carbon fractions and dieldrin concentrations
 The Picrust2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States 2) software  [@Douglas2019] was used to predict the enzyme metagenome and metabolic pathways (Metacyc, Karp 2002) based on the sequenced bacterial ASVs. Briefly, the picrust pipeline placed ASVs into a open-source reference tree based on prokaryotic genomes from the Integrated Microbial Genomes database [@Barbera2018; @Czech2020a; @Markowitz2012], inferred gene abundances per ASV [@Louca2018] and then predicted sample pathway abundances using MinPath [@Ye2009]. The full pipeline (https://github.com/picrust/picrust2/wiki/Full-pipeline-script) was run with default settings, except that the maximum Nearest Sequence Taxon Index (NSTI) was set to 0.65 in favour of greater accuracy of predictions. Prior to running the picrust2 pipeline, the ASV table was filtered to those ASVs that were present in at least two samples and with a minimum frequency of 10 reads. The final table output comprised of 432 pathway abundances that represented the metabolic potentials of bacteria in each sample.
   
 Sparse partial least squares (sPLS) analysis of the mixOmics package [@Rohart2017] was chosen to explore associations between metabolic pathway potentials and soil variables (ROC, HUM, POC, C:N D1517). sPLS is a dimension reduction technique that integrates two high-dimensional data sets acquired from the same samples (here predicted pathway potentials and soil variables) to highlight general patterns of associations [@Meng2016b; @LeCao2008]. This method performs well when the number of samples (*n*) is smaller than the measured variables (*p*) and when variables exhibit multicollinearity.
@@ -1166,8 +1166,6 @@ test_vec <- rbind(test1, test2, test3) %>%
 ## Compositional associations to dieldrin loss and soil carbon fractions
 
 ```{r cca, echo=FALSE, include=FALSE, fig.cap="Ordinations of two different dissimilarity indices are compared for each composition of bacteria, their enzyme predictions and fungi.", fig.width=10, fig.asp= 0.9,message=FALSE, warning=FALSE, results=FALSE}
-
-
 #Bacteria
 physeq.pw.flt <- prune_samples(sample_data(rare_Bac)$Soil == "Kurosol", rare_Bac)
 physeq.pw.flt = filter_taxa(physeq.pw.flt, function(x) sum(x > 0) > (0.10*length(x)), TRUE) #must be present in x percent of samples

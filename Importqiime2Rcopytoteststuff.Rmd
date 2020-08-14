@@ -1,0 +1,151 @@
+---
+bookdown::gitbook:
+---
+
+# Required packages
+```{r loadpackages, message=FALSE}
+library(qiime2R)
+library(tidyverse)
+library(phyloseq)
+
+# In case you need to install qiime2R 
+#install.packages("remotes")
+#remotes::install_github("jbisanz/qiime2R")
+```
+
+
+
+#### Test if number of ASV/ESVs is different between csv download from the barplot visualisation in view.qiime2.org and a direct export of the ASVtable.qza file from qiime
+
+```{r comparison, message=FALSE, warning = FALSE}
+ASVtable <- qiime2R::read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table.qza")
+ASVtable$data[1:5,1:5] # have a quick look of first 5 rows and columns
+nrow(ASVtable$data) # number of ASVs/ESVs 
+knitr::include_graphics(c("./Screen_Shot.png")  ) 
+```
+  
+```{r test}
+knitr::include_graphics(c("./level-7-bars.svg")  ) 
+```
+  
+The number of all (raw) ASVs/ESVs from this direct import of the ASVtable.qza to R was identical to the number of ASVs/ESVs when this raw ASVtable.qza was converted into a ASVtable.qzv and loaded in view.qiime2.org (see Table Summary screenshot). This makes sense.  
+
+However, downloading the csv file on taxonomic level 7 results in **only 1023 ASVs**. See level 7 barplot for reference only.  
+  
+**This confirms Josh's findings**  
+So a taxonomic level 7 must represent a below species level taxonomy. As Josh said, perhaps strain.  
+    
+This means that you can only get the raw ASVs from a direct export! 
+  
+However, if you agglomerate this table from a direct export to any taxonomic level  e.g. with tax_glom(phyloseqobject, "Taxonomiclevel7") I believe that the number of agglomerated ASVs/ESVs is identical to the barplot download. For example, if this table was agglomerated to level 7 I suspect this would results also in 1023 ASVs/ESVs. I dont have time to do that now but please feel welcome to test with your own data. 
+
+
+<br/>
+<br/>
+<br/>
+
+The following is code from last time and not related to the above
+
+# Load qiime data into R  
+
+- The following will load the ASV table, taxonomy table, the tree and metadata into R. 
+- The qiime2R function 'read_qza' are used to load the feature table and tree. Any feature_table.qza will work. It needs to have the same rowIDs as the the taxonomy.qza.    
+- The readr function 'read_tsv' is used here to load the taxonomy and metadata table (readr is part of tidyverse). The loading of taxonomy should technically be possible with qiime2R but I started getting problems and reverted back to importing the tsv file. This means you have to load the taxonomy.qzv into https://view.qiime2.org/ and download the tsv file from there before you can import it to R. 
+- To import metadata.tsv I prefer to use the exact same file (and the same location) that is used by qiime2. The code below therefore includes some minor changes to the data to make it useable for phyloseq and downstream analysis.
+- Make sure you have updated all packages.
+- Sometimes there might be conflicts with functions of phyloseq and other packages. To avoid any potential problems in future it is good practice to 'tell' R which package the function belongs to by including the package name followed by ' :: '. For example qiime2R::read_qza instead of just read_qza. 
+- Change the file directories to your own file locations. Can be anywhere on your computer. Unless you provide the absolute path, use ' ~/ ' to make sure the path link works.
+
+```{r loadqiimetoR, message=FALSE, warning = FALSE}
+# load feature table, change this to your own directory. The loaded file is an object containing the data. It can be accessed by the $ operator
+ASVtable <- qiime2R::read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/feature_table_insertiontreefiltered_gg.qza")
+ASVtable$data[1:5,1:5] # have a quick looksie of first 5 rows and columns
+nrow(ASVtable$data) # number of ASVs/ESVs
+
+# load taxonomy and remove the 2nd row which is used by qiime only. Rename first column so that is identical to all other files. 
+# Dont worry about warning. This means it has filled empty cells with "NAs"
+taxonomy <- readr::read_tsv("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/taxonomy_gg.tsv") %>% filter(Taxon != "categorical")  %>% rename(Feature.ID = `Feature ID`)
+
+# separate the taxa columns and remove the "confidence' column and make it so that phyloseq likes it
+taxtable <- taxonomy %>% as_tibble() %>% tidyr::separate(Taxon, sep=";", c("Kingdom","Phylum","Class","Order","Family","Genus","Species")) %>% dplyr::select(-Confidence)  %>% tibble::column_to_rownames("Feature.ID") %>% as.matrix()
+
+head(taxtable)[1:5,1:2]  # have a looksie at first 5 rows and 2 columns
+
+# Import qiime tree file, check the number of tips. They might be more than there are otus. They will be pruned automatically to those otus in the otu table once the phyloseq object is created. 
+tree <- qiime2R::read_qza("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run_200317/insertion-tree_gg.qza")
+tree$data # have a looksie at first 5 rows and 3 columns
+
+# Import metadata. Ignore any warnings.
+metadata <-read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/metadata.tsv") 
+# Converting columns to numeric using "tidyverse" and # remove the annoying first row which is just used by qiime2.
+metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
+  rownames_to_column("spl")%>%
+  mutate_all(type.convert) %>%
+  mutate_if(is.factor, as.character)%>%
+  column_to_rownames("spl")
+metadata2 <- metadata2 %>% as_tibble() %>% column_to_rownames("#SampleID")
+# have a looksie at first 5 rows and columns 
+metadata2[1:5,1:5]
+```
+
+# Import those files into a phyloseq object  
+
+- Use phyloseq package to import those four files
+- Dont worry about the message "Found more than one class "phylo" (if that appears).
+
+```{r importtophyloseq, message=FALSE, warning=FALSE}
+physeqobject <- phyloseq::phyloseq(
+  otu_table(ASVtable$data, taxa_are_rows = T), 
+  phy_tree(tree$data), 
+  tax_table(taxtable), 
+  sample_data(metadata2) )
+#BOOM! The unfiltered phyloseq object. From here you can filter your heart out. 
+physeqobject 
+
+```
+
+
+# Filtering  
+- As a first step I usually filter to those ASVs with a minimum of 10 reads and go from there. 
+- Next, I filter out contamination and any unassigned taxa on Phylum level. You could do that on any taxa level if you wish.
+- I then filter out more rigorously (i.e. ASVs present in at least 2 or more samples etc) depending on what needs to be done. But if you choose to rarefy data you may not need to filter too harsh because you want to keep the singletons as they are needed for any alpha diversity measurements too (correct me on this if I am wrong).
+- Some of these steps and more are also in this paper: "Callahan et al - Bioconductor workflow for microbiome data analysis: from raw reads to community analyses"
+- Check after each step if filtering worked. There will be no warning if it has not worked.
+
+```{r filtering, message=FALSE, warning=FALSE }
+# Filtering out ASVs with less than 10 reads
+physeqobject.flt = prune_taxa(taxa_sums(physeqobject) >= 10, physeqobject) #minimum reads per feature
+
+# Filter any phyla that have not been classified i.e. are "NA"
+physeqobject.flt = subset_taxa(physeqobject.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
+
+#Filter ASVs present in less than 25% of samples (this leaves the more common taxa and removes the rare taxa). Check if you need this.
+physeqobject.flt = filter_taxa(physeqobject.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE) 
+
+# Filtering out some other contamination, i.e. mitochondria and chloroplasts on family level.
+physeqobject.flt <- subset_taxa(physeqobject.flt, (Family!= " f__Chloroplast"))
+physeqobject.flt <- subset_taxa(physeqobject.flt, (Family!= " f__mitochondria"))
+
+# Filter out any particular taxa that you know are only present 1-2 times (i.e. have a low prevelance) and annoy you. This depends on your data. Omit this step if this does not apply to what you want to do.   
+physeqobject.flt  = phyloseq::subset_taxa(physeqobject.flt , !Phylum %in% c(" p__[Thermi]"," p__FBP"," p__Fusobacteria"," p__MVP-21"," p__OP11"," p__SR1", " p__FCPU426", " p__Euryarchaeota", " p__Lentisphaerae")  )
+
+
+physeqobject.flt # VOILA! you have a filtered phyloseq table. You can of course export this back to R and then to excel if needed. But who want to do that... ? right? ;0) 
+
+
+otu_table(physeqobject.flt)[1:5,1:5] #Check out the differnt elements in the phyloseq object. You can also assign this code to a name (name <- code) and then extract these tables back into R objects if you wish. 
+tax_table(physeqobject.flt)[50:55, 1:2] #just showing the first 2 taxa ranks
+sample_data(physeqobject.flt)[1:5,1:5] #showing the first 5 rows and columns
+```
+
+# Some extras 
+You can also remove those annoying taxon-level indicators (p__ or c__ etc) if you want. However, this is not essential. Before this step, if there was no taxonomic placement the cell would contain ` p__` for example (i.e. nothing apart from the taxon-level indicator. Afterwards this cell would be `NA`. Here, we do this at Kingdom and Phylum level but you can do this for all taxa levels. If you use silva - no worries. Just change the ` k__` or ` p__` to `D_0__` or `D_1__` etc. 
+
+IMPORTANT note: In my case the greengenes taxonomy had a quirk: In some cases there is a " " space inside the taxa string which needs to be included when trying to filter for taxa names in any downstream analysis (unless of course you are removing this as done in this next step)
+```{r taxanames, message=FALSE, warning=FALSE}
+tax_table(physeqobject.flt)[, "Kingdom"] <- str_replace_all(tax_table(physeqobject.flt)[, "Kingdom"], " k__", "")
+tax_table(physeqobject.flt)[, "Kingdom"] <- str_replace_all(tax_table(physeqobject.flt)[, "Kingdom"], "k__", "")
+tax_table(physeqobject.flt)[, "Phylum"] <- str_replace_all(tax_table(physeqobject.flt)[, "Phylum"], " p__", "")
+tax_table(physeqobject.flt)[, "Phylum"] <- str_replace_all(tax_table(physeqobject.flt)[, "Phylum"], "p__", "")
+tax_table(physeqobject.flt)[1:5,1:2] # another looksie 
+```
