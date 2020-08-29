@@ -12,7 +12,7 @@ output:
  bookdown::pdf_document2:
    keep_tex: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 bibliography: "library.bib"
 biblio-style: "apalike"
 link-citations: yes
@@ -25,6 +25,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+  
 ---
 
 - Go [here](https://metacyc.org/pwy-search.shtml) to search for metacyc pathways
@@ -110,6 +111,17 @@ metadata2 <- metadata2 %>% as_tibble() %>% column_to_rownames("#SampleID")
 #metadata2 %>% dplyr::filter(Dloss_fct2 == '<72%')  %>% rownames_to_column() %>% select(rowname)
 #metadata2 %>% dplyr::filter(Dloss_fct2 == '>=72%')  %>% rownames_to_column() %>% select(rowname)
 
+#metadata2 %>%group_by(Soil) %>% get_summary_stats(Dloss, type = "mean_se")
+
+#metadata2 %>%group_by(Soil) %>% get_summary_stats(pH, type = "mean_se")
+metadata2 %>% rstatix::kruskal_test(pH ~ Soil)
+shapiro.test(metadata2$pH)
+#metadata2 %>% filter(Farm != "E") %>% group_by(Soil) %>% get_summary_stats(DDTloss, type = "mean_se")
+
+#metadata2 %>%group_by(Dloss_fct2) %>% get_summary_stats(Dloss, type = "mean_se")
+
+#metadata2 %>%group_by(Soil) %>% get_summary_stats(c(Clay,Silt,Sand), type = "mean_se")
+
 
 ```
 
@@ -170,8 +182,9 @@ physeqB.flt = filter_taxa(physeqB.flt , function(x) sum(x > 0) > (0.06*length(x)
 #filter any phyla that have not been classified i.e. are "NA"
 physeqB.flt = subset_taxa(physeqB.flt, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
 #create faithpd diversity index and add back into the metadata
-prunedTree <- prune.sample(otu_table(t(physeqB.flt)), phy_tree(physeqB.flt) )
-faithpd <- pd(otu_table(t(physeqB.flt)), prunedTree )
+
+prunedTree <- picante::prune.sample(otu_table(t(physeqB.flt)), phy_tree(physeqB.flt) )
+faithpd <- picante::pd(otu_table(t(physeqB.flt)), prunedTree )
 faithpd <- faithpd %>% rownames_to_column("#SampleID") 
 meta.df <- meta.df %>% rownames_to_column("#SampleID") %>% left_join(faithpd) %>% column_to_rownames("#SampleID")
 physeqB@sam_data <- sample_data(meta.df)
@@ -574,6 +587,234 @@ Modularity was calculated [@Blondel2008a] and strongly interacting bacteria and 
 
 
 # Results
+## Carbon quality
+**Figure 1**
+```{r carbonqualityfig1, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin losses. Samples are grouped into four categories based on long-term dieldrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol, respectively). Predictions of resistant organic carbon (resistant-C), humic carbon (Humic-C) and particulate organic carbon (particulate-C) are shown as percentages to total organic carbon. Significance levels of global Kruskal-Wallis tests (top-left of each panel) and Wilcoxon tests (above each group) for each soil type are shown (ns > 0.05; * ≤ 0.05; ** ≤ 0.01; *** ≤ 0.001; **** ≤ 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 1}
+
+my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 2), symbols = c("****", "***", "**", "*", "ns"))
+xticksize = 13
+ylabsize = 13
+
+#data.frame(sample_data(physeqB)) %>% reshape2::melt(., measure.var = c("D1517", "TC","TC_D17","CN","HC", "ROC.pct", "HUM.pct", "POC.pct"))  %>%
+#  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scales = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("Dieldrin (µg/g)", "Total Carbon (TC)", "TC:Dieldrin ratio", "C:N ratio", "H:C ratio", "ROC (%)", "HUM (%)", "POC (%)"))) + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
+#  stat_compare_means( method = "kruskal",label = "p.signif")
+
+p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "D1517", add = c("mean_se"), fill = "Soil" , xlab = "", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1.5)) + 
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.7)) + 
+  theme_bw() + 
+  ylab(bquote('Dieldrin (µg '*~g^-1*')')) + 
+  scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) +
+  annotate("text", x = 1, y = 1.7, label="")
+ #ylab(bquote('Dieldrin ('*mu~ ~g^-1~*')')) 
+
+
+p2 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC", add = c("mean_se"), scales = "free",fill = "Soil", xlab = "",position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons,label = "p.signif",label.y = c(75)) + 
+ # stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(85)) + 
+  theme_bw() + ylab(bquote('Total Carbon (g '*~kg^-1*')')) + 
+  scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x =       element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) +
+   annotate("text", x = 1, y = 85, label="")
+
+
+p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_D17", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Total-C-to-Dieldrin ratio", xlab = "", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(490), symnum.args = symnum.args) + 
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + 
+  theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )+
+   annotate("text", x = 1, y = 550, label="")
+
+p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "CN", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:N ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(15.6)) + 
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(17)) + 
+  theme_bw()+ 
+  scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) +
+   annotate("text", x = 1, y = 17, label="")
+
+p5 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "HC", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "H:C ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(0.4)) +
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.45)) + 
+  theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) +
+   annotate("text", x = 1, y = 0.45, label="")
+
+p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Resistant-C (%)", xlab = "", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + 
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + 
+  theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )+
+   annotate("text", x = 1, y = 35, label="")
+
+p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Humic-C (%)", xlab = "", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + 
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + 
+  theme_bw() + ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9) + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )+
+   annotate("text", x = 1, y = 60, label="")
+
+p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Particulate-C (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + 
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + 
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) +
+  theme_bw() + 
+  ylim(0,60) + 
+  scale_fill_grey(start = 0.35, end = 0.9) +
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )+
+   annotate("text", x = 1, y = 60, label="")
+
+#p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7), symnum.args = symnum.args) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw() + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025"))
+
+
+
+pdf(NULL)
+gg1 <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, nrow = 3, ncol = 3, common.legend = TRUE)
+x = dev.off()
+gg1
+
+
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_files_comments_tables/graph_carbonquality.pdf",height=10, width=10, units='in', dpi=600, device=cairo_pdf)
+
+
+correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
+r_matrix=correlation_matrix$r
+r_matrix[row(r_matrix)>col(r_matrix)]=0
+diag(r_matrix)=0
+p_matrix=correlation_matrix$p
+p_matrix[row(p_matrix)>col(p_matrix)]=1
+diag(p_matrix)=1
+r_table=melt(r_matrix)
+p_table=melt(p_matrix)
+cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
+cortable <- data.frame(Variable1 = cortable$r_table.Var1, 
+           Variable2 = cortable$r_table.Var2,
+           Rcoefficients = cortable$r_table.value,
+           pvalue_corrected = cortable$p_table.value)
+cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
+
+#kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
+
+#std <- function(x) sd(x)/sqrt(length(x))
+
+#p2 <- p2 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
+
+```
+
+## Comparison of degradation potentials of chlorinated and aromatic compounds
+**Figure 2**
+```{r xenobgraphs, fig.cap = "Comparison of degradation potentials of 1 chlorinated (a) and 39 aromatic compounds (b) predicted to be present in all samples (excluding outliers) (n = 33). Samples are grouped into four categories based on long-term dieldrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol, respectively). Significances of global Kruskal-Wallis tests (top-left of each panel) and Wilcoxon tests (above each group) for each soil type are shown (ns > 0.05; * ≤ 0.05; ** ≤ 0.01; *** ≤ 0.001; **** ≤ 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=6.5, fig.asp = 0.6, cache = TRUE}
+
+fontsize = 11
+xticksize = 11
+ylabsize = 10
+
+physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
+physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE)
+#replace pw numbers with common name
+#taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt)@.Data[,c("COMMON-NAME")]))
+#taxa_names(physeq.pw.flt) <- taxtable$COMMON.NAME
+
+x <- as.data.frame(t(otu_table(physeq.pw.flt))) 
+#TSS.divide = function(x){
+# x/sum(x)
+#  }
+#data.TSS = t(apply(x + 0.65, 1, TSS.divide))
+
+# Ratio ####
+TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
+# add to TSS
+x <- x %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
+#then devide by TC or Dieldrin and remove Dieldrin
+x.TC.ratio <- x %>% rownames_to_column("OTUID") %>% 
+  mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
+
+x.TC.ratio <- log1p(x.TC.ratio)
+x.TC.ratio.phyl <- x.TC.ratio %>% t
+physeq.pw_TCratio <-phyloseq(otu_table(
+            x.TC.ratio.phyl, taxa_are_rows = T), 
+              tax_table(as.data.frame(pw.names) %>% as.matrix()),
+             sample_data(metadata2 ))
+
+physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
+#physeq.pw.flt.log <- microbiome::transform(physeq.pw.flt, "log10")
+#physeq.pw.flt.rel <- microbiome::transform(physeq.pw.flt, "compositional")
+#physeq.pw.flt.clr <- microbiome::transform(physeq.pw.flt, "clr")
+
+
+#physeq.pw.melt <- psmelt(physeq.pw.flt)
+#physeq.pw.melt.log <- psmelt(physeq.pw.flt.log)
+#physeq.pw.melt.rel <- psmelt(physeq.pw.flt.rel)
+#physeq.pw.melt.clr <- psmelt(physeq.pw.flt.clr)
+
+# figure          
+my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+p1 <- physeq.pw.melt.TCratio  %>% filter(str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", fill = "Soil", ylab = "log(MetaCyc pathway-to-total-carbon ratio)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + 
+  ylim(1,7) +
+  #stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(5.6), label.x = c(1)) + 
+  stat_compare_means(comparisons = my_comparisons,label = "p.signif") + 
+  scale_fill_grey(start = 0.35, end = 0.9) + 
+  ggtitle("Chlorosalicylate Degradation") +  
+  theme_bw() + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + 
+  theme(axis.text.x = element_text( size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank(),plot.title = element_text(size = fontsize)) + geom_jitter(width = 0.2)
+
+#All aromatic compound degradation pathways
+p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", fill = "Soil", ylab = "", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + 
+  scale_y_continuous(breaks=c(0,2, 4, 6, 8), limits = c(0,9)) +
+#  stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(8.5),label.x = c(1)) + 
+  stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + 
+  scale_fill_grey(start = 0.35, end = 0.9)  + 
+  ggtitle("Aromatic Compounds Degradation") +
+  theme_bw() + 
+  scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025"))+ 
+  theme(axis.text.x = element_text(  size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank(),plot.title = element_text(size = fontsize)) + geom_jitter(width = 0.1)
+
+#p3 <- physeq.pw.melt.TCratio %>% filter(str_detect(tolower(COMMON.NAME), pattern = "superpathway of methylglyoxal degradation")) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
+
+#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+#p3 <- physeq.pw.melt.log  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "log(total abundance)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
+
+#All aromatic compound degradation pathways
+#p4 <- physeq.pw.melt.log %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "log(total abundance)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
+
+
+#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
+#p5 <- physeq.pw.melt.rel  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Relative Abundances", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
+
+#All aromatic compound degradation pathways
+#p6 <- physeq.pw.melt.rel %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Relative Abundances", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
+
+ggarrange(p1,p2, nrow =1 ,ncol = 2, widths = c(0.5,0.5), common.legend = TRUE, labels = "auto")
+#ggarrange(p1,p2, p3, p4, p5, p6, nrow =3 ,ncol = 2, widths = c(0.5,0.5), common.legend = TRUE, labels = "auto")
+
+
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_files_comments_tables/graph_xenocomp_forPP.pdf",height=3.95, width=6.5, units='in', dpi=600, device = cairo_pdf)
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_files_comments_tables/graph_xenocomp2.pdf",height=4.45, width=8, units='in', dpi=600)
+
+#physeq.pw.melt <- psmelt(physeq.pw)
+# wilcoxon test
+#physeq.pw.melt.TCratio %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl") | str_detect(tolower(COMMON.NAME), pattern =  "benze") ) %>% filter(Abundance != 0) %>%  ggpubr::compare_means(Abundance ~ Soil, data = ., group.by = "COMMON.NAME", method = "wilcox.test", paired = FALSE, symnum.args = list(), p.adjust.method = "holm") %>% as.data.frame() %>% dplyr::filter(p.adj <= 1)
+
+# having some looksies
+#looksiedf <- unique (  (physeq.pw.melt %>% filter(CLASS1 == "Aromatic-Compounds-Degradation")) %>% dplyr::select(COMMON.NAME) )
+#unique( physeq.pw.melt %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl"))  %>% dplyr::select(COMMON.NAME) )
+
+# metacyc chlorinated compound degradation pathways
+# "2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
+```
+
+<br/>
+
 ## Metacyc pathway potentials associated with dieldrin dissipation
   
 Note: The following pathways were the top contributors to variation in PLS-DA (across both soils) and therefore key predictors for dielrin loss (dieldrin loss in four factors)
@@ -779,28 +1020,73 @@ selection <- splsda_compvec %>% filter(value.var >= 0.3 | value.var <= -0.27)
 #physeq.pw.melt2  %>% filter(OTU %in% selection$name)  %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "COMMON.NAME", fill = "CLASS1", ylab = "Metacyc pathway potentials (Abundance soilC-1)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons) + ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)'))
 
 legendtxtsz = 14
-xlabsize = 10
-ylabsize = 12
+xlabsize = 12
+ylabsize = 5
+axistitlesize = 12 
+panellabsize = 12
 
 physeq.pw.melt2.sel <- physeq.pw.melt2  %>% filter(OTU %in% selection$name)
 physeq.pw.melt2.sel$CLASS1 <- factor(physeq.pw.melt2.sel$CLASS1, levels =  c("Carbohydrate Degradation", "Alcohol Degradation","Carboxylate Degradation","Amine and Polyamine Degradation","Inorganic Nutrient Metabolism","Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis","Generation of Precursor Metabolite and Energy") )
 
-p1 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carbohydrate Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)") + theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize)) + theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p1 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carbohydrate Degradation") %>%
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs.font = list(size = panellabsize)) +
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)") + 
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) +
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 
-p2 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Alcohol Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize))+ theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p2 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Alcohol Degradation") %>% 
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs.font = list(size = panellabsize)) + 
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)")+ 
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) +
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 #+ ylab(bquote('Metacyc pathway potentials (Abundance per 1 g soilC)')
 
-p3 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carboxylate Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize))+ theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p3 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Carboxylate Degradation") %>% 
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs.font = list(size = panellabsize)) + 
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)")+ 
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) +
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 
-p4 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Amine and Polyamine Degradation") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize)) + theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p4 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Amine and Polyamine Degradation") %>% 
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs.font = list(size = panellabsize)) + 
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)")+ 
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) +
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 
-p5 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Inorganic Nutrient Metabolism") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize)) + ylab(bquote('Metacyc pathway potentials (Abundance per unit soilC)')) + theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p5 <- physeq.pw.melt2  %>% 
+  filter(OTU %in% selection$name) %>% 
+  filter(CLASS1 == "Inorganic Nutrient Metabolism") %>% 
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs.font = list(size = panellabsize)) + 
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)")+
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) +
+  ylab(bquote('Metacyc pathway potentials (Abundance per unit soilC)')) + 
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 
-p6 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis")
+p6 <- physeq.pw.melt2  %>% 
+  filter(OTU %in% selection$name) %>% 
+  filter(CLASS1 == "Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis")
 p6$CLASS1 <- factor(p6$CLASS1, levels = c("Cofactor, Prosthetic Group, Electron Carrier, and Vitamin Biosynthesis"))
-p6 <- p6 %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1",  fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs = list(CLASS1 = c("Vitamin Biosynthesis")) ) + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize)) + theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p6 <- p6 %>% 
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1",  fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs = list(CLASS1 = c("Vitamin Biosynthesis")), panel.labs.font = list(size = panellabsize) ) + 
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)")+ 
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) + 
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 
-p7 <- physeq.pw.melt2  %>% filter(OTU %in% selection$name) %>% filter(CLASS1 == "Generation of Precursor Metabolite and Energy") %>% ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "") + scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + labs(fill = "Dieldrin loss (%)")+ theme(axis.text=element_text(size=xlabsize), axis.title.y = element_text(size=ylabsize))+ ylab(bquote('Metacyc pathway potentials (Abundance per unit soilC)')) + theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
+p7 <- physeq.pw.melt2  %>% 
+  filter(OTU %in% selection$name) %>% 
+  filter(CLASS1 == "Generation of Precursor Metabolite and Energy") %>% 
+  ggbarplot(., x = "COMMON.NAME", y = "Abundance", orientation = "horizontal", position = position_dodge(0.8), add = c("mean_se"), scales = "free", facet.by = "CLASS1", fill = "Dloss_fct2", ylab = "", xlab = "", panel.labs.font = list(size = panellabsize)) + 
+  scale_fill_grey(start = 0.8, end = 0.2, labels=c("\u2264\u0034\u0033\u0025  Chromosol", ">43%  Chromosol", "<72%  Kurosol", "\u2265\u0037\u0032\u0025  Kurosol")) + 
+  labs(fill = "Dieldrin loss (%)")+ 
+  theme(axis.text.x=element_text(size=xlabsize), axis.text.y=element_text(size=ylabsize), axis.title.x = element_text(size=axistitlesize)) + 
+  ylab(bquote('Metacyc pathway potentials (Abundance per unit soilC)')) + 
+  theme(legend.text = element_text(size=legendtxtsz), legend.title=element_text(size=legendtxtsz))
 
 
 g1 <- ggarrange(p3, p4,p6, p7, legend = "right", common.legend = TRUE, ncol = 1, align = "v", heights = c(1.7,1.7, 1,1))
@@ -809,7 +1095,7 @@ g2 <- ggarrange(p1,p2, p5, legend = "none", ncol = 1, nrow = 3, align = "v", hei
 ggarrange(g2, g1, common.legend = TRUE, legend = "right", ncol = 2, widths = c(0.815,1))
 
 
-#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_metacycbarplot.pdf",height=11.2, width=17.5, units='in', dpi=600, device = cairo_pdf)
+#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_files_comments_tables/graph_metacycbarplot.pdf",height=11.2, width=17.5, units='in', dpi=600, device = cairo_pdf)
 
 #table with most associated pathways 
 #selection <- splsda_compvec %>% filter(value.var >= 0.18 | value.var <= -0.18)
@@ -1349,7 +1635,7 @@ p4 <- p.ccaB +
 ```
 
 
-```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the centered log-ratio transformed proportions of resistant organic carbon (resistant-C), humic organic carbon (humic-C) and particulate organic carbon (particulate-C) as constraining variables. Symbols represent individual samples, and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol, n = 18; Chromosol, n = 15).", fig.width=10, fig.asp= 1.1, message=FALSE, warning=FALSE, results=FALSE}
+```{r rda, echo=FALSE,  fig.cap="Redundancy analysis of bacterial and fungal abundances using the centered log-ratio transformed proportions of resistant organic carbon (resistant-C), humic organic carbon (humic-C) and particulate organic carbon (particulate-C) as constraining variables. Symbols represent individual samples, and their proximity to each other indicates compositional similarity. The size and shape of symbols indicate the long-term dieldrin loss (%) of samples. Three samples from the Kurosol were removed as outliers (Kurosol, n = 18; Chromosol, n = 15).", fig.width=12, fig.asp= 0.65, message=FALSE, warning=FALSE, results=FALSE}
 
 # PERCENT FILTERVALUE FOR ALL RDAs
 pcnt <- 0.25
@@ -1368,7 +1654,8 @@ larwch <- 1
 xaxis = c(-6.75, 6.5)
 # position of annotation
 textposx = c(-4.4)
-
+# arrow color
+arrowcolor <- "grey13"
 
 
 #KUROSOL
@@ -1405,7 +1692,17 @@ testrdabacteria <- data.frame(Group = "Bacteria", test) %>% rownames_to_column("
 colourlow <- "gray90"
 colourhigh <- "black"
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss") + geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Bacteria, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = textposx, y = 12,label = paste(expression('(F'[3*','*14]~'='~2.6*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3) + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) + geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_vline(xintercept=0, linetype="dashed", color = "gray")
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss")  + 
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") + 
+  geom_vline(xintercept=0, linetype="dashed", color = "gray") + 
+  geom_point(aes(size =  HUM.pct)) + 
+  scale_colour_gradient(low = colourlow, high = colourhigh) + 
+  ggtitle("Bacteria, Kurosol") + 
+  labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + 
+  annotate("text", x = textposx, y = 12,label = paste(expression('(F'[3*','*14]~'='~2.6*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3) + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + 
+  xlim(xaxis) +
+  guides(color = guide_colourbar(order=1), 
+         size = guide_legend(order=2))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1435,7 +1732,7 @@ p1 <- p.ccaB +
     mapping = arrow_map, 
     size = .5, 
     data = arrowdf, 
-    color = "darkgray", 
+    color = arrowcolor, 
     arrow = arrowhead)  +
   geom_text(
    mapping = label_map, 
@@ -1481,8 +1778,18 @@ testrdafungi <- data.frame(Group = "Fungi", test) %>% rownames_to_column("C-Frac
 #testrdafungi <- rbind(test1, test2, test3)
 
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") +
-    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Fungi, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = textposx, y = 8,label = paste(expression('(F'[3*','*14]~'='~2.7*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)  + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) + xlim(xaxis) + geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_vline(xintercept=0, linetype="dashed", color = "gray")
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss") + 
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") + 
+  geom_vline(xintercept=0, linetype="dashed", color = "gray") +
+    geom_point(aes(size =  HUM.pct)) + 
+  scale_colour_gradient(low = colourlow, high = colourhigh) + 
+  ggtitle("Fungi, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + 
+  scale_size(breaks = c(42,44,46,48,50)) + 
+  annotate("text", x = textposx, y = 8,label = paste(expression('(F'[3*','*14]~'='~2.7*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3)  + 
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) +
+  xlim(xaxis) + 
+  guides(color = guide_colourbar(order=1), 
+         size = guide_legend(order=2))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaF, display = "bp")
@@ -1512,7 +1819,7 @@ p2 <- p.ccaB +
     mapping = arrow_map, 
     size = .5, 
     data = arrowdf, 
-    color = "gray", 
+    color = arrowcolor, 
     arrow = arrowhead)  +
   geom_text(
    mapping = label_map, 
@@ -1538,7 +1845,18 @@ test <- anova(ord_ccaB, by = "margin")
 testrdabacteriaCH <- data.frame(Group = "Bacteria", test) %>% rownames_to_column("C-Fraction")
 
 
-p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ annotate("text", x = textposx, y = 11,label = paste(expression('(F'[3*','*11]~'='~1.1*', '*italic(p)~'= 0.27)')), parse = TRUE, size = 3) + guides(shape = FALSE)+ theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) + xlim(xaxis) + geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_vline(xintercept=0, linetype="dashed", color = "gray")
+p.ccaB  <- phyloseq::plot_ordination(physeq.B.flt, ord_ccaB , color = "Dloss", shape = "Soil") + 
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") + 
+  geom_vline(xintercept=0, linetype="dashed", color = "gray") + 
+  geom_point(aes(size = HUM.pct)) + 
+  scale_colour_gradient(low = colourlow, high = colourhigh) + 
+  ggtitle("Bacteria, Chromosol") + scale_shape_manual(values = c(17)) + 
+  labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ 
+  annotate("text", x = textposx, y = 11,label = paste(expression('(F'[3*','*11]~'='~1.1*', '*italic(p)~'= 0.27)')), parse = TRUE, size = 3) + guides(shape = FALSE)+ 
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + 
+  xlim(xaxis) + 
+  guides(color = guide_colourbar(order=1), 
+         size = guide_legend(order=2))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaB, display = "bp")
@@ -1568,7 +1886,7 @@ p3 <- p.ccaB +
     mapping = arrow_map, 
     size = .5, 
     data = arrowdf, 
-    color = "gray", 
+    color = arrowcolor, 
     arrow = arrowhead)  +
   geom_text(
    mapping = label_map, 
@@ -1591,7 +1909,18 @@ testrdafungiCH <- data.frame(Group = "Fungi", test) %>% rownames_to_column("C-Fr
 
 
 #permutest(ord_ccaF)
-p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Fungi, Chromosol") + scale_shape_manual(values = c(17))  + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50))+ annotate("text", x = textposx, 6.25,label = paste(expression('(F'[3*','*11]~'='~1.2*', '*italic(p)~'= 0.15)')), parse = TRUE, size = 3) + guides(shape = FALSE)+ theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) + xlim(xaxis) + geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_vline(xintercept=0, linetype="dashed", color = "gray")
+p.ccaB  <- phyloseq::plot_ordination(physeq.F.flt, ord_ccaF , color = "Dloss", shape = "Soil") + 
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") + 
+  geom_vline(xintercept=0, linetype="dashed", color = "gray") + 
+  geom_point(aes(size = HUM.pct)) + 
+  scale_colour_gradient(low = colourlow, high = colourhigh) + 
+  ggtitle("Fungi, Chromosol") + 
+  scale_shape_manual(values = c(17))  + 
+  labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + 
+  scale_size(breaks = c(42,44,46,48,50))+ 
+  annotate("text", x = textposx, 6.25,label = paste(expression('(F'[3*','*11]~'='~1.2*', '*italic(p)~'= 0.15)')), parse = TRUE, size = 3) + guides(shape = FALSE)+ theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) +
+  guides(color = guide_colourbar(order=1), 
+         size = guide_legend(order=2))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrow_map <- aes(xend = larwch * RDA1, 
@@ -1615,7 +1944,7 @@ p4 <- p.ccaB +
     mapping = arrow_map, 
     size = .5, 
     data = arrowdf, 
-    color = "gray", 
+    color = arrowcolor, 
     arrow = arrowhead)  +
   geom_text(
    mapping = label_map, 
@@ -1666,8 +1995,18 @@ testrdaenzymes <- data.frame(Group = "Enzyme Genes", test)%>% rownames_to_column
 #testrdaenzymes <- rbind(test1, test2, test3)
 
 
-p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss") +
-    geom_point(aes(size =  HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Enzyme metagenome, Kurosol") + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)")+ scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = textposx, y = 5.5,label = paste(expression('(F'[3*','*14]~'='~2.9*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3) + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) + xlim(xaxis) + geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_vline(xintercept=0, linetype="dashed", color = "gray")
+p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss") + 
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") + 
+  geom_vline(xintercept=0, linetype="dashed", color = "gray") + 
+    geom_point(aes(size =  HUM.pct)) + 
+  scale_colour_gradient(low = colourlow, high = colourhigh) + 
+  ggtitle("Enzyme metagenome, Kurosol") + 
+  labs(size= "Humic-C (%)", color = "Dieldrin loss (%)")+ scale_size(breaks = c(42,44,46,48,50)) + 
+  annotate("text", x = textposx, y = 5.85,label = paste(expression('(F'[3*','*14]~'='~2.9*', '*italic(p)~'= 0.01)')), parse = TRUE, size = 3) + 
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + 
+  xlim(xaxis) + 
+  guides(color = guide_colourbar(order=1), 
+         size = guide_legend(order=2))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
@@ -1697,7 +2036,7 @@ p5 <- p.ccaE +
     mapping = arrow_map, 
     size = .5, 
     data = arrowdf, 
-    color = "gray", 
+    color = arrowcolor, 
     arrow = arrowhead)  +
   geom_text(
    mapping = label_map, 
@@ -1722,7 +2061,20 @@ test <- anova(ord_ccaE, by = "margin")
 testrdaenzymesCH <- data.frame(Group = "Enzyme Genes", test)%>% rownames_to_column("C-Fraction")
 
 
-p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Soil") + geom_point(aes(size = HUM.pct)) + scale_colour_gradient(low = colourlow, high = colourhigh) + ggtitle("Enzyme metagenome, Chromosol") + scale_shape_manual(values = c(17)) + labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + scale_size(breaks = c(42,44,46,48,50)) + annotate("text", x = textposx, y = 5.5,label = paste(expression('(F'[3*','*11]~'='~0.84*', '*italic(p)~'= 0.81)')), parse = TRUE, size = 3) + guides(shape = FALSE) + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + xlim(xaxis) + xlim(xaxis) + geom_hline(yintercept=0, linetype="dashed", color = "gray") + geom_vline(xintercept=0, linetype="dashed", color = "gray")
+p.ccaE  <- phyloseq::plot_ordination(physeq.E.flt, ord_ccaE , color = "Dloss", shape = "Soil") + 
+  geom_hline(yintercept=0, linetype="dashed", color = "gray") + 
+  geom_vline(xintercept=0, linetype="dashed", color = "gray") + 
+  geom_point(aes(size = HUM.pct)) + 
+  scale_colour_gradient(low = colourlow, high = colourhigh) + 
+  ggtitle("Enzyme metagenome, Chromosol") + 
+  scale_shape_manual(values = c(17)) + 
+  labs(size= "Humic-C (%)", color = "Dieldrin loss (%)") + 
+  scale_size(breaks = c(42,44,46,48,50)) + 
+  annotate("text", x = textposx, y = 5.5,label = paste(expression('(F'[3*','*11]~'='~0.84*', '*italic(p)~'= 0.81)')), parse = TRUE, size = 3) + guides(shape = FALSE) + 
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank() ) + 
+  xlim(xaxis) + xlim(xaxis) + 
+  guides(color = guide_colourbar(order=1), 
+         size = guide_legend(order=2))
 
 # Now add the environmental variables as arrows to either of these p1 or p2
 arrowmat <- vegan::scores(ord_ccaE, display = "bp")
@@ -1752,7 +2104,7 @@ p6 <- p.ccaE +
     mapping = arrow_map, 
     size = .5, 
     data = arrowdf, 
-    color = "gray", 
+    color = arrowcolor, 
     arrow = arrowhead)  +
   geom_text(
    mapping = label_map, 
@@ -1763,16 +2115,18 @@ p6 <- p.ccaE +
 
 
 pdf(NULL)
-g1 <- ggarrange( nrow = 3, ncol = 1, p1,p2,p5,  common.legend = TRUE, legend = "right")
-g2 <- ggarrange(nrow = 3, ncol = 1, p3, p4,p6, common.legend = TRUE, legend = "right")
+g1 <- ggarrange( ncol = 3, nrow = 1, p1,p2,p5,  common.legend = TRUE, legend = "right") 
+
+g2 <- ggarrange(ncol = 3, nrow = 1, p3, p4,p6, common.legend = TRUE, legend = "right")
+
 #g3 <- ggarrange(nrow = 1, ncol = 2,   common.legend = TRUE, legend = "right")
-g4 <- ggarrange(nrow = 1, ncol = 2, g1,g2)
+g4 <- ggarrange(nrow = 2, ncol = 1, g1,g2)
 x = dev.off()
 g4
 psCEnz
 print(paste("After filtering the analysis included", ntaxa(psKbac),",", ntaxa(psKfun),"and", ntaxa(psKEnz), "bacterial, fungal taxa and enzymes respectively in the Kurosol and ", ntaxa(psCbac), ",", ntaxa(psCfun),"and", ntaxa(psCEnz), "in the Chromosol"))
 
-#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_rda.pdf",height=11, width=10.5, units='in', dpi=600)
+ggsave("/Users/christiankrohn/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_files_comments_tables/graph_rda.pdf",height=7.8, width=12, units='in', dpi=600, device = cairo_pdf)
 
 ```
   
@@ -3249,73 +3603,6 @@ kable(tabledf, caption = "Raw sample data", digits = 2, format = "html") %>%  ka
 ```
 
 ## Relationship of soil carbon quality to dieldrin loss
-```{r carbonquality, fig.cap = "Comparisons of carbon quality variables between samples of low and high dieldrin losses. Samples are grouped into four categories based on long-term dieldrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol, respectively). Predictions of resistant organic carbon (resistant-C), humic carbon (Humic-C) and particulate organic carbon (particulate-C) are shown as percentages to total organic carbon. Significance levels of global Kruskal-Wallis tests (top-left of each panel) and Wilcoxon tests (above each group) for each soil type are shown (ns > 0.05; * ≤ 0.05; ** ≤ 0.01; *** ≤ 0.001; **** ≤ 0.0001).", message=FALSE, warning=FALSE,echo=FALSE, fig.width=10, fig.asp = 1}
-
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 2), symbols = c("****", "***", "**", "*", "ns"))
-xticksize = 14
-ylabsize = 14
-
-#data.frame(sample_data(physeqB)) %>% reshape2::melt(., measure.var = c("D1517", "TC","TC_D17","CN","HC", "ROC.pct", "HUM.pct", "POC.pct"))  %>%
-#  ggbarplot(., x = "Dloss_fct2", y = "value", add = c("mean_se"), facet.by = c("variable"), scales = "free",fill = "Soil", ylab = "", xlab = "Dieldrin loss",position = position_dodge(0.9), width = 0.6, panel.labs = list(variable = c("Dieldrin (µg/g)", "Total Carbon (TC)", "TC:Dieldrin ratio", "C:N ratio", "H:C ratio", "ROC (%)", "HUM (%)", "POC (%)"))) + stat_compare_means(comparisons = my_comparisons,label = "p.signif") +
-#  stat_compare_means( method = "kruskal",label = "p.signif")
-
-p1 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "D1517", add = c("mean_se"), scales = "free",fill = "Soil" , xlab = "", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif", label.y = c(1.5)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(1.7)) + theme_bw() + ylab(bquote('Dieldrin (µg '*~g^-1*')')) + scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
- #ylab(bquote('Dieldrin ('*mu~ ~g^-1~*')')) 
-
-
-p2 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC", add = c("mean_se"), scales = "free",fill = "Soil", xlab = "",position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons,label = "p.signif",label.y = c(75)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(85)) + theme_bw() + ylab(bquote('Total Carbon (g '*~kg^-1*')'))+ scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-
-p3 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_D17", add = c("mean_se"), scales = "free",fill = "Soil", ylab = "Total-C-to-Dieldrin ratio", xlab = "", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(490), symnum.args = symnum.args) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(550)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-p4 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "CN", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:N ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(15.6)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(17)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-p5 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "HC", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "H:C ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(0.4)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(0.45)) + theme_bw()+ scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-p6 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "ROC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Resistant-C (%)", xlab = "", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(35)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw()+ ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-p7 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y =  "HUM.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Humic-C (%)", xlab = "", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(56)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-p8 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "POC.pct", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "Particulate-C (%)", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(18)) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(60)) + theme_bw() + ylim(0,60) + scale_fill_grey(start = 0.35, end = 0.9) + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text(size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank() )
-
-#p9 <- sample_data(physeqB) %>% ggbarplot(., x = "Dloss_fct2", y = "TC_P", add = c("mean_se"), scales = "free",fill = "Soil", ylab =  "C:P ratio", xlab = "Dieldrin loss", position = position_dodge(0.95), width = 0.4 ) + stat_compare_means(comparisons = my_comparisons, label = "p.signif", label.y = c(7), symnum.args = symnum.args) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(10)) + theme_bw() + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025"))
-
-
-
-pdf(NULL)
-gg1 <- ggarrange(p1, p2, p3,  p6, p7, p8, p4, p5, nrow = 3, ncol = 3, common.legend = TRUE)
-x = dev.off()
-gg1
-
-
-#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_carbonquality.pdf",height=10, width=10, units='in', dpi=600, device=cairo_pdf)
-
-
-correlation_matrix=corr.test(data.frame(sample_data(physeqB)[,c("D1517", "HUM.clr", "ROC.clr", "POC.clr", "HC", "Dloss", "CN")]), method="spearman", adjust="holm")
-r_matrix=correlation_matrix$r
-r_matrix[row(r_matrix)>col(r_matrix)]=0
-diag(r_matrix)=0
-p_matrix=correlation_matrix$p
-p_matrix[row(p_matrix)>col(p_matrix)]=1
-diag(p_matrix)=1
-r_table=melt(r_matrix)
-p_table=melt(p_matrix)
-cortable <- data.frame(r_table$Var1, r_table$Var2, r_table$value, p_table$value) #creats the table with r and p values
-cortable <- data.frame(Variable1 = cortable$r_table.Var1, 
-           Variable2 = cortable$r_table.Var2,
-           Rcoefficients = cortable$r_table.value,
-           pvalue_corrected = cortable$p_table.value)
-cortable <- cortable %>% filter(Rcoefficients != 0 & pvalue_corrected <= 0.05) %>% arrange(Rcoefficients)
-
-#kable(cortable, escape = F, booktabs = T, digits = 3, caption = "Correlation coefficients") %>% kable_styling(c("striped", "condensed"), latex_options ="striped", full_width = F)
-
-#std <- function(x) sd(x)/sqrt(length(x))
-
-#p2 <- p2 %>% dplyr::summarize(Abun. = mean(Abundance), se = std(Abundance))
-
-```
-
 
 ```{r pie, include = FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8, fig.asp = 0.5}
 
@@ -3328,7 +3615,7 @@ ggarrange(p1, p2, ncol =1,common.legend = TRUE)
 #ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_files_comments_tables/graph_pie.pdf",height=5, width=6.8, units='in', dpi=600, device=cairo_pdf)
 ```
 
-
+**Supplementary Carbon quality**
 ```{r carbonquality2, fig.cap = "Comparisons of carbon fractions between Chromosol and Kurosol. Proportions of particulate organic carbon, humic organic carbon and resistant organic carbon are shown by soil (a) and as the percent-difference of the Kurosol to the Chromosol (b). The residuals of prediction are denoted as 'UnclassifiedC'.", message=FALSE, warning=FALSE,echo=FALSE, fig.width=7, fig.asp =0.7}
 
 xticksize = 14
@@ -3668,92 +3955,7 @@ leveneTest(PD ~ Dloss_fct2, data = meta.df)
 
 <br/>
 
-## Comparison of degradation potentials of chlorinated and aromatic compounds
-```{r xenobgraphs, fig.cap = "Comparison of degradation potentials of 1 chlorinated (a) and 39 aromatic compounds (b) predicted to be present in all samples (excluding outliers) (n = 33). Samples are grouped into four categories based on long-term dieldrin loss (%) where the loss is either below or above the median dieldrin loss in each soil type (Median loss was 43% and 72% in the Chromosol and Kurosol, respectively). Significances of global Kruskal-Wallis tests (top-left of each panel) and Wilcoxon tests (above each group) for each soil type are shown (ns > 0.05; * ≤ 0.05; ** ≤ 0.01; *** ≤ 0.001; **** ≤ 0.0001).", message=FALSE, warning=FALSE, echo=FALSE, fig.width=9, fig.asp = 0.45, cache = TRUE}
 
-fontsize = 10
-xticksize = 14
-ylabsize = 10
-
-physeq.pw.flt  <-   prune_samples(sample_data(physeq.pw)$Farm != "C", physeq.pw)
-physeq.pw.flt = filter_taxa(physeq.pw.flt , function(x) sum(x > 0) > (0.25*length(x)), TRUE)
-#replace pw numbers with common name
-#taxtable <- data.frame(`COMMON.NAME` = (tax_table(physeq.pw.flt)@.Data[,c("COMMON-NAME")]))
-#taxa_names(physeq.pw.flt) <- taxtable$COMMON.NAME
-
-x <- as.data.frame(t(otu_table(physeq.pw.flt))) 
-#TSS.divide = function(x){
-# x/sum(x)
-#  }
-#data.TSS = t(apply(x + 0.65, 1, TSS.divide))
-
-# Ratio ####
-TC <- sample_data(physeq.pw.flt) %>% data.frame %>% rownames_to_column("OTUID") %>% dplyr::select(OTUID, TC)
-# add to TSS
-x <- x %>% as.data.frame %>%  rownames_to_column("OTUID") %>% left_join(TC) %>% column_to_rownames("OTUID")
-#then devide by TC or Dieldrin and remove Dieldrin
-x.TC.ratio <- x %>% rownames_to_column("OTUID") %>% 
-  mutate_at(vars(- TC, - OTUID), ~ . / TC) %>% column_to_rownames("OTUID") %>% dplyr::select(-TC)
-
-x.TC.ratio <- log1p(x.TC.ratio)
-x.TC.ratio.phyl <- x.TC.ratio %>% t
-physeq.pw_TCratio <-phyloseq(otu_table(
-            x.TC.ratio.phyl, taxa_are_rows = T), 
-              tax_table(as.data.frame(pw.names) %>% as.matrix()),
-             sample_data(metadata2 ))
-
-physeq.pw.melt.TCratio <- psmelt(physeq.pw_TCratio)
-#physeq.pw.flt.log <- microbiome::transform(physeq.pw.flt, "log10")
-#physeq.pw.flt.rel <- microbiome::transform(physeq.pw.flt, "compositional")
-#physeq.pw.flt.clr <- microbiome::transform(physeq.pw.flt, "clr")
-
-
-#physeq.pw.melt <- psmelt(physeq.pw.flt)
-#physeq.pw.melt.log <- psmelt(physeq.pw.flt.log)
-#physeq.pw.melt.rel <- psmelt(physeq.pw.flt.rel)
-#physeq.pw.melt.clr <- psmelt(physeq.pw.flt.clr)
-
-# figure          
-my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-p1 <-physeq.pw.melt.TCratio  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", scales = "free", fill = "Soil", ylab = "log(MetaCyc pathway-to-total-carbon ratio)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(5.6)) + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw() + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025")) + theme(axis.text.x = element_text( size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-#All aromatic compound degradation pathways
-p2 <- physeq.pw.melt.TCratio %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", scales = "free", fill = "Soil", ylab = "log(MetaCyc pathway-to-total-carbon ratio)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif", label.y = c(8.5)) + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw() + scale_x_discrete( labels=c("\u2264\u0034\u0033\u0025", ">43%", "<72%", "\u2265\u0037\u0032\u0025"))+ theme(axis.text.x = element_text(  size=xticksize),  axis.text.y = element_text(size=ylabsize), axis.title.x = element_text(size=xticksize), axis.title.y = element_text(size=ylabsize), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-#p3 <- physeq.pw.melt.TCratio %>% filter(str_detect(tolower(COMMON.NAME), pattern = "superpathway of methylglyoxal degradation")) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", facet.by = "CLASS1", fill = "Soil", ylab = "Metacyc pathway-to-total-carbon ratio (clr)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons)
-
-#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-#p3 <- physeq.pw.melt.log  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "log(total abundance)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
-
-#All aromatic compound degradation pathways
-#p4 <- physeq.pw.melt.log %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "log(total abundance)", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
-
-
-#my_comparisons <- list( c("<=43%", ">43%"), c("<72%", ">=72%") )
-#p5 <- physeq.pw.melt.rel  %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") ) %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Relative Abundances", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif") + scale_fill_grey(start = 0.35, end = 0.9) + ggtitle("Chlorosalicylate Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
-
-#All aromatic compound degradation pathways
-#p6 <- physeq.pw.melt.rel %>% filter(CLASS1 == "Aromatic-Compounds-Degradation") %>% filter(Abundance != 0) %>% ggboxplot(., x = "Dloss_fct2", y = "Abundance", add = c("jitter"), scales = "free", fill = "Soil", ylab = "Relative Abundances", xlab = "Dieldrin loss", nrow = 10, ncol = 4) + stat_compare_means( method = "kruskal",label = "p.signif") + stat_compare_means(comparisons = my_comparisons,label = "p.signif")  + scale_fill_grey(start = 0.35, end = 0.9)  + ggtitle("Aromatic Compounds Degradation") +  theme(plot.title = element_text(size = fontsize)) + theme_bw()
-
-ggarrange(p1,p2, nrow =1 ,ncol = 2, widths = c(0.5,0.5), common.legend = TRUE, labels = "auto")
-#ggarrange(p1,p2, p3, p4, p5, p6, nrow =3 ,ncol = 2, widths = c(0.5,0.5), common.legend = TRUE, labels = "auto")
-
-#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_xenocomp.pdf",height=4.5, width=8, units='in', dpi=600, device = cairo_pdf)
-#ggsave("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Results_comments_tables/graph_xenocomp2.pdf",height=11, width=8, units='in', dpi=600)
-
-#physeq.pw.melt <- psmelt(physeq.pw)
-# wilcoxon test
-#physeq.pw.melt.TCratio %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl") | str_detect(tolower(COMMON.NAME), pattern =  "benze") ) %>% filter(Abundance != 0) %>%  ggpubr::compare_means(Abundance ~ Soil, data = ., group.by = "COMMON.NAME", method = "wilcox.test", paired = FALSE, symnum.args = list(), p.adjust.method = "holm") %>% as.data.frame() %>% dplyr::filter(p.adj <= 1)
-
-# having some looksies
-#looksiedf <- unique (  (physeq.pw.melt %>% filter(CLASS1 == "Aromatic-Compounds-Degradation")) %>% dplyr::select(COMMON.NAME) )
-#unique( physeq.pw.melt %>% filter( str_detect(tolower(COMMON.NAME), pattern =  "chloros") | str_detect(tolower(COMMON.NAME), pattern =  "superpathway of aerobic toluene") | str_detect(tolower(COMMON.NAME), pattern =  "biphenyl"))  %>% dplyr::select(COMMON.NAME) )
-
-# metacyc chlorinated compound degradation pathways
-# "2-chloroacrylate", tetrachloroethene degradation, pentachlorophenol degradation, γ-hexachlorocyclohexane degradation, 1,4-dichlorobenzene degradation pathway, 1,2-dichloroethane degradation pathway 2,4,6-trichlorophenol degradation, toluene degradation to 2-hydroxypentadienoate (via 4-methylcatechol), 3,4,6-trichlorocatechol degradation, 4,5-dichlorocatechol degradation, pentachlorophenol degradation, 4-chloronitrobenzene degradation, ethene and chloroethene degradation
-```
-
-<br/>
 
 ## Sparse partial least squares regression
 ```{r kable1, message=FALSE, warning=FALSE, echo=FALSE, cache = TRUE }

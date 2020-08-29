@@ -20,6 +20,9 @@ link-citations: yes
 ---
 
 ```{r tablerdakurosol, message=FALSE, warning=FALSE, echo=FALSE}
+
+
+
 #Table
 
 #kable(testrdadf %>% dplyr::select(-Group),  format = "html", caption = "Results of separate ANOVA like permutation tests for each constraining variable using 999 permutation of a pseudoF statistic.", digits = 2 ) %>% kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 ) %>%  pack_rows("Bacteria", start_row = 1, end_row = 4) %>% pack_rows("Fungi", 5, 8) %>% pack_rows("Enzyme-encoding genes", 9, 12) 
